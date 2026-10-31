@@ -671,6 +671,31 @@ def test_the_launch_table_needs_the_key_lines_the_six_cells_by_name_and_one_row_
     assert status == "FAIL" and "judge" in detail
 
 
+def test_a_critic_with_no_planner_fails_the_launch_since_nobody_answers_its_findings(tmp_path):
+    """2026-10-31: a project's manager chat launched a critic, two builders and a verifier on a plan a harness stage had
+    written; the critic's findings had no planner to answer them, the builders waited and the manager wrote the answers
+    itself, a role's work. Every role of a run is in the table from the start."""
+    r = Run(tmp_path)
+    config = json.loads(r.config.read_text(encoding="utf-8"))
+    config["agents"]["critic"] = {**config["agents"]["planner"], "settings": "_control/critic-settings.json"}
+    del config["agents"]["planner"]
+    r.write_json(r.config, config)
+    (r.control / "critic-settings.json").write_text(r.planner_settings.read_text(encoding="utf-8"), encoding="utf-8")
+    planner_row = re.search(r"(?m)^\| planner .*\n", LAUNCH).group(0)
+    critic_row = "| critic | a | attacks the plan | `_control/critic-settings.json` | - | - | $5 |\n"
+
+    def launch(text):  # `launch_with` checks the planner, which this run does not have
+        (r.run / "_launch.md").write_text(text, encoding="utf-8")
+        return found(preflight(*r.args("--roles", "critic", "--no-sim"), env=r.env), "launch")
+
+    [(status, detail)] = launch(LAUNCH.replace(planner_row, critic_row))
+    assert status == "FAIL" and "a critic with no planner" in detail, detail
+    config["agents"]["planner"] = {**config["agents"]["critic"], "settings": "_control/planner-settings.json"}
+    r.write_json(r.config, config)
+    [(status, detail)] = launch(LAUNCH.replace(planner_row, planner_row + critic_row))
+    assert status == "PASS", detail
+
+
 # V3 (10.16): the dollars per unit do not stand for the fresh sessions per unit.
 def test_the_estimate_line_needs_the_fresh_sessions_per_unit_and_the_example_asks_for_them(tmp_path):
     r = Run(tmp_path)

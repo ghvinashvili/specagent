@@ -14,7 +14,8 @@ These apply to the planner and the builders, in addition to your assignment.
    code and its tests.
 3. When you answer findings (the planner the critic's, the builder the verifier's) and two or more share
    a cause, add that cause as a one-line rule under "Lessons from this run" in `lessons.md`, with the finding ids, and
-   apply it to every later task. Grep `lessons.md` for today's date before each task for lines added since you read it.
+   apply it to every later task (step 2 of the ladder in the pipeline skill's `SKILL.md`, "Briefs"). Grep `lessons.md`
+   for today's date before each task for lines added since you read it.
 4. Read late and narrow. Open a file only when the step you are on needs it, by line ranges (`sed -n`, `grep -n`,
    `cut -c1-300`, `head`), never whole: what you read stays in the context and is re-read by every later call of the
    session, so a read costs its size times the calls that follow it (measured 2026-10-22: 84% of a session's growth is

@@ -42,7 +42,10 @@ The manager fills `<run-dir>/_launch.md` from `example/launch.md`: the lines `Pu
 from, its cost per session and its start-up read in tokens from `startup_report.py`; dollars per unit), `Budget:` and
 `Usage:`, and one table row per agent of every `_control/_agents*.json`,
 named in its `role` cell as the config names it (`<project>/planner`), with its lane, settings file, skills, ECC texts
-and cost estimate. The owner's yes rests on a measured price, not a guess (the ingest run cost $43.01 against $15-25).
+and cost estimate. The table holds every role of the run from the start: a critic needs a planner to answer its
+findings, and the `launch` check refuses a critic with no planner (`PAIRS` in `preflight.py`; 2026-10-31, a run launched
+without one left the manager answering the critic). The owner's yes rests on a measured price, not a guess (the ingest
+run cost $43.01 against $15-25).
 The table counts every session the run will start, fresh sessions per milestone and the final judge included. It goes
 to the owner in one message, which alone names the models (they never go in a file the roles read). Each yes is
 appended as

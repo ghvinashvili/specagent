@@ -93,8 +93,39 @@ All notable changes are recorded here, grouped by release, generated from Conven
   third step: a rule broken a second time becomes a check in code).
 - Version 1.7.0 of the template (`docs/template/VERSION`) with its entry in `docs/template/MIGRATIONS.md`, and roles
   1.16.0 (`docs/roles/CHANGELOG.md`).
+- The template carries the global rules (owner, 2026-10-31; `specs/006-global-decisions/spec.md`): a global page is a
+  lesson (a proof page under `context/` is mandatory) or an order (the owner's standing decision on how the work is
+  done: no proof, a `review:` date one year on, never deleted for lack of a proof). `ops/sync-vault-globals.py --vault
+  <path>` copies into `templates/vault/decisions/global/` every page of the vault's `decisions/global/` that says
+  `template: yes` and is an order, or a lesson whose proof page exists, with the measurement pages they cite and their
+  lines under `## Decisions (global)` of `templates/vault/INDEX.md`; it drops from a closing `Related:` paragraph the
+  entries whose page does not travel, and refuses, without writing it, a page that holds a Georgian letter, a model
+  name, an owner marker or anything the form's `ops/check_pages.py` refuses (it never writes the vault). Its first run
+  carried 30 pages (3 lessons, 27 orders), refused 19 with their reasons and skipped 12 (`template: no`);
+  `ops/new-vault.py` copies `templates/vault/` whole, so a new vault starts with them
+  (`ops/tests/test_sync_vault_globals.py`, `ops/tests/test_new_vault.py`).
+- `templates/vault/ops/check_pages.py` refuses a global page without `kind: lesson` or `kind: order`, a lesson without an
+  existing proof page under `context/`, an order without `review:`, a quoted text of the owner (a quote with a Georgian
+  letter, or whose words are mostly not English), a Georgian letter in a global page, a global page or a candidate over
+  4,000 bytes (the manager's lessons page: under 8,000, the limit its form states) and a candidate in
+  `context/candidates/` past its `review:` date (`ops/tests/test_check_pages.py`: a test per refusal).
+- The way in and out of a global page is the manager's end-of-run routine, next to the measurement page
+  (`docs/roles/manager-chat.md`, "## After a run"): the main session proposes a rule with its proof page, the page
+  enters on the owner's yes, and it is marked `withdrawn` with the record's path when a run's verifier records its
+  `would_change_if` case.
+- Every template change carries its migration line (owner, 2026-10-31): `docs/template/MIGRATIONS.md` keeps an
+  `## Unreleased` entry above the versions, and `ops/tests/test_migrations_entry.py` (run by `uv run pytest -q`) fails
+  when a path changed since the last release is not named in the newest entry, and when a commit changes a
+  template-owned path and adds no line to it.
+- Version 1.8.0 of the template (`docs/template/VERSION`) with its entry in `docs/template/MIGRATIONS.md`, and roles
+  1.17.0 (`docs/roles/CHANGELOG.md`).
 
 ### Changed
+- The lessons loop is a ladder written once (owner, 2026-10-31): in the pipeline skill's `SKILL.md` ("Briefs") a finding
+  is recorded in the run, a cause shared by two findings becomes a rule in the run's `lessons.md`, a cause found in two
+  runs becomes a rule where its reader is, a rule broken a second time becomes a check in code, and the proof exists
+  before a rule cites it; `docs/roles/manager-chat.md`, `templates/vault/rules.md` and the skill's `example/` and
+  `references/` point to it.
 - The template is named SpecAgent, one word, read as "special agent" (owner, 2026-10-30;
   `wiki/decisions/the-template-is-named-specagent.md`): the README title, the line `ops/new-project.py` prints, the
   description in `docs/template/DESCRIPTION.txt` and every text that gave the old name AFTPro say SpecAgent; the

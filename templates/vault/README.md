@@ -9,7 +9,7 @@ your pages by that id, never by a name.
 INDEX.md                 start here: one line per page, grouped; never scan the directory
 rules.md                 how pages are written (one page per decision, sources named, nothing silently rewritten)
 log.md                   one line per change of the compiled pages
-decisions/global/        your rules and decisions that apply to every project, one per page
+decisions/global/        the template's rules and yours that apply to every project, one per page
 decisions/<domain>/      rules for every project of one domain (`scope: <domain>`), one per page
 concepts/                process knowledge: how pipelines run, what was measured, what failed and why
 entities/                one page per project (with the path of its own wiki)

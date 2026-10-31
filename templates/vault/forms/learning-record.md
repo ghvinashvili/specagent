@@ -9,9 +9,11 @@ One lesson as a record, in the shape of ECC's instinct model without its hooks. 
 - confidence: <0.3 to 0.9> (0.3 for one sighting, raised as it recurs or is measured)
 - scope: run | project | global (the run's `lessons.md`, the project's `wiki/decisions/`, the vault's `decisions/global/`)
 
-Promotion, by hand: a record whose trigger recurs in two runs or two projects, or a cause shared by two findings,
-becomes a rule, a decision page (`wiki/decisions/` for a project, `decisions/global/` for all) and one line in the
-skill or the brief template. Two findings share a cause when they cite the same checklist item;
+Promotion, by hand (the ladder in the pipeline skill's `SKILL.md`, "Briefs"): a cause shared by two findings becomes a
+one-line rule under "Lessons from this run"; a record whose trigger recurs in two runs or two projects becomes a rule
+where its reader is: a decision page (`wiki/decisions/` for a project; `decisions/global/` for all, only with its proof
+page and the owner's yes, see `rules.md`) or a line in the skill or the brief template. Two findings share a cause when
+they cite the same checklist item;
 `python3 -I <skill>/scripts/manager/measure_manager.py checklist <run>/critique.md <run>/verify.md` lists the items
 by the number of findings citing them, highest first. Before a run's "Read first" is compacted, `audit_read_first.py`
 shows what would be lost; a finding with a read-only command becomes an eval case by `replay_cases.py`.

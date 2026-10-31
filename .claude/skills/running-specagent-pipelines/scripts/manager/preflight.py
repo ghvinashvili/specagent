@@ -55,6 +55,9 @@ ESTIMATE = (
     ("start-up read", r"\bstart-up read \d[\d.]*k tokens\b"),  # lessons.md: startup_report.py's median, measured
 )
 CELLS = ("role", "lane", "settings", "skills", "ECC texts", "cost estimate")
+# a role whose work another role answers: the table holds both from the start, or the manager ends up doing the
+# missing role's work itself (2026-10-31: a critic launched with no planner; the manager wrote the answers)
+PAIRS = (("critic", "planner", "nobody answers its findings, and the manager never does"),)
 YES = re.compile(r"(?m)^Yes: (\d{4}-\d\d-\d\dT\d\d:\d\dZ) — (.*)$")
 MINUTE = "%Y-%m-%dT%H:%MZ"
 SCRIPT_TIMEOUT = 120  # seconds, for the probe and each script the pre-flight runs
@@ -468,7 +471,17 @@ def table_problems(st: State, text: str) -> list[str]:
             problems.append(f"{role} is not an agent of _control/_agents*.json")
         elif settings != agents[role]:
             problems.append(f"{role}: settings {settings} is not {agents[role]}")
-    return problems
+    return problems + pair_problems(list(named))
+
+
+def role_kind(role: str) -> str:
+    """`<project>/builder-a` -> `builder`; `<project>/plan-fixer` -> `plan`."""
+    return role.rsplit("/", 1)[-1].split("-")[0]
+
+
+def pair_problems(roles: list[str]) -> list[str]:
+    kinds = {role_kind(r) for r in roles}
+    return [f"a {a} with no {b}: {why}" for a, b, why in PAIRS if a in kinds and b not in kinds]
 
 
 def yes_problems(st: State, text: str) -> list[str]:

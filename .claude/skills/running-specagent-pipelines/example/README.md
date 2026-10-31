@@ -37,8 +37,8 @@ is open.
 ## Files
 - `common.md`: the brief every role reads first (language, places, owner decisions, proof rule, messages, waiting,
   shell commands, context).
-- `first-pass-rules.md`: facts from installed code and official pages, the check against the error classes, the
-  lessons loop, read late and narrow.
+- `first-pass-rules.md`: facts from installed code and official pages, the check against the error classes, the rule
+  for a shared cause (step 2 of the ladder in `SKILL.md`), read late and narrow.
 - `handoff-rule.md`: one unit of work per session, the cap, and the hand-over note's shape.
 - `lessons.md`: "Read first", the known error classes, and an empty "Lessons from this run" that the agents fill.
 - `sim_bwrap.py`: builds a bwrap in the order Claude Code mounts a role's sandbox and runs a probe in it, so a settings

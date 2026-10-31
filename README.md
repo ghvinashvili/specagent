@@ -44,6 +44,17 @@ task and collect the result. SpecAgent adds the whole loop around full sessions,
   cost ([scripts]).
 - **A private vault per user; a page goes to a public commons only past checks in code** (`ops/contribute.py`; the
   commons repository itself is not built yet, [decision][kb]).
+- **A new project starts with the rules already learned:** `ops/new-vault.py` seeds its vault with the template's
+  global pages (30 at 1.8.0: 27 standing orders and 3 lessons, each lesson with its proof page; 4 measurement pages),
+  carried from the owner's vault by `ops/sync-vault-globals.py`, which refuses a page with a model name, a private
+  marker, a dangling link or more than 4,000 bytes (`ops/check_pages.py`; [migrations](docs/template/MIGRATIONS.md)).
+- **A project updates by copying, not by a run:** from 1.8.0 a migration entry names every template-owned path that
+  changed (a test fails when a commit leaves one out) and its steps are the copy and the checks, no hand-merge, no
+  role. The 1.7.0 carry of a project was a run of 10 sessions, $30.60 and 1 h 41 min; the 1.8.0 carry is a copy.
+- **The manager chat is held to rules in code and in its page:** a project's work runs through the pipeline skill, never
+  through stage runs by default; the pre-flight refuses a critic with no planner to answer it; the manager does no
+  role's work and writes to you only for a decision, a problem or a milestone
+  ([page](docs/roles/manager-chat.md), `ops/tests/test_pipeline_choice.py`).
 - **Roles are blind to models and authors:** their settings and sandbox deny the transcripts, the control files, the
   hand-over notes and `/proc` ([decision](wiki/decisions/roles-are-blind-to-models-and-authors.md)).
 - **The sandbox sets itself up,** one password per machine at most

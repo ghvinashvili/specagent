@@ -85,6 +85,7 @@ One trigger, one action (a pipeline or a command), one state file, one gate. `co
 | Context rot | state is on disk; no session lives across iterations |
 
 Lessons are not kept in loop state. A lesson becomes a rule, a skill line or an eval case through the learning loop.
+Where a rule lives, by who must obey it, is the ladder in the pipeline skill's `SKILL.md` ("Briefs").
 
 ## Triggers
 

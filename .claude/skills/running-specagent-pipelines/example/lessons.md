@@ -1,9 +1,8 @@
 # Lessons: read "Read first" once at your start (planner and builders; the critic and verifier grep it on need)
 
-The lessons loop has three steps: a finding is recorded where it was made; a cause shared by two or more findings
-becomes a one-line rule under "Lessons from this run"; a rule broken a second time becomes a check in code (a hook, a
-script the watcher or the records monitor runs, a `check_formats.py` or `harness validate` rule, a test), so that
-holding it no longer depends on a session reading it.
+A role's part of the ladder: a finding is recorded where it was made; a cause shared by two or more findings becomes a
+one-line rule under "Lessons from this run". The main session takes the rest (the ladder in the pipeline skill's
+`SKILL.md`, "Briefs").
 
 ## Read first (main session, 2026-10-28)
 1. Reading rule. `lessons.md` once per session, this section only; the record files (`critique.md`,

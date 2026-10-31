@@ -3,6 +3,24 @@
 Versions of the harness instruction set: role types, skills, rules, hooks, settings, stage tables and templates.
 The product changelog is `CHANGELOG.md` in the repository root. Newest first; one heading per version.
 
+## 1.17.0
+The spec 006 run (`specs/006-global-decisions/spec.md`).
+- Skill: `SKILL.md` ("## Briefs") holds the ladder once: a finding is recorded in the run; a cause shared by two
+  findings becomes a rule in the run's `lessons.md`; a cause found in two runs becomes a rule where its reader is (the
+  vault's global decisions and the manager's lessons for the main session, the skill's `example/lessons.md` and
+  `first-pass-rules.md` for a role session); a rule broken a second time becomes a check in code; the proof exists
+  before a rule cites it. `example/README.md`, `example/lessons.md`, `example/first-pass-rules.md` (rule 3) and
+  `references/measuring.md` point to it.
+- Templates: `templates/vault/rules.md` and `templates/vault/ops/check_pages.py` make a global page a lesson (a proof
+  page under `context/` is mandatory) or an order (the standing decision on how the work is done: no proof, a `review:`
+  date one year on); `check_pages.py` refuses a page without a kind, a lesson without an existing proof page, an order
+  without `review:`, a quoted text of the owner, a Georgian letter in a global page, a global page or a candidate over
+  4,000 bytes (the manager's lessons page: under 8,000) and a candidate past its review date. The forms
+  `learning-record.md` and `manager-lessons.md` follow the ladder and carry a kind and a proof.
+- Manager's documents: `docs/roles/manager-chat.md` ("## After a run") carries the way in and out of a global page next
+  to the measurement page: the main session proposes a rule with its proof page, the page enters on the owner's yes,
+  and it is marked `withdrawn` when a verifier records its `would_change_if` case.
+
 ## 1.16.0
 The spec 005 run (`specs/005-spec-writer-rule/spec.md`, `wiki/decisions/spec-writer-writes-the-skeleton.md`).
 - Role types: the spec writer writes the skeleton, `output/spec.md` of about one page (intent, requirements, limits,

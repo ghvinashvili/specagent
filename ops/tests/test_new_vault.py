@@ -1,6 +1,7 @@
 """The vault form and ops/new-vault.py (spec 11.1 and 11.3; wiki/decisions/the-shared-knowledge-base.md): every user of
 the template gets a vault of their own, made from templates/vault/ with an opaque origin id, one commit and the commons
-named; ops/new-project.py makes it for a `vault_path` without an INDEX.md; the form holds nothing of the owner's vault."""
+named; ops/new-project.py makes it for a `vault_path` without an INDEX.md; the form holds the global pages that
+ops/sync-vault-globals.py carried into it (spec 006, R5) and nothing of the owner's vault."""
 
 from __future__ import annotations
 
@@ -29,6 +30,11 @@ FORM_FILES = (
     "ops/memory-topics.json",
     *(f"ops/{name}" for name in SCRIPTS),
 )
+# what ops/sync-vault-globals.py carried into the form (spec 006, R5): the global pages, the measurement pages that
+# prove them, and the documents of context/ that ops/build_indexes.py lists
+GLOBAL_PAGES = sorted((FORM / "decisions" / "global").glob("*.md"))
+MEASUREMENT_PAGES = sorted((FORM / "context" / "measurements").glob("*.md"))
+CONTEXT_DOCUMENTS = [p for p in (FORM / "context").rglob("*") if p.is_file() and not p.name.startswith(".")]
 # the owner's own vault: its projects, its domain, its folders, its guide, its home folder and its account
 OWNER = re.compile(
     r"(?i)trading|brooks|grantsdaily|gexhex|spoofing|zerogamma|design-record|structure-handoff|README\.ka|\btite\b"
@@ -51,6 +57,11 @@ would_change_if: a tasting that finds no difference
 ---
 # Salt late
 """
+
+
+def LESSON_KIND(page: str) -> str:
+    """A global page names its kind (spec 006): the fixture is a lesson."""
+    return page.replace("decision_status: decided\n", "decision_status: decided\nkind: lesson\n")
 
 
 def git_env() -> dict[str, str]:
@@ -88,6 +99,19 @@ def section(text: str, heading: str) -> str:
     start = lines.index(heading)
     end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
     return "\n".join(lines[start + 1 : end])
+
+
+def closing_line(output: str) -> str:
+    """The last line of a script's output, e.g. `30 pages checked, 0 problems` (a substring test would take
+    `30 pages checked` for `0 pages checked`)."""
+    return output.strip().splitlines()[-1]
+
+
+def frontmatter(path: Path) -> dict[str, str]:
+    """The `key: value` lines between the first two `---` lines of a page, values as written (YAML would read
+    `template: yes` as a boolean)."""
+    head = path.read_text(encoding="utf-8").split("\n---\n", 1)[0].removeprefix("---\n")
+    return {m.group(1): m.group(2) for m in re.finditer(r"(?m)^([a-z_]+): (.*)$", head)}
 
 
 def test_a_new_vault_is_the_form_with_an_origin_id_one_commit_and_the_commons_named(tmp_path: Path):
@@ -137,10 +161,14 @@ def test_the_fresh_vault_passes_its_own_checks_and_builds_its_indexes(tmp_path: 
     vault = tmp_path / "notes"
     assert run(str(SCRIPT), str(vault)).returncode == 0
     check = run("ops/check_pages.py", cwd=vault)
-    assert check.returncode == 0 and "0 pages checked, 0 problems" in check.stdout, check.stdout
+    assert GLOBAL_PAGES, "the template carries global pages (spec 006, R5)"
+    assert check.returncode == 0 and closing_line(check.stdout) == f"{len(GLOBAL_PAGES)} pages checked, 0 problems", (
+        check.stdout
+    )
     assert run("ops/split_large.py", "--dry-run", cwd=vault).returncode == 0
     built = run("ops/build_indexes.py", cwd=vault)
-    assert built.returncode == 0 and built.stdout.startswith("0 documents"), built.stdout + built.stderr
+    assert built.returncode == 0, built.stdout + built.stderr
+    assert built.stdout.startswith(f"{len(CONTEXT_DOCUMENTS)} documents in "), built.stdout + built.stderr
     assert not [p for p in (vault / "context" / "_index").glob("*.md") if ".gitkeep" in p.read_text(encoding="utf-8")]
     assert run("ops/outline.py", "rules.md", cwd=vault).returncode == 0
 
@@ -170,7 +198,7 @@ def test_a_global_decision_names_an_existing_proof_page_under_context(tmp_path: 
     index.write_text(
         index.read_text(encoding="utf-8") + "- [salt-late](decisions/global/salt-late.md): late\n", encoding="utf-8"
     )
-    today = DOMAIN_PAGE.replace("2026-10-29", "2026-10-31").format(scope="global")
+    today = LESSON_KIND(DOMAIN_PAGE.replace("2026-10-29", "2026-10-31").format(scope="global"))
     page.write_text(today, encoding="utf-8")
     check = run(str(vault / "ops" / "check_pages.py"), str(vault))
     assert check.returncode == 1 and "names its proof" in check.stdout, check.stdout
@@ -184,9 +212,39 @@ def test_a_global_decision_names_an_existing_proof_page_under_context(tmp_path: 
     (vault / "context" / "measurements" / "2026-10-31-salt.md").write_text("# Salt, measured twice\n", encoding="utf-8")
     check = run(str(vault / "ops" / "check_pages.py"), str(vault))
     assert check.returncode == 0, check.stdout
-    old = DOMAIN_PAGE.format(scope="global")  # decided before the rule: no proof asked
+    old = LESSON_KIND(DOMAIN_PAGE.format(scope="global"))  # decided before the rule: its proof is asked all the same
     page.write_text(old, encoding="utf-8")
-    assert run(str(vault / "ops" / "check_pages.py"), str(vault)).returncode == 0
+    check = run(str(vault / "ops" / "check_pages.py"), str(vault))
+    assert check.returncode == 1 and "names its proof" in check.stdout, check.stdout
+
+
+def test_a_page_copied_from_the_manager_lessons_form_passes_the_check_once_its_proof_is_set(tmp_path: Path):
+    # The form is a global lesson (spec 006): it names `kind: lesson` and a `proof:`, so the page copied from it is
+    # refused while the proof is a placeholder and passes when the copy sentence of the form has been followed.
+    vault = tmp_path / "notes"
+    assert run(str(SCRIPT), str(vault)).returncode == 0
+    form = (vault / "forms" / "manager-lessons.md").read_text(encoding="utf-8")
+    assert "\nkind: lesson\n" in form and "\nproof: [context/measurements/" in form
+    page = vault / "decisions" / "global" / "manager-lessons.md"
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text(form, encoding="utf-8")
+    index = vault / "INDEX.md"
+    index.write_text(
+        index.read_text(encoding="utf-8") + "- [manager-lessons](decisions/global/manager-lessons.md): own mistakes\n",
+        encoding="utf-8",
+    )
+    statements = vault / "context" / "owner-statements"
+    statements.mkdir(parents=True, exist_ok=True)
+    (statements / "2026-10-31.md").write_text("# 2026-10-31\n", encoding="utf-8")
+    check = run(str(vault / "ops" / "check_pages.py"), str(vault))
+    assert check.returncode == 1 and "proof `context/measurements/" in check.stdout, check.stdout
+    measurements = vault / "context" / "measurements"
+    measurements.mkdir(parents=True, exist_ok=True)
+    (measurements / "2026-10-31-demo.md").write_text("# Demo run, measured\n", encoding="utf-8")
+    page.write_text(form.replace("YYYY-MM-DD-<run>", "2026-10-31-demo").replace("YYYY-MM-DD", "2026-10-31"), "utf-8")
+    check = run(str(vault / "ops" / "check_pages.py"), str(vault))
+    expected = f"{len(GLOBAL_PAGES) + 1} pages checked, 0 problems"  # the carried pages and the page of the form
+    assert check.returncode == 0 and closing_line(check.stdout) == expected, check.stdout
 
 
 def test_the_form_holds_nothing_of_the_owners_vault():
@@ -197,7 +255,26 @@ def test_the_form_holds_nothing_of_the_owners_vault():
         assert not GEORGIAN.search(text), path
     topics = json.loads((FORM / "ops" / "memory-topics.json").read_text(encoding="utf-8"))
     assert topics["topics"] == {} and topics["files"] == {}
-    assert not [p for p in FORM.rglob("*.md") if p.parent.name in ("global", "concepts")]
+    assert not list(FORM.rglob("concepts/*.md"))
+    for page in GLOBAL_PAGES:  # what the template carries is meant for every project and names its kind (spec 006)
+        meta = frontmatter(page)
+        assert meta.get("template") == "yes" and meta.get("kind") in ("lesson", "order"), page.name
+        assert meta.get("scope") == "global" and meta.get("decision_status") != "withdrawn", page.name
+
+
+def test_a_fresh_vault_holds_every_carried_page_byte_for_byte_and_its_index_line(tmp_path: Path):
+    # R5: ops/new-vault.py copies templates/vault whole, so the pages and the INDEX lines the sync wrote come with it.
+    vault = tmp_path / "notes"
+    assert run(str(SCRIPT), str(vault)).returncode == 0
+    assert GLOBAL_PAGES and MEASUREMENT_PAGES
+    for page in [*GLOBAL_PAGES, *MEASUREMENT_PAGES]:
+        assert (vault / page.relative_to(FORM)).read_bytes() == page.read_bytes(), page.name
+    listed = section((vault / "INDEX.md").read_text(encoding="utf-8"), "## Decisions (global)")
+    entries = [ln for ln in listed.splitlines() if ln.strip()]
+    for page in GLOBAL_PAGES:
+        mine = [ln for ln in entries if ln.startswith(f"- [{page.stem}](decisions/global/{page.name}): ")]
+        assert len(mine) == 1 and len(mine[0].split(": ", 1)[1].strip()) > 0, page.name
+    assert len(entries) == len(GLOBAL_PAGES), "one INDEX line per carried page, and no other line in the section"
 
 
 def test_commons_path_follows_vault_path_and_claude_md_names_the_commons():

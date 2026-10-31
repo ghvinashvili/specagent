@@ -47,6 +47,11 @@ through the claude-obsidian plugin (text into `.raw/captured/`, claims into `wik
 `CLAUDE_OBSIDIAN_SESSION_CONTEXT=1` in `.claude/settings.json` the plugin injects `wiki/hot.md` into every later session
 ([decision](../wiki/decisions/the-checkout-is-a-claude-obsidian-vault.md)).
 
+A rule for every project joins your vault's `decisions/global/` as a lesson, only with its proof page and your yes,
+or as an order (your standing decision on how the work is done), with your word and a `review:` date and no proof.
+A page leaves it, marked `withdrawn`, when a run's verifier records the case its `would_change_if` names
+([the routine](roles/manager-chat.md), "After a run").
+
 ## The collector
 
 `scripts/collect_run.py` removes what the run leaves behind; the main session runs it, never a role ([its

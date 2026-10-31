@@ -3,7 +3,8 @@
 @AGENTS.md
 
 ## Map
-- The harness (`packages/harness`): a manager session launches role sessions stage by stage. Read `ARCHITECTURE.md` first, then `docs/llms.txt` for everything else.
+- Work here is a pipeline run: the manager chat (`docs/roles/manager-chat.md`) starts roles with `.claude/skills/running-specagent-pipelines/`, one table, one yes; no harness stages unless the owner names a harness run.
+- The harness (`packages/harness`): the stage runner of a harness run. Read `ARCHITECTURE.md`, then `docs/llms.txt`.
 - Role types `.claude/agents/<type>.md`, contracts `docs/roles/types/`; stages `docs/roles/stages.yaml`; the manager `docs/roles/MANAGER.md`
 - A stage's assignment: `templates/stage-assignment.md`, stored in `<runs root>/<run-id>/assignments/`
 - Run state: `<runs root>/<run-id>/`, the root printed by `uv run harness runs-root` ([layout](docs/roles/RUNS.md))
@@ -14,7 +15,7 @@
 ## Commands
 - `just test [<package>]`, `just lint`, `just fmt`, `just catalog` (regenerates `docs/generated/role-types.md`)
 - `just run <slug> <runs root>/_briefs/<slug>.md` starts a run from a confirmed brief; `just gate|approve <run-id> <stage>`; `just refreeze <run-id>`
-- Launch, resume and poll with `/run-stage`, `/resume-stage` or the exact `uv run harness launch|resume|poll|abort|integrate …`, never a `just` recipe ([why](docs/roles/MANAGER.md))
+- A harness run only: launch, resume and poll with `/run-stage`, `/resume-stage` or `uv run harness launch|resume|poll|abort|integrate …`, never a `just` recipe
 - `just graph` — rebuild the code graph (`bash ops/graph.sh`); its output is never committed
 
 ## Rules

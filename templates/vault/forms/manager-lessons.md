@@ -10,13 +10,16 @@ decided: YYYY-MM-DD
 by: owner
 why: the same management mistake never twice; every main session reads this page in its first calls
 decision_status: decided
+kind: lesson
+proof: [context/measurements/YYYY-MM-DD-<run>.md]
 would_change_if: three runs in a row end with no item fired again and no item added
 ---
 # Manager lessons
 
 The main session's own mistakes, each turned into a rule, read by every main session in its first calls. Copy this
-form once to `decisions/global/manager-lessons.md`, list it in `INDEX.md`, set the dates and `sources`, and keep one
-section per project under the global one. One item per mistake, appended the moment the mistake is found:
+form once to `decisions/global/manager-lessons.md`, list it in `INDEX.md`, set the dates, `sources` and `proof` (the
+run's measurement page that shows an item's cost), and keep one section per project under the global one. One item per
+mistake, appended the moment the mistake is found:
 
 `<n>. <trigger> -> <rule>; cost measured <cost>; <YYYY-MM-DD>, <record>`
 

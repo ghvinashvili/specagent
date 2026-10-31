@@ -27,8 +27,8 @@ sources: [context/...]   # or public URLs
 
 A decision page also carries `decided` (date), `by` (owner | main-session | <role>), `why`, `decision_status`
 (decided | revised | withdrawn), `would_change_if` (the evidence that would revise it), and `review` (a date) when
-it is doubtful. A global lesson decided from 2026-10-31 on also carries `proof: [context/<page>]`: the measurement page or
-the record of the found mistake that shows the rule right; `ops/check_pages.py` refuses a global page without an existing one.
+it is doubtful. A global lesson also carries `proof: [context/<page>]`: the measurement page or the record of the found
+mistake that shows the rule right; `ops/check_pages.py` refuses a lesson without an existing one, whatever its date.
 
 Sharing with the commons: a page of `decisions/global/` or `concepts/` may go to the public commons as a candidate,
 only with your yes, by `ops/contribute.py` of a project made from the template. It refuses, naming the class: a
@@ -59,8 +59,19 @@ without it the page waits in `context/candidates/` with a `review:` date and is 
 standing decision on how the work is done; no proof; never deleted for lack of one; `review:` one year on; changed only by
 the owner's word). A general order and a proven lesson carry `template: yes`, a personal order `template: no`; the template
 holds them in paths a project takes by copying, never by a hand-merge or a run.
+A global page and a candidate are each at most 4,000 bytes (a lesson or an order alike): one rule a page, short enough
+to be read whole; a longer text is shortened, or split into pages that each hold one rule. The one exception is the main
+session's lessons page, `decisions/global/manager-lessons.md`: it keeps the limit of its form, under 8,000 bytes.
+
+`python3 ops/check_pages.py` refuses, in a page of `decisions/global/`: no `kind:`, or one that is neither `lesson` nor
+`order`; a lesson whose `proof:` is missing or not an existing page under `context/`; an order without
+`review: YYYY-MM-DD`; a quoted text of the owner (a quote with a letter of a refused block, or whose words are mostly
+not English); a letter of a refused block anywhere in the page; a page over 4,000 bytes (the lessons page: 8,000 bytes
+or more). In `context/candidates/` it refuses a candidate without `review:`, past it, or over 4,000 bytes.
 
 The way in: the main session proposes the rule with its proof page (`proof:`), and the page enters `decisions/global/` on the
 owner's yes, never on the main session's own judgment. The way out: every page names in `would_change_if` the evidence that
 would revise it; when a run's verifier records such a case, the main session marks the page `withdrawn` with the
-record's path and tells the owner. So a wrong rule leaves by the same proof that lets a right one in.
+record's path and tells the owner. So a wrong rule leaves by the same proof that lets a right one in. Where a rule lives,
+by who must obey it, is the ladder written once in the pipeline skill's `SKILL.md` ("Briefs"); the manager's end-of-run
+routine (`docs/roles/manager-chat.md`, "After a run") carries these steps.

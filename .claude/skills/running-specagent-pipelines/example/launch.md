@@ -29,4 +29,4 @@ Usage: <the newest reading of _control/usage.json: each limit, its percentage, i
 The plan fixer's row is launched by the watcher on demand (`on_demand` in `_agents.json`), never at the start: the
 manager launches every other row.
 
-Yes: <YYYY-MM-DDTHH:MMZ> — <roles> — <what the owner approved>
+Yes: <YYYY-MM-DDTHH:MMZ> — <roles> — <what the owner approved, and one more session of a role when its queue grows>

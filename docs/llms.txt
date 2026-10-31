@@ -93,7 +93,7 @@
 - [Worktree conflict](runbooks/worktree-conflict.md): merging shard branches
 - [Usage limit](runbooks/usage-limit.md): waiting, recovery, when a human acts
 - [Template](template/PROJECTS.md): creating a project from this repository and receiving updates
-- [Vault form](../templates/vault/README.md): the private vault every user gets from ops/new-vault.py, and the public commons
+- [Vault form](../templates/vault/README.md): the private vault every user gets from ops/new-vault.py, seeded with the template's global rules (a lesson with its proof, or an order), and the public commons
 - [Template migrations](template/MIGRATIONS.md): steps per template version
 
 ## Optional

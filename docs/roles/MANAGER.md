@@ -9,7 +9,9 @@ manager's instruction lives in `.claude/agents/manager.md`.
   (budget in minutes per stage, which stages need approval). It writes these into
   `<runs root>/_briefs/<slug>.md` from `templates/project-brief.md` (the run directory does not exist yet);
   the human confirms the brief, then `harness run --slug <slug> --brief <runs root>/_briefs/<slug>.md`
-  creates the run and copies the brief to `<run-id>/brief.md`.
+  creates the run and copies the brief to `<run-id>/brief.md`. This is the harness's manager, for a harness run the
+  owner has named; a project's work runs through the pipeline skill and its manager chat (`docs/roles/manager-chat.md`),
+  never through these stages by default.
 - Answers to escalations, written into the escalation file (`answer` field) by the human or
   dictated to the manager, which writes them verbatim.
 - Approvals: "approve plan", "reject judge verdict", written to `state.json` through `harness approve`.

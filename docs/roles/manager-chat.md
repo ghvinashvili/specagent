@@ -6,6 +6,13 @@ background sessions with the owner's yes, keeps them moving, measures them and i
 learned. `docs/roles/MANAGER.md` is the harness's manager (`claude --agent manager`), a separate design for harness
 runs; this page is about the chat.
 
+A project's work runs through this page and the skill, never through the harness's stage runner: `harness launch`,
+`harness run` and `docs/roles/stages.yaml` serve a harness run only when the owner names one for that work (the owner,
+2026-10-29: the chat-agent pipeline stays, no folding into one loop). On 2026-10-31 a project's manager chat read the
+map line that named the harness first and ran a day's work stage by stage, the planner alone and the critic waiting,
+the form the owner had decided against; `CLAUDE.md` now names the skill first and `ops/tests/test_pipeline_choice.py`
+keeps it so. A manager chat's first reading is this page and the skill's `SKILL.md`.
+
 ## No sandbox, four guards
 
 Every role runs sandboxed and blind: it sees its brief, its worktree and the run folder. The manager runs without the
@@ -16,8 +23,14 @@ vault pushed. Four guards take the sandbox's place:
 1. The permission rules: never read the credentials under `~/.config`, never push the template.
 2. The auto-mode classifier: an irreversible deletion is refused and left to the owner.
 3. The owner's launch rule: agents and the judge start only with the owner's yes, asked in one message with their
-   count, purpose, settings files and estimated cost.
-4. It never runs project code or tests itself; the roles do, in their sandboxes.
+   count, purpose, settings files and estimated cost. The table holds every role of the run from the start, the planner
+   that answers the critic and the verifier that checks the builders included (the pre-flight refuses a critic with no
+   planner); a role found missing later is asked for in the turn the need is seen, in one line with its count. The
+   manager never says it waited for a yes it did not ask for.
+4. It never runs project code or tests itself; the roles do, in their sandboxes. Nor does it do a role's work: it never
+   answers a critic's finding, rewrites a plan or a task file, or builds in a role's place; what a missing role would do
+   waits for that role (2026-10-31: a manager chat with no planner in its run wrote the critic's answers itself, and the
+   builders stood for an hour).
 
 The template's project session keeps the sandbox on: the `sandbox` block of `.claude/settings.json` sets `enabled`
 true and `allowUnsandboxedCommands` false, and its `excludedCommands` are `claude *`, the `uv run harness` commands
@@ -46,8 +59,22 @@ During a run:
 - Orders: `scripts/watch_agents.py --order <agent> <text> <config>` prints `order <msg_id> <agent>` and the prompt
   the manager sends; the role answers `ACK <msg_id>` at a line start, and a missing ACK is resent by stop and resume.
 - The `Merged:` duties, each `Merged:` line with the merge's hex sha.
+- The queues: on every wake the manager reads each role's queue from the records (`check_formats.py --json`: open
+  ids per kind; waiter targets not reached). When a queue grows and the roles behind it stand idle, it starts one more
+  session of the role that is behind (the table's settings, a lane of its own) and stops it when the queue drains;
+  the launch's `Yes:` line covers "and one more session of a role when its queue grows", so the owner is not asked and
+  does not watch for it. Each addition and removal is a `MAIN:` line with the count that caused it. Never a role the
+  table does not have, and never the manager doing the role's work instead. Measured 2026-10-31: a critic wrote 154
+  findings in about 95 minutes (about 95 an hour), one plan fixer answered about 25 an hour, and the builders stood
+  idle 57 and 107 minutes: a queue over 10 open ids, or one that grew two wakes in a row, calls for one more session
+  at once. A builder waits only for its own task's findings and the shared ones, in its lane's build order, never for
+  another lane's tasks; the plan fixer is in the table from the start, not on demand.
 
 The owner's questions:
+- No message on a routine event: a verifier's pass, a builder's commit, a hand-over, an ACK, a re-armed watch. The
+  manager writes to the owner only for a decision the owner must make, a problem, or a milestone (a unit done, a run
+  done, a merge, a publish); a background wake ends with no text at all, not a status line, not a placeholder such as
+  "·" or "ok" (the owner, 2026-10-31, after nine status lines in forty minutes and three objections in a day).
 - A routine question is decided by the manager, with the assumption stated.
 - Only four kinds are asked, once, in one message with the sizes and the options: agent launches, destructive or
   irreversible actions, merges into `main`, and spending.
@@ -94,8 +121,9 @@ Then it restarts the watcher on `_agents.json`. No transcript is read back.
 
 `<vault>/decisions/global/manager-lessons.md`, pushed with the vault, holds the main session's own mistakes: the
 global items under `## All projects` and one section per project under it, copied once from
-`templates/vault/forms/manager-lessons.md`. Every main session reads it in its first calls. An item is appended the
-moment a mistake is found, with its measured cost and its record:
+`templates/vault/forms/manager-lessons.md`. It is a global lesson: `kind: lesson` and a `proof:` page under `context/`
+(the measurement page that shows an item's cost). Every main session reads it in its first calls. An item is appended
+the moment a mistake is found, with its measured cost and its record:
 `<n>. <trigger> -> <rule>; cost measured <cost>; <YYYY-MM-DD>, <record>`. The same mistake again appends a date and a
 record to its item; an item that fired in no run for three runs moves below the fold with its number. The page stays
 under 8,000 bytes, checked with `measure_manager.py lessons <page> --since <the run's first day>`. The first four items
@@ -106,18 +134,28 @@ session with their records.
 
 1. An owner decision goes as one line into `<vault>/context/owner-statements/<date>.md` in the same turn (the owner's
    words, the `date -u` time, the meaning in one sentence), committed before any page cites it.
-2. Then the page: global in `decisions/global/`, project in `wiki/decisions/`, with `decided`, `by`, `why` and
-   `would_change_if`, and one `INDEX.md` line.
+2. Then the page: global in `decisions/global/` (a neutral rule with its `kind:`, step 4), project in
+   `wiki/decisions/`, with `decided`, `by`, `why` and `would_change_if`, and one `INDEX.md` line.
 3. The measurement page before any summary cites a number; `ops/check_pages.py` after every vault write, with 0
    problems.
-4. One `log.md` line per unit of work.
-5. The learning loop: a lesson becomes a record in the form of `forms/learning-record.md`; a trigger that recurs in
-   two runs or two projects, or a cause two findings share
-   (`measure_manager.py checklist <run>/critique.md <run>/verify.md`), becomes a decision page and one line in the
-   skill or the brief template, by hand. `audit_read_first.py` runs before a "Read first" section is compacted, and
-   `replay_cases.py` turns a finding with a read-only command into an eval case. Roles write only `lessons.md` and
-   their record; the manager writes the pages.
-6. Then the collector: each item of `## Lessons from this run` is marked `(skill: <sha>)` or `(skill: none)`, and the
+4. The way in and out of a global page. The main session proposes a global rule to the owner with its proof page: the
+   measurement page of step 3, or the record of the found mistake. The page enters `decisions/global/` on the owner's
+   yes, never on the main session's own judgment. A lesson carries `kind: lesson` and `proof: [context/<page>]`; an
+   order (the owner's standing decision on how the work is done) carries `kind: order` and `review:` one year on, needs
+   no proof, and changes only by the owner's word. A rule that nothing proves yet waits in `context/candidates/` with a
+   `review:` date, is proposed again when a record or a measurement proves it, and is deleted past the date. When a
+   run's verifier records the case a page's `would_change_if` names, the main session marks the page `withdrawn` with
+   the record's path and tells the owner. `ops/check_pages.py` refuses a page that breaks this form
+   (`templates/vault/rules.md`).
+5. One `log.md` line per unit of work.
+6. The ladder, written once in the pipeline skill's `SKILL.md` ("Briefs"): a lesson becomes a record in the form of
+   `forms/learning-record.md`; the main session compares the run's causes
+   (`measure_manager.py checklist <run>/critique.md <run>/verify.md`) with the vault's pages and the other runs' records;
+   a cause found in two runs becomes a rule where its reader is, by hand; a rule broken a second time becomes a check in
+   code. `audit_read_first.py` runs before a "Read first" section is compacted, and `replay_cases.py` turns a finding
+   with a read-only command into an eval case. Roles write only `lessons.md` and their record; the manager writes the
+   pages.
+7. Then the collector: each item of `## Lessons from this run` is marked `(skill: <sha>)` or `(skill: none)`, and the
    `Merged:` records stay unmarked. Then
    `python3 -I <skill>/scripts/collect_run.py <run> --repo <checkout> --plan <plan folder> --kept <page> ...` runs as
    a dry run and its list goes to the owner; on the owner's yes the same command runs with `--apply --yes <digest>`;

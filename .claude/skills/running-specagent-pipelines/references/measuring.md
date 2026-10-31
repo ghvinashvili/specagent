@@ -73,3 +73,5 @@ the ones above, run in this order:
 9. A page that cites an owner statement was written after it: compare the statement's first commit
    (`git log --format=%ct -- context/owner-statements/<date>.md`, its last line) with the commit that adds the citation
    (`git log -S 'owner-statements/<date>.md' --format=%ct -- <page>`, its last line), not with the page's first commit.
+10. A rule this run proves right is proposed with this measurement page as its proof (or the record of the found
+    mistake); it enters `decisions/global/` on the owner's yes (`docs/roles/manager-chat.md`, `## After a run`, step 4).
