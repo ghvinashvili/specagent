@@ -161,6 +161,34 @@ def test_a_domain_decision_with_a_public_source_passes_the_vaults_check(tmp_path
     assert check.returncode == 1 and "not under decisions/global/" in check.stdout
 
 
+def test_a_global_decision_names_an_existing_proof_page_under_context(tmp_path: Path):
+    vault = tmp_path / "notes"
+    assert run(str(SCRIPT), str(vault)).returncode == 0
+    page = vault / "decisions" / "global" / "salt-late.md"
+    page.parent.mkdir(parents=True, exist_ok=True)
+    index = vault / "INDEX.md"
+    index.write_text(
+        index.read_text(encoding="utf-8") + "- [salt-late](decisions/global/salt-late.md): late\n", encoding="utf-8"
+    )
+    today = DOMAIN_PAGE.replace("2026-10-29", "2026-10-31").format(scope="global")
+    page.write_text(today, encoding="utf-8")
+    check = run(str(vault / "ops" / "check_pages.py"), str(vault))
+    assert check.returncode == 1 and "names its proof" in check.stdout, check.stdout
+    proven = today.replace(
+        "why: measured twice\n", "why: measured twice\nproof: [context/measurements/2026-10-31-salt.md]\n"
+    )
+    page.write_text(proven, encoding="utf-8")
+    check = run(str(vault / "ops" / "check_pages.py"), str(vault))
+    assert check.returncode == 1 and "is not an existing page under context/" in check.stdout, check.stdout
+    (vault / "context" / "measurements").mkdir(parents=True, exist_ok=True)
+    (vault / "context" / "measurements" / "2026-10-31-salt.md").write_text("# Salt, measured twice\n", encoding="utf-8")
+    check = run(str(vault / "ops" / "check_pages.py"), str(vault))
+    assert check.returncode == 0, check.stdout
+    old = DOMAIN_PAGE.format(scope="global")  # decided before the rule: no proof asked
+    page.write_text(old, encoding="utf-8")
+    assert run(str(vault / "ops" / "check_pages.py"), str(vault)).returncode == 0
+
+
 def test_the_form_holds_nothing_of_the_owners_vault():
     for path in sorted(p for p in FORM.rglob("*") if p.is_file() and "__pycache__" not in p.parts):
         text = path.read_text(encoding="utf-8")

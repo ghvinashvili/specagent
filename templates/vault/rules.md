@@ -27,7 +27,8 @@ sources: [context/...]   # or public URLs
 
 A decision page also carries `decided` (date), `by` (owner | main-session | <role>), `why`, `decision_status`
 (decided | revised | withdrawn), `would_change_if` (the evidence that would revise it), and `review` (a date) when
-it is doubtful.
+it is doubtful. A global decision decided from 2026-10-31 on also carries `proof: [context/<page>]`: the measurement page or
+the record of the found mistake that shows the rule right; `ops/check_pages.py` refuses a global page without an existing one.
 
 Sharing with the commons: a page of `decisions/global/` or `concepts/` may go to the public commons as a candidate,
 only with your yes, by `ops/contribute.py` of a project made from the template. It refuses, naming the class: a
@@ -53,3 +54,8 @@ ship with the template the moment it is decided. A page personal by nature carri
 Only a decision held to be right enters `decisions/global/` (`decision_status: decided`, `status: verified`), and right
 means proven: a mistake that was found or a measurement, named in `why:`, never a statement alone, the owner's included.
 A doubtful one waits in `context/` until it is settled, a wrong one never enters, and a page found wrong later is marked `withdrawn`.
+
+The way in: the main session proposes the rule with its proof page (`proof:`), and the page enters `decisions/global/` on the
+owner's yes, never on the main session's own judgment. The way out: every page names in `would_change_if` the evidence that
+would revise it; when a run's verifier records such a case, the main session marks the page `withdrawn` with the
+record's path and tells the owner. So a wrong rule leaves by the same proof that lets a right one in.

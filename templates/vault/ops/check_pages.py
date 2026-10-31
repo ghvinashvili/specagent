@@ -4,20 +4,24 @@ every page. Exit 1 when anything is found. Deterministic; no model.
 
 Usage: check_pages.py [vault-root]
 """
+
 import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from collect_memory import PATTERNS  # noqa: E402
+from collect_memory import PATTERNS
 
 PAGE_FIELDS = ["title", "type", "scope", "status", "updated", "audience", "sources"]
 DECISION_FIELDS = ["decided", "by", "why", "decision_status", "would_change_if"]
+PROOF_FROM = (
+    "2026-10-31"  # from this day a global decision names its proof (rules.md: a found mistake or a measurement)
+)
 SCOPE = re.compile(r"[a-z][a-z0-9-]*")  # `global`, or the name of one domain: its decisions live in decisions/<domain>/
 
 
 def frontmatter(text: str) -> dict:
-    m = re.match(r"---\n(.*?)\n---\n", text, re.S)
+    m = re.match(r"---\n(.*?)\n---\n", text, re.DOTALL)
     if not m:
         return {}
     out = {}
@@ -49,6 +53,15 @@ def main(root: Path) -> int:
             want = f"decisions/{fm.get('scope')}/"
             if not rel.startswith(want):
                 problems.append(f"{rel}: scope `{fm.get('scope')}` but not under {want}")
+        if fm.get("type") == "decision" and fm.get("scope") == "global" and fm.get("decided", "") >= PROOF_FROM:
+            proofs = re.findall(r"[^\[\],\s]+", fm.get("proof", ""))
+            if not proofs:
+                problems.append(
+                    f"{rel}: a global decision names its proof: `proof: [context/<page>]` (a measurement or a found mistake)"
+                )
+            for pr in proofs:
+                if not pr.startswith("context/") or not (root / pr).exists():
+                    problems.append(f"{rel}: proof `{pr}` is not an existing page under context/")
         for src in re.findall(r"[^\[\],\s]+", fm.get("sources", "")):
             if "://" not in src and not (root / src).exists():  # a public URL is a source as well
                 problems.append(f"{rel}: source `{src}` does not exist")
@@ -56,9 +69,7 @@ def main(root: Path) -> int:
             if link not in names:
                 problems.append(f"{rel}: link [[{link}]] does not resolve")
         for label, rx in PATTERNS.items():
-            if label in ("key-value",) and rx.search(text):
-                problems.append(f"{rel}: secret pattern `{label}` matches")
-            elif label not in ("key-value",) and rx.search(text):
+            if label in ("key-value",) and rx.search(text) or label not in ("key-value",) and rx.search(text):
                 problems.append(f"{rel}: secret pattern `{label}` matches")
         if f"({rel})" not in index:
             problems.append(f"{rel}: not listed in INDEX.md")
