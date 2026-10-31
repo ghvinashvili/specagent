@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {"title": "The run loop", "quality_profile": "showcase", "legend": {"mode": "hidden"}},
+  "components": [
+    {"id": "you", "type": "external", "label": "you", "pos": [40, 90], "size": [170, 76]},
+    {"id": "manager", "type": "backend", "label": "manager chat", "sublabel": "brief, launch table", "pos": [280, 270], "size": [170, 76]},
+    {"id": "spec", "type": "backend", "label": "spec-writer", "sublabel": "writes specs/", "pos": [490, 450], "size": [160, 76]},
+    {"id": "roles", "type": "backend", "label": "role sessions", "sublabel": "own worktree and sandbox", "pos": [740, 450], "size": [160, 76]},
+    {"id": "vault", "type": "database", "label": "vault", "sublabel": "in the checkout", "pos": [490, 630], "size": [160, 76]},
+    {"id": "records", "type": "database", "label": "run folder", "sublabel": "the run's only state", "pos": [870, 630], "size": [160, 76]},
+    {"id": "gate", "type": "security", "label": "gates", "sublabel": "code, a verifier, one judge", "pos": [1080, 630], "size": [170, 76]}
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "You", "wraps": ["you"]},
+    {"kind": "region", "label": "Manager chat", "wraps": ["manager"]},
+    {"kind": "region", "label": "Role sessions", "wraps": ["spec", "roles"]},
+    {"kind": "region", "label": "Files and gates", "wraps": ["vault", "records", "gate"]}
+  ],
+  "connections": [
+    {"id": "task", "from": "you", "to": "manager", "label": "a task, one yes", "fromSide": "right", "toSide": "top"},
+    {"id": "launch", "from": "manager", "to": "roles", "label": "launch", "variant": "emphasis", "fromSide": "bottom", "toSide": "top"},
+    {"id": "nospec", "from": "manager", "to": "spec", "label": "when no spec exists", "variant": "dashed", "fromSide": "bottom", "toSide": "left", "labelAt": [424, 488]},
+    {"id": "thespec", "from": "spec", "to": "roles", "label": "the spec", "fromSide": "right", "toSide": "left"},
+    {"id": "write", "from": "roles", "to": "records", "fromSide": "right", "toSide": "top"},
+    {"id": "check", "from": "records", "to": "gate", "fromSide": "right", "toSide": "left"},
+    {"id": "pass", "from": "gate", "to": "manager", "label": "pass", "fromSide": "right", "toSide": "right", "via": [[1300, 668], [1300, 308]]},
+    {"id": "findings", "from": "gate", "to": "roles", "label": "findings", "variant": "dashed", "fromSide": "top", "toSide": "top"},
+    {"id": "pages", "from": "roles", "to": "vault", "label": "pages", "fromSide": "bottom", "toSide": "top"},
+    {"id": "readfirst", "from": "vault", "to": "roles", "label": "read first", "variant": "dashed", "fromSide": "right", "toSide": "bottom", "labelAt": [740, 668]},
+    {"id": "branch", "from": "manager", "to": "you", "label": "one branch", "fromSide": "left", "toSide": "bottom"}
+  ]
+}

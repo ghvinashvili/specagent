@@ -27,7 +27,7 @@ sources: [context/...]   # or public URLs
 
 A decision page also carries `decided` (date), `by` (owner | main-session | <role>), `why`, `decision_status`
 (decided | revised | withdrawn), `would_change_if` (the evidence that would revise it), and `review` (a date) when
-it is doubtful. A global decision decided from 2026-10-31 on also carries `proof: [context/<page>]`: the measurement page or
+it is doubtful. A global lesson decided from 2026-10-31 on also carries `proof: [context/<page>]`: the measurement page or
 the record of the found mistake that shows the rule right; `ops/check_pages.py` refuses a global page without an existing one.
 
 Sharing with the commons: a page of `decisions/global/` or `concepts/` may go to the public commons as a candidate,
@@ -54,6 +54,11 @@ ship with the template the moment it is decided. A page personal by nature carri
 Only a decision held to be right enters `decisions/global/` (`decision_status: decided`, `status: verified`), and right
 means proven: a mistake that was found or a measurement, named in `why:`, never a statement alone, the owner's included.
 A doubtful one waits in `context/` until it is settled, a wrong one never enters, and a page found wrong later is marked `withdrawn`.
+A global page is one of two kinds, named in `kind:`: a lesson (from a found mistake or a measurement; `proof:` mandatory;
+without it the page waits in `context/candidates/` with a `review:` date and is deleted past it) or an order (the owner's
+standing decision on how the work is done; no proof; never deleted for lack of one; `review:` one year on; changed only by
+the owner's word). A general order and a proven lesson carry `template: yes`, a personal order `template: no`; the template
+holds them in paths a project takes by copying, never by a hand-merge or a run.
 
 The way in: the main session proposes the rule with its proof page (`proof:`), and the page enters `decisions/global/` on the
 owner's yes, never on the main session's own judgment. The way out: every page names in `would_change_if` the evidence that

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {"title": "A session's life", "quality_profile": "showcase", "legend": {"mode": "hidden"}},
+  "components": [
+    {"id": "fresh", "type": "frontend", "label": "fresh", "sublabel": "a new session", "tag": "step 01", "pos": [40, 90], "size": [190, 76]},
+    {"id": "reads", "type": "backend", "label": "brief, Read first", "sublabel": "facts pack, note last", "tag": "step 02", "pos": [295, 90], "size": [190, 76]},
+    {"id": "wait", "type": "cloud", "label": "waiter", "sublabel": "wakes on input", "tag": "step 03", "pos": [550, 90], "size": [190, 76]},
+    {"id": "unit", "type": "backend", "label": "one unit", "sublabel": "e.g. a task built", "tag": "step 04", "pos": [805, 90], "size": [190, 76]},
+    {"id": "files", "type": "external", "label": "records", "sublabel": "commit, STATUS:", "tag": "step 05", "pos": [1060, 90], "size": [190, 76]},
+    {"id": "check", "type": "security", "label": "unit done, or 200k?", "sublabel": "by itself, or the watcher", "pos": [1060, 270], "size": [190, 76]},
+    {"id": "commit", "type": "external", "label": "commit, then note", "sublabel": "nothing half done", "pos": [1060, 450], "size": [190, 76]},
+    {"id": "handover", "type": "external", "label": "hand-over", "sublabel": "40 lines of facts", "pos": [550, 450], "size": [190, 76]},
+    {"id": "watcher", "type": "external", "label": "watcher", "sublabel": "starts the next", "pos": [40, 450], "size": [190, 76]}
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "One session", "wraps": ["fresh", "reads", "wait", "unit", "files"]},
+    {"kind": "region", "label": "After its unit", "wraps": ["check"]},
+    {"kind": "region", "label": "The hand-over", "wraps": ["commit", "handover", "watcher"]}
+  ],
+  "connections": [
+    {"id": "t1", "from": "fresh", "to": "reads", "fromSide": "right", "toSide": "left", "route": "straight"},
+    {"id": "t2", "from": "reads", "to": "wait", "fromSide": "right", "toSide": "left", "route": "straight"},
+    {"id": "t3", "from": "wait", "to": "unit", "variant": "emphasis", "fromSide": "right", "toSide": "left", "route": "straight"},
+    {"id": "t4", "from": "unit", "to": "files", "fromSide": "right", "toSide": "left", "route": "straight"},
+    {"id": "t5", "from": "files", "to": "check", "fromSide": "bottom", "toSide": "top", "route": "straight"},
+    {"id": "no", "from": "check", "to": "unit", "label": "no", "variant": "dashed", "fromSide": "left", "toSide": "bottom"},
+    {"id": "yes", "from": "check", "to": "commit", "label": "yes", "fromSide": "bottom", "toSide": "top", "route": "straight", "labelAt": [1155, 398]},
+    {"id": "t6", "from": "commit", "to": "handover", "fromSide": "left", "toSide": "right", "route": "straight"},
+    {"id": "t8", "from": "handover", "to": "watcher", "fromSide": "left", "toSide": "right", "route": "straight"},
+    {"id": "t9", "from": "watcher", "to": "fresh", "variant": "emphasis", "fromSide": "top", "toSide": "bottom", "route": "straight"}
+  ]
+}

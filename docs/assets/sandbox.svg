@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="824" viewBox="0 0 1340 824" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description">
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="824" viewBox="0 0 1320 824" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description">
         <title id="archify-diagram-title">A role session&#39;s sandbox</title>
         <desc id="archify-diagram-description">A role session, started with claude --agent &lt;type&gt; --bg and its own --settings, runs its shell commands inside the sandbox (bubblewrap on Linux), with no unsandboxed retry: its Bash writes only in its worktree, where it commits on its own branch, the run folder, the temp dir, the package caches and the main repository's .git, which its commits need, and reaches only the package hosts. Two guards run before a Read, Write or Edit call, never on a Bash call: guard-read.py on Read refuses a whole read of a file over 20,000 bytes; guard-records.py on Write and Edit keeps a record appended to, where only line 1, the STATUS line, and a brief's line-2 field (judge.md's VERDICT:, critique.md's Reviewed:) change. Its records are in the run folder (build-log.md, verify.md, its hand-over note) and scratch/&lt;role&gt;/. The protected paths in the worktree (.claude/settings.json, .claude/skills, .claude/hooks, .claude/agents, .claude/commands, .mcp.json, .git/hooks, .git/config) are closed to its shell and open to Write and Edit. The transcripts, the run's _control/ folder, docs/handoff/, the credentials file, /proc, ps, pgrep and claude agents, logs and attach are denied and hidden, so no role learns a model or an author. A refused step is one SANDBOX: line in its record, never a workaround, and a COPY-REQUEST:, CHECKOUT-REQUEST: or FF-REQUEST: line asks for a copy into the protected paths, a checkout or a fast-forward the same way. The records monitor wakes the manager chat, which runs outside the sandbox with four guards, supplies the path, host or material or does the copy, checkout or fast-forward, and answers below the line: SUPPLIED: to a SANDBOX: line, COPIED: to a COPY-REQUEST:, CHECKED-OUT: to a CHECKOUT-REQUEST:, FF-DONE: to an FF-REQUEST:, or REFUSED:; the sandbox is never weakened.</desc>
 <style>
@@ -30,8 +30,8 @@ svg .s-security{color:#fb7185}
 .m-dashed{fill:#a78bfa}
 .c-security-group{fill:transparent;stroke:#fb7185;stroke-dasharray:4,4}
 </style>
-<rect x="0" y="0" width="1340" height="824" rx="16" fill="#020617"/>
-<rect x="0" y="0" width="1340" height="824" rx="16" fill="rgba(15, 23, 42, 0.5)"/>
+<rect x="0" y="0" width="1320" height="824" rx="16" fill="#020617"/>
+<rect x="0" y="0" width="1320" height="824" rx="16" fill="rgba(15, 23, 42, 0.5)"/>
         <!-- Definitions -->
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -63,10 +63,10 @@ svg .s-security{color:#fb7185}
         <path d="M 145 220 L 145 204 Q 145 196 153 196 L 308 196 Q 316 196 316 188 L 316 126 Q 316 118 324 118 L 340 118" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <path d="M 152 296 L 152 312 Q 152 320 160 320 L 308 320 Q 316 320 316 328 L 316 390 Q 316 398 324 398 L 340 398" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <path d="M 600 398 L 670 398" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path d="M 790 436 L 790 460 Q 790 468 798 468 L 832 468 Q 840 468 840 476 L 840 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 775 436 L 775 460 Q 775 468 783 468 L 832 468 Q 840 468 840 476 L 840 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <path d="M 138 296 L 138 680" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path d="M 790 220 L 790 126 Q 790 118 798 118 L 1080 118" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <path d="M 1190 156 L 1190 250 Q 1190 258 1182 258 L 910 258" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 775 220 L 775 126 Q 775 118 783 118 L 1060 118" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 1170 156 L 1170 250 Q 1170 258 1162 258 L 880 258" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
         <!-- Components -->
         <g id="node-role" tabindex="0" role="button" aria-label="Focus role session, claude --agent &lt;type&gt; --bg, a role session and what it may touch" aria-pressed="false">
@@ -121,27 +121,27 @@ svg .s-security{color:#fb7185}
 
         <g id="node-records" tabindex="0" role="button" aria-label="Focus run folder, build-log.md, verify.md, its note, a role session and what it may touch" aria-pressed="false">
           <title>run folder · build-log.md, verify.md, its note · a role session and what it may touch · scratch/&lt;role&gt;/</title>
-          <rect x="670" y="220" width="240" height="76" rx="6" class="c-mask"/>
-          <rect x="670" y="220" width="240" height="76" rx="6" class="c-database" stroke-width="1.5"/>
+          <rect x="670" y="220" width="210" height="76" rx="6" class="c-mask"/>
+          <rect x="670" y="220" width="210" height="76" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(676 226) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text x="790" y="256" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">run folder</text>
-        <text x="790" y="272" class="t-muted" font-size="9" text-anchor="middle">build-log.md, verify.md, its note</text>
-        <text x="790" y="288" class="t-database" font-size="7" text-anchor="middle">scratch/&lt;role&gt;/</text>
+          <text x="775" y="256" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">run folder</text>
+        <text x="775" y="272" class="t-muted" font-size="9" text-anchor="middle">build-log.md, verify.md, its note</text>
+        <text x="775" y="288" class="t-database" font-size="7" text-anchor="middle">scratch/&lt;role&gt;/</text>
         </g>
 
         <g id="node-worktree" tabindex="0" role="button" aria-label="Focus its worktree, its own branch, a role session and what it may touch" aria-pressed="false">
           <title>its worktree · its own branch · a role session and what it may touch</title>
-          <rect x="670" y="360" width="240" height="76" rx="6" class="c-mask"/>
-          <rect x="670" y="360" width="240" height="76" rx="6" class="c-database" stroke-width="1.5"/>
+          <rect x="670" y="360" width="210" height="76" rx="6" class="c-mask"/>
+          <rect x="670" y="360" width="210" height="76" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(676 366) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text x="790" y="396" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">its worktree</text>
-        <text x="790" y="412" class="t-muted" font-size="9" text-anchor="middle">its own branch</text>
+          <text x="775" y="396" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">its worktree</text>
+        <text x="775" y="412" class="t-muted" font-size="9" text-anchor="middle">its own branch</text>
         </g>
 
         <g id="node-protected" tabindex="0" role="button" aria-label="Focus protected paths, .claude/ settings.json, skills, hooks, agents, commands, a role session and what it may touch" aria-pressed="false">
@@ -159,14 +159,14 @@ svg .s-security{color:#fb7185}
 
         <g id="node-manager" tabindex="0" role="button" aria-label="Focus manager chat, outside the sandbox, four guards, Architecture component" aria-pressed="false">
           <title>manager chat · outside the sandbox, four guards · Architecture component · woken by the records monitor</title>
-          <rect x="1080" y="80" width="220" height="76" rx="6" class="c-mask"/>
-          <rect x="1080" y="80" width="220" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(1086 86) scale(0.6875)">
+          <rect x="1060" y="80" width="220" height="76" rx="6" class="c-mask"/>
+          <rect x="1060" y="80" width="220" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(1066 86) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text x="1190" y="116" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">manager chat</text>
-        <text x="1190" y="132" class="t-muted" font-size="9" text-anchor="middle">outside the sandbox, four guards</text>
-        <text x="1190" y="148" class="t-backend" font-size="7" text-anchor="middle">woken by the records monitor</text>
+          <text x="1170" y="116" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">manager chat</text>
+        <text x="1170" y="132" class="t-muted" font-size="9" text-anchor="middle">outside the sandbox, four guards</text>
+        <text x="1170" y="148" class="t-backend" font-size="7" text-anchor="middle">woken by the records monitor</text>
         </g>
 
         <g id="node-denied" tabindex="0" role="button" aria-label="Focus denied and hidden, transcripts, &lt;run&gt;/_control/, credentials, Architecture component" aria-pressed="false">
@@ -204,20 +204,20 @@ svg .s-security{color:#fb7185}
           <text x="635" y="388" class="t-muted" font-size="8" text-anchor="middle">commits</text>
         </g>
         <g>
-          <rect x="798" y="448" width="34" height="14" rx="3" class="c-mask"/>
-          <text x="815" y="458" class="t-muted" font-size="8" text-anchor="middle">holds</text>
+          <rect x="790.5" y="448" width="34" height="14" rx="3" class="c-mask"/>
+          <text x="807.5" y="458" class="t-muted" font-size="8" text-anchor="middle">holds</text>
         </g>
         <g>
           <rect x="118.6" y="636" width="38.8" height="14" rx="3" class="c-mask"/>
           <text x="138" y="646" class="t-messagebus" font-size="8" text-anchor="middle">denied</text>
         </g>
         <g>
-          <rect x="798" y="98" width="274" height="14" rx="3" class="c-mask"/>
-          <text x="935" y="108" class="t-muted" font-size="8" text-anchor="middle">SANDBOX:, COPY-REQUEST:, CHECKOUT-REQUEST:, FF-REQUEST:</text>
+          <rect x="780.5" y="98" width="274" height="14" rx="3" class="c-mask"/>
+          <text x="917.5" y="108" class="t-muted" font-size="8" text-anchor="middle">SANDBOX:, COPY-REQUEST:, CHECKOUT-REQUEST:, FF-REQUEST:</text>
         </g>
         <g>
-          <rect x="922.6" y="238" width="254.79999999999998" height="14" rx="3" class="c-mask"/>
-          <text x="1050" y="248" class="t-muted" font-size="8" text-anchor="middle">SUPPLIED:, COPIED:, CHECKED-OUT:, FF-DONE: below it</text>
+          <rect x="897.6" y="238" width="254.79999999999998" height="14" rx="3" class="c-mask"/>
+          <text x="1025" y="248" class="t-muted" font-size="8" text-anchor="middle">SUPPLIED:, COPIED:, CHECKED-OUT:, FF-DONE: below it</text>
         </g>
 
         <!-- Boundary labels (foreground masks keep routes out of titles) -->

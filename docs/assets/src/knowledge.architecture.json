@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {"title": "The knowledge layer", "quality_profile": "showcase", "legend": {"mode": "hidden"}},
+  "components": [
+    {"id": "lessons", "type": "database", "label": "lessons.md", "sublabel": "a run's lessons", "pos": [40, 240], "size": [150, 76]},
+    {"id": "context", "type": "database", "label": "context/", "sublabel": "raw sources", "pos": [40, 390], "size": [150, 76]},
+    {"id": "records", "type": "database", "label": "a run's records", "sublabel": "logs, transcripts", "pos": [40, 540], "size": [150, 76]},
+    {"id": "hot", "type": "database", "label": "ledgers, hot.md", "sublabel": "claims, hot cache", "pos": [300, 90], "size": [150, 76]},
+    {"id": "wiki", "type": "database", "label": "wiki/", "sublabel": "index, decision pages", "pos": [300, 240], "size": [150, 76]},
+    {"id": "session", "type": "backend", "label": "every session", "sublabel": "hot.md, index, graph, files", "pos": [560, 90], "size": [170, 76]},
+    {"id": "graph", "type": "database", "label": "code graph", "sublabel": "graphify, wiki/graph/", "pos": [560, 240], "size": [170, 76]},
+    {"id": "vault", "type": "database", "label": "your vault", "sublabel": "read on need", "pos": [840, 390], "size": [150, 76]},
+    {"id": "gate", "type": "security", "label": "contribute.py", "sublabel": "refuses secrets, names", "pos": [1100, 390], "size": [150, 76]},
+    {"id": "commons", "type": "external", "label": "public commons", "sublabel": "not built yet", "pos": [1100, 240], "size": [150, 76]}
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "Sources", "wraps": ["lessons", "context", "records"]},
+    {"kind": "region", "label": "The checkout", "wraps": ["hot", "wiki"]},
+    {"kind": "region", "label": "Read", "wraps": ["session", "graph"]},
+    {"kind": "region", "label": "Private", "wraps": ["vault"]},
+    {"kind": "region", "label": "Shared", "wraps": ["gate", "commons"]}
+  ],
+  "connections": [
+    {"id": "become", "from": "lessons", "to": "wiki", "label": "decisions"},
+    {"id": "compile", "from": "context", "to": "wiki", "label": "compiled", "fromSide": "right", "toSide": "left"},
+    {"id": "ingest", "from": "wiki", "to": "hot", "label": "ingest", "fromSide": "top", "toSide": "bottom"},
+    {"id": "start", "from": "hot", "to": "session", "label": "at start"},
+    {"id": "build", "from": "wiki", "to": "graph", "label": "each commit"},
+    {"id": "ask", "from": "graph", "to": "session", "label": "ask first", "fromSide": "top", "toSide": "bottom"},
+    {"id": "every", "from": "wiki", "to": "vault", "label": "every project", "fromSide": "bottom", "toSide": "left", "via": [[375, 428]]},
+    {"id": "measure", "from": "records", "to": "vault", "label": "measurements", "fromSide": "right", "toSide": "bottom", "via": [[915, 578]]},
+    {"id": "yes", "from": "vault", "to": "gate", "label": "your yes"},
+    {"id": "passes", "from": "gate", "to": "commons", "label": "passes", "fromSide": "top", "toSide": "bottom"},
+    {"id": "source", "from": "commons", "to": "session", "label": "a source", "variant": "dashed", "fromSide": "top", "toSide": "right", "via": [[1175, 128]]}
+  ]
+}
