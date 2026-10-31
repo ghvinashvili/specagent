@@ -1,0 +1,28 @@
+schema_version: 1
+name: poll
+enabled: true
+purpose: Keep active runs moving while a manager session is open, and at night through the tick script.
+goal:
+  statement: No active run has an action from harness poll that nobody acted on.
+  done_when:
+    - "`uv run harness poll --all-active` prints no action other than `wait_limit`"
+action:
+  kind: prompt
+  file: .claude/loop.md
+trigger:
+  kind: session
+  schedule: "/loop 5m"
+stops:
+  max_iterations: 2016
+  max_minutes: 10080
+  no_progress_after: 2016
+exit:
+  success: no run has the status created, running, waiting_human or paused
+  check: no_active_runs
+  failure: harness poll exits non-zero
+readiness:
+  repeats_weekly: { met: true, evidence: "every run needs polling until it ends" }
+  verification_is_automatic: { met: true, evidence: "harness poll derives every action from claude agents --json and files" }
+  budget_tolerates_waste: { met: true, evidence: "one tick is one short manager turn" }
+  agent_can_run_the_check: { met: true, evidence: "uv run harness poll is allowed and excluded from the sandbox" }
+owner: "@example-org/harness"

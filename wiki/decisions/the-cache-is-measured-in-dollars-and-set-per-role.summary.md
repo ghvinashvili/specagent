@@ -1,0 +1,5 @@
+Decision (owner, 2026-10-31): the cache is measured in dollars, not tokens: `usage_report.py` and `score_run.py` print cache reads, cache writes and output as money beside the token counts, and the economy row of `pipeline-economy-hand-over-units-checks-facts-pack.md` gains a "cache write $ per unit" column after "cost per unit" (the rest of that decision stands).
+A launch prompt puts what is identical across a role's sessions first and the hand-over note last ("stable first, unique last"); `make_pack.py --no-note` leaves the note out of a pack.
+The cache's time to live is set per role in the settings `env`: `5m` for the builder, the writer and the planner, `1h` for the verifier, the critic, the plan fixer and the judge; at 5m a cache write costs 37.5% less, so the saving is at most that share of a role's write dollars, less the rewrites after gaps.
+The rule is for the SpecAgent role sessions launched with the skill's settings; the harness's stage types keep the hour of `docs/roles/need-to-know.yaml` (ADR-0016).
+The record is spec 005, requirement 7, and `docs/economy.md`.

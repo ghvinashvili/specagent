@@ -1,0 +1,29 @@
+schema_version: 1
+name: pipeline-handoff-carries-facts
+suite: regression
+role_type: planner
+pipeline: default
+stage: plan
+trials: 1
+timeout_minutes: 10
+max_budget_usd: 2
+fixture: fixture
+brief: fixture/brief.md
+stop_gate: false   # the stage writes a hand-over note; the plan gate knows nothing about `handoff.md`
+# What this case proves (error class 7): a hand-over note carries the session's facts, not pointers to files.
+# The facts reach the planner as the reader's notes; run/facts.json, in the run root that no role reads, lists them.
+graders:
+  - type: file_exists
+    path: stages/plan/output/handoff.md
+  - type: json_schema
+    path: stages/plan/result.json
+    schema: schemas/stage-result.schema.json
+  - type: python           # line 1, at most 40 lines, every fact as the notes write it
+    script: evals/graders/pipeline_note.py
+    args: [stages/plan/output/handoff.md, facts.json]
+  - type: regex            # a pointer in place of a fact
+    path: stages/plan/output/handoff.md
+    pattern: "(?i)\\b(see|read) .{0,40}notes\\.md"
+    max_matches: 0
+    min_matches: 0
+pass_rule: deterministic_all

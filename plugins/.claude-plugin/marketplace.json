@@ -1,0 +1,35 @@
+{
+  "name": "example-repo-plugins",
+  "description": "Internal plugins of the organisation",
+  "owner": {
+    "name": "Platform team",
+    "email": "platform@example.com"
+  },
+  "plugins": [
+    {
+      "name": "code-intel",
+      "source": "./code-intel",
+      "description": "Language servers for Python, JavaScript and TypeScript, PHP, C and C++, HTML and CSS, installed on their own at session start",
+      "category": "development",
+      "tags": [
+        "lsp",
+        "diagnostics",
+        "code-intelligence"
+      ]
+    },
+    {
+      "name": "obsidian-vault",
+      "source": {
+        "source": "github",
+        "repo": "AgriciDaniel/claude-obsidian"
+      },
+      "description": "Source-cited Obsidian vault: adoption, journaled writes, lint, retrieval and provenance ledgers for wiki/",
+      "category": "knowledge",
+      "tags": [
+        "obsidian",
+        "wiki",
+        "knowledge-base"
+      ]
+    }
+  ]
+}

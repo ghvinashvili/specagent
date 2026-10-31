@@ -1,0 +1,1 @@
+{"check": "tests-can-fail", "inputs": ["plan/task-01.md"], "found": ["plan/task-01.md:20: test_add_runs asserts nothing", "plan/task-01.md:25: test_add_is_true asserts a constant", "plan/task-01.md:28: test_add_with_missing_fixture uses the missing fixture pairs"]}

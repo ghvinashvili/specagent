@@ -1,0 +1,1 @@
+{"schema_version": 1, "run_id": "baseline", "stage": "verify", "role_type": "verifier", "status": "complete", "outputs": [{"path": "stages/verify/output/report.md", "kind": "report"}], "summary": "One defect: line 3 says 5 retries where the source says 3.", "evidence": [{"claim": "context/sample.txt:2 is max_retries = 3", "how_checked": "read the line"}], "open_questions": []}

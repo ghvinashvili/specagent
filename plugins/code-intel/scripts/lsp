@@ -1,0 +1,14 @@
+#!/bin/sh
+# code-intel: start one language server from the toolchain scripts/ensure.py installs in the plugin's data directory.
+# Claude Code gives a language server's process CLAUDE_PLUGIN_DATA. A server that is not installed yet fails with a
+# line on stderr, and Claude Code starts it again the next time a file of its language is edited.
+data="${CLAUDE_PLUGIN_DATA:-$(python3 "$(dirname "$0")/ensure.py" --print-data)}"
+PATH="$data/venv/bin:$data/node_modules/.bin:$PATH"
+export PATH
+server="$1"
+shift
+if ! command -v "$server" >/dev/null 2>&1; then
+  echo "code-intel: $server is not installed yet in $data; it is installed at session start" >&2
+  exit 127
+fi
+exec "$server" "$@"

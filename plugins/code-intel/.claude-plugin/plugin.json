@@ -1,0 +1,12 @@
+{
+  "name": "code-intel",
+  "displayName": "Code Intelligence",
+  "version": "0.1.0",
+  "description": "Language servers for Python, JavaScript and TypeScript, PHP, C and C++, HTML and CSS, installed on their own at session start",
+  "author": {
+    "name": "Platform team",
+    "email": "platform@example.com"
+  },
+  "license": "MIT",
+  "keywords": ["lsp", "diagnostics", "python", "typescript", "php", "cpp", "html", "css"]
+}

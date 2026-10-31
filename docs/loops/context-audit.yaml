@@ -1,0 +1,27 @@
+schema_version: 1
+name: context-audit
+enabled: true
+purpose: Keep what every session loads at start inside the budget in docs/quality/context-budget.yaml.
+goal:
+  statement: Always-loaded instructions, hook injections, skills and MCP servers stay inside the budget.
+  done_when:
+    - "`uv run harness audit --ci` exits 0"
+action:
+  kind: command
+  command: uv run harness audit --ci
+trigger:
+  kind: ci-cron
+  schedule: "12 7 * * 1"
+stops:
+  max_iterations: 1
+  max_minutes: 10
+  no_progress_after: 1
+exit:
+  success: exit code 0
+  failure: exit code 1; the over-budget items are the command's JSON output
+readiness:
+  repeats_weekly: { met: true, evidence: "instructions and skills change with most pull requests" }
+  verification_is_automatic: { met: true, evidence: "line, word and item counts against a committed budget file" }
+  budget_tolerates_waste: { met: true, evidence: "no model is called" }
+  agent_can_run_the_check: { met: true, evidence: "a plain command in CI and in ci.yml on every pull request" }
+owner: "@example-org/harness"

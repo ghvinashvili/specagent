@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/role-type.schema.json",
+  "title": "Role type frontmatter (.claude/agents/<type>.md)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "description", "model", "effort", "tools"],
+  "properties": {
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "description": { "type": "string", "minLength": 40, "maxLength": 1024 },
+    "model": { "type": "string", "minLength": 1 },
+    "effort": { "enum": ["low", "medium", "high", "xhigh", "max"] },
+    "tools": { "type": "string", "not": { "pattern": "(^|,)\\s*Agent(\\s*\\(|\\s*,|\\s*$)" } },
+    "disallowedTools": { "type": "string" },
+    "permissionMode": { "enum": ["default", "acceptEdits", "auto", "dontAsk", "bypassPermissions", "plan", "manual"] },
+    "maxTurns": { "type": "integer", "minimum": 1 },
+    "skills": { "type": "array", "items": { "type": "string" } },
+    "mcpServers": { "type": "array" },
+    "hooks": { "type": "object" },
+    "memory": { "enum": ["project", "local", "user"] },
+    "background": { "type": "boolean" },
+    "omitClaudeMd": { "type": "boolean" },
+    "isolation": { "enum": ["worktree"] },
+    "color": { "type": "string" },
+    "initialPrompt": { "type": "string" },
+    "experimental": { "type": "object" }
+  }
+}

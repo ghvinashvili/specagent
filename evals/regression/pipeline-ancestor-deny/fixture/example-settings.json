@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(/<run-dir>/_*)",
+      "Write(/<run-dir>/_*)",
+      "Edit(/<vault>/**)",
+      "Write(/<vault>/**)",
+      "Read(//home/u/**)"
+    ]
+  },
+  "sandbox": {
+    "filesystem": {
+      "allowWrite": [
+        "<worktree-a>",
+        "<run-dir>",
+        "~/.cache",
+        "<checkout>/.git"
+      ]
+    }
+  }
+}

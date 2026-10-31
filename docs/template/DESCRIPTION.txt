@@ -1,0 +1,1 @@
+SpecAgent: Claude Code template for hard multi-package projects: role sessions as full chats, gates in code, proof for every finding, hand-over at 200k, a private vault per user and one public commons

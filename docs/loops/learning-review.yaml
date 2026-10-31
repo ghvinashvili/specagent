@@ -1,0 +1,31 @@
+schema_version: 1
+name: learning-review
+enabled: true
+purpose: Turn the failures of the last week's runs into reviewed change proposals for instructions, skills, gates and evals.
+goal:
+  statement: Every failure class seen in the reviewed runs has either a proposal with evidence or a recorded reason for none.
+  done_when:
+    - "the gates analyze, challenge and judge pass"
+    - "a human approved or rejected the judge's verdict"
+rubric: evals/rubrics/change-proposal.md
+action:
+  kind: pipeline
+  pipeline: learning
+  context: ["runs:7", docs/quality/failure-taxonomy.yaml, docs/roles/CHANGELOG.md]
+trigger:
+  kind: local-cron
+  schedule: "17 3 * * 6"
+stops:
+  max_iterations: 1
+  max_minutes: 240
+  max_usd: 5
+  no_progress_after: 1
+exit:
+  success: the run is done and the human decision is recorded in state.json
+  failure: a gate fails after the stage's attempts, or an escalation is open
+readiness:
+  repeats_weekly: { met: true, evidence: "runs fail gates and raise escalations every week" }
+  verification_is_automatic: { met: true, evidence: "gate analyze checks that every proposal cites run files; the critic and the rubric check the rest" }
+  budget_tolerates_waste: { met: true, evidence: "one iteration; nothing is applied without a pull request" }
+  agent_can_run_the_check: { met: true, evidence: "the analyst may run uv run harness skill-usage and read the runs named in its prompt" }
+owner: "@example-org/harness"

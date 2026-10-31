@@ -1,0 +1,70 @@
+# ── Claude Code (claude-directory, memory, worktrees, agent-gitignore)
+CLAUDE.local.md
+**/CLAUDE.local.md
+**/.claude/settings.local.json
+.claude/agent-memory-local/
+.claude/worktrees/
+.claude/scheduled_tasks.json
+# empty read-only stubs that Claude Code's sandbox mounts into a working tree; a real folder of the same name stays listed
+/.claude/commands
+!/.claude/commands/
+/.claude/output-styles
+!/.claude/output-styles/
+/.claude/routines
+!/.claude/routines/
+# the Desktop app's preview servers, local to one machine (git add -f .claude/launch.json shares one)
+/.claude/launch.json
+
+# ── other coding harnesses' local files (agent-gitignore)
+AGENTS.local.md
+AGENTS.override.md
+.aider*
+
+# ── a session's handoff before Claude Code compacts it (.claude/hooks/handoff.py)
+docs/handoff/
+
+# ── generated results (run state lives outside the repository, in <runs root>/)
+evals/results/
+plugins/*/evals/results/
+graphify-out/
+wiki/graph/
+
+# ── Obsidian (the checkout is the claude-obsidian vault, wiki/ its pages): only the shared settings are committed;
+# workspace*.json, the rest of .obsidian/ and the plugin's transaction journal stay local
+.obsidian/*
+!.obsidian/app.json
+!.obsidian/appearance.json
+!.obsidian/core-plugins.json
+!.obsidian/graph.json
+!.obsidian/snippets/
+.vault-meta/transactions/
+
+# ── secrets (never committed; also denied to Claude in settings.json)
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+*-service-account.json
+
+# ── Python / uv
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# ── editors and OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.ingest-fixture-store/
+
+# ── the setup log of ops/bootstrap.py
+.claude/bootstrap.log
+.claude/bootstrap.lock

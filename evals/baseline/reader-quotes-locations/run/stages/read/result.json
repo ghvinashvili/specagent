@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "run_id": "baseline",
+  "stage": "read",
+  "role_type": "reader",
+  "status": "complete",
+  "outputs": [
+    {"path": "stages/read/output/notes.md", "kind": "notes"},
+    {"path": "stages/read/output/questions.md", "kind": "notes"}
+  ],
+  "summary": "Eight facts quoted from context/sample.txt with their lines; two questions the file does not answer.",
+  "evidence": [{"claim": "every quoted sentence is in the file at the cited line", "how_checked": "compared each quote with the numbered lines of context/sample.txt"}],
+  "open_questions": ["Behaviour on status codes other than 400 and 503 is not stated."]
+}

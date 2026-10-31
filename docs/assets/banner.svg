@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-labelledby="banner-title banner-desc">
+  <title id="banner-title">SpecAgent: special agents for hard software, every role a full session</title>
+  <desc id="banner-desc">An agentic system for Claude Code: every role a full session, every stage behind a gate in code. On the right, a manager starts four role sessions (planner, critic, builders, verifier); their work meets a gate and flows into the wiki.</desc>
+  <defs>
+    <linearGradient id="banner-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="1" stop-color="#1e1846"/>
+    </linearGradient>
+    <pattern id="banner-dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity="0.07"/>
+    </pattern>
+    <marker id="banner-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+      .name { font-size: 96px; font-weight: 800; fill: #f8fafc; letter-spacing: -2px; }
+      .pro { fill: #fbbf24; }
+      .sub { font-size: 21px; font-weight: 600; fill: #a5b4fc; letter-spacing: 4px; }
+      .line { font-size: 23px; font-weight: 400; fill: #e2e8f0; }
+      .node { font-size: 16px; font-weight: 600; fill: #e2e8f0; text-anchor: middle; }
+      .cap { font-size: 13px; font-weight: 500; fill: #94a3b8; text-anchor: middle; letter-spacing: 1px; }
+      .edge { fill: none; stroke: #64748b; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="320" rx="24" fill="url(#banner-bg)"/>
+  <rect width="1280" height="320" rx="24" fill="url(#banner-dots)"/>
+
+  <text x="64" y="146" class="name">Spec<tspan class="pro">Agent</tspan></text>
+  <text x="68" y="190" class="sub">SPECIAL AGENTS FOR HARD SOFTWARE</text>
+  <text x="68" y="240" class="line">Every role a full Claude Code session,</text>
+  <text x="68" y="272" class="line">every stage behind a gate in code.</text>
+
+  <!-- the manager starts the role sessions -->
+  <path class="edge" d="M878,160 C904,160 904,82 928,82" marker-end="url(#banner-arrow)"/>
+  <path class="edge" d="M878,160 C904,160 904,134 928,134" marker-end="url(#banner-arrow)"/>
+  <path class="edge" d="M878,160 C904,160 904,186 928,186" marker-end="url(#banner-arrow)"/>
+  <path class="edge" d="M878,160 C904,160 904,238 928,238" marker-end="url(#banner-arrow)"/>
+  <!-- their work meets the gate -->
+  <path class="edge" d="M1054,82 C1068,82 1066,160 1076,160"/>
+  <path class="edge" d="M1054,134 C1066,134 1066,160 1076,160"/>
+  <path class="edge" d="M1054,186 C1066,186 1066,160 1076,160"/>
+  <path class="edge" d="M1054,238 C1068,238 1066,160 1076,160"/>
+  <!-- the gate passes it into the wiki -->
+  <path class="edge" d="M1140,160 L1164,160" marker-end="url(#banner-arrow)"/>
+
+  <rect x="760" y="138" width="118" height="44" rx="22" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/>
+  <text x="819" y="166" class="node">manager</text>
+
+  <g fill="#0f172a" stroke="#38bdf8" stroke-width="2">
+    <rect x="930" y="64" width="124" height="36" rx="18"/>
+    <rect x="930" y="116" width="124" height="36" rx="18"/>
+    <rect x="930" y="168" width="124" height="36" rx="18"/>
+    <rect x="930" y="220" width="124" height="36" rx="18"/>
+  </g>
+  <text x="992" y="88" class="node">planner</text>
+  <text x="992" y="140" class="node">critic</text>
+  <text x="992" y="192" class="node">builders</text>
+  <text x="992" y="244" class="node">verifier</text>
+
+  <polygon points="1108,128 1140,160 1108,192 1076,160" fill="#3b2405" stroke="#fbbf24" stroke-width="2"/>
+  <text x="1108" y="165" class="node" style="font-size: 14px">gate</text>
+
+  <path d="M1168,136 L1168,184 A34,9 0 0 0 1236,184 L1236,136" fill="#052e1f" stroke="#34d399" stroke-width="2"/>
+  <ellipse cx="1202" cy="136" rx="34" ry="9" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
+  <text x="1202" y="170" class="node">wiki</text>
+
+  <text x="819" y="214" class="cap">YOU TALK HERE</text>
+  <text x="992" y="290" class="cap">ROLE SESSIONS</text>
+  <text x="1108" y="222" class="cap">IN CODE</text>
+  <text x="1202" y="222" class="cap">KNOWLEDGE</text>
+</svg>

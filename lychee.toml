@@ -1,0 +1,4 @@
+exclude_path = ["design", "evals/results", "graphify-out", ".claude/worktrees", "node_modules", ".venv"]
+exclude = ["^https://example\\.com", "^http://otel-collector", "^http://localhost"]
+accept = [200, 429]
+max_concurrency = 8

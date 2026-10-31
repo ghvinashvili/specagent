@@ -1,0 +1,1 @@
+{"commits": [{"id": "c1", "changed": ["src/score.py", "tests/test_score.py"], "tasks": [{"id": "T1"}, {"id": "T2", "docs": "none — a rename only"}]}, {"id": "c2", "changed": ["src/rank.py", "tests/test_rank.py"], "tasks": [{"id": "T3", "docs": "none — a fix of a typo in code"}]}]}

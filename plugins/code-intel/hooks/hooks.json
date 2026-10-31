@@ -1,0 +1,16 @@
+{
+  "description": "Installs the language servers of this plugin in the background when the pinned versions are not in place",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ensure.py\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

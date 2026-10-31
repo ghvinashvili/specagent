@@ -1,0 +1,67 @@
+# model and effort of a stage are exact: a run takes them as the table has them, whatever session creates it;
+# `harness run --effort <stage>=<level>` changes one stage for one run (state.choose_stage, docs/decisions/0024).
+version: 1
+stages:
+  - id: frame
+    role_type: planner
+    mode: bg
+    model: opus
+    effort: max
+    inputs: [brief]
+    output: output/question.md
+    gate: frame
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 90
+    max_attempts: 2
+
+  - id: advise
+    role_type: advisor
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [frame]
+    inputs: [brief, "frame:output/question.md", "frame:tasks.json"]
+    output: output/
+    gate: advise
+    parallel: per_task
+    max_shards: 5
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 90
+    max_attempts: 2
+
+  - id: review
+    role_type: comparator
+    mode: print
+    model: opus
+    effort: max
+    depends_on: [advise]
+    inputs: ["frame:output/question.md", "advise:output/"]
+    output: result.json
+    gate: review
+    json_schema: stage-result.schema.json
+    max_budget_usd: 3
+    max_turns: 30
+    approval: none
+    permission_mode: dontAsk
+    max_minutes: 60
+    max_attempts: 2
+
+  - id: verdict
+    role_type: synthesizer
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [review]
+    inputs: ["frame:output/question.md", "advise:output/", "review:result.json"]
+    output: output/verdict.md
+    gate: verdict
+    approval: human
+    permission_mode: acceptEdits
+    max_minutes: 90
+    max_attempts: 2
+
+no_match:
+  action: escalate
+  message: "No role type matches this request. Answer with the name of an existing type from docs/generated/role-types.md, or create one with /new-role-type."

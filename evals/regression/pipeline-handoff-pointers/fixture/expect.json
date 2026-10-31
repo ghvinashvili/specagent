@@ -1,0 +1,1 @@
+{"check": "handoff-notes", "inputs": ["carries.md", "points.md", "long.md"], "found": ["points.md: the fact \"7c90e57\" is not carried", "points.md: the fact \"0.9375\" is not carried", "points.md: the fact \"115 minutes\" is not carried", "long.md: line 1 is not \"HANDOFF critic after Task 2 — <YYYY-MM-DD HH:MM>\"", "long.md: 41 lines, over 40"]}

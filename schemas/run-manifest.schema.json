@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/run-manifest.schema.json",
+  "title": "Run manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "created_at", "created_by", "brief_path", "context_paths", "claude_version", "stages", "limits"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "run_id": { "type": "string", "pattern": "^[0-9]{8}-[0-9]{6}-[a-z0-9-]+$" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "created_by": { "type": "string" },
+    "brief_path": { "type": "string" },
+    "context_paths": { "type": "array", "items": { "type": "string" } },
+    "claude_version": { "type": "string" },
+    "pipeline": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "base_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$",
+      "description": "HEAD of the checkout when the run was created; a stage without a checkout of its own is gated at it."
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inherited"],
+      "description": "What harness run read from the session that ran it (state.resolve_model_effort).",
+      "properties": {
+        "inherited": { "type": "boolean" },
+        "reason": { "type": "string" },
+        "session_id": { "type": "string" },
+        "model": { "type": "string" },
+        "effort": { "enum": ["low", "medium", "high", "xhigh", "max"] }
+      }
+    },
+    "loop": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Bounds of the loops inside a run (harness/rounds.py, docs/decisions/0024): rounds per counter, starts per stage.",
+      "properties": {
+        "counters": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 } },
+        "max_runs": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 } }
+      }
+    },
+    "stages": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/stage" } },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_minutes_per_stage", "max_attempts_per_stage"],
+      "properties": {
+        "max_minutes_per_stage": { "type": "integer", "minimum": 1 },
+        "max_attempts_per_stage": { "type": "integer", "minimum": 1 },
+        "max_budget_usd_print": { "type": "number", "minimum": 0 }
+      }
+    }
+  },
+  "definitions": {
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role_type", "mode", "session_ids", "model", "effort", "permission_mode", "max_minutes", "max_attempts"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+        "role_type": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "mode": { "enum": ["bg", "print"] },
+        "depends_on": { "type": "array", "items": { "type": "string" } },
+        "shards": { "type": "integer", "minimum": 1 },
+        "session_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" }
+        },
+        "model": { "type": "string" },
+        "effort": { "enum": ["low", "medium", "high", "xhigh", "max"] },
+        "permission_mode": { "enum": ["default", "acceptEdits", "dontAsk", "auto", "bypassPermissions", "plan"] },
+        "gate": { "type": "string" },
+        "approval": { "enum": ["none", "human"] },
+        "max_minutes": { "type": "integer", "minimum": 1 },
+        "max_attempts": { "type": "integer", "minimum": 1 },
+        "max_budget_usd": { "type": "number", "minimum": 0 },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["model", "effort", "max_minutes"],
+          "description": "Where model, effort and max_minutes come from: the table (a floor), the session, `--effort`, or the effort's rise.",
+          "properties": {
+            "model": { "enum": ["table", "inherited"] },
+            "effort": { "enum": ["table", "inherited", "flag"] },
+            "max_minutes": { "enum": ["table", "effort"] }
+          }
+        },
+        "floor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["model", "effort", "max_minutes"],
+          "description": "The stage table's values for the stage.",
+          "properties": {
+            "model": { "type": "string" },
+            "effort": { "enum": ["low", "medium", "high", "xhigh", "max"] },
+            "max_minutes": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "steps": {
+          "enum": ["warn", "enforce"],
+          "description": "How the gate counts the checks of specs/001-chat-depth, fixed at run creation from need-to-know.yaml."
+        },
+        "returns_to": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["stage", "counter"],
+          "description": "A reviewer whose verdict `revise` sends its proven findings back to this stage, counted on this counter.",
+          "properties": {
+            "stage": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+            "counter": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" }
+          }
+        }
+      }
+    }
+  }
+}

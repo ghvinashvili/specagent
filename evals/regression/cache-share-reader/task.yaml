@@ -1,0 +1,22 @@
+schema_version: 1
+name: cache-share-reader
+suite: regression
+role_type: reader
+trials: 1
+sessions: 2            # two runs of the same stage, one after the other, in one project
+pack_files: [knowledge/upload-handbook.md]   # the reader's knowledge pack in this case
+timeout_minutes: 15
+max_budget_usd: 2
+fixture: fixture
+brief: fixture/brief.md
+graders:
+  - type: file_exists
+    path: stages/read/output/notes.md
+  - type: json_schema
+    path: stages/read/result.json
+    schema: schemas/stage-result.schema.json
+  - type: python
+    base: trial
+    script: evals/graders/cache_share.py
+    args: [cache.json]
+pass_rule: deterministic_all

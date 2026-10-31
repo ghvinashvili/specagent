@@ -1,0 +1,29 @@
+{
+  "search": "path:wiki",
+  "showAttachments": false,
+  "showArrow": true,
+  "showOrphans": false,
+  "colorGroups": [
+    {
+      "query": "path:wiki/decisions/",
+      "color": {
+        "a": 1,
+        "rgb": 15026253
+      }
+    },
+    {
+      "query": "path:wiki/graph/",
+      "color": {
+        "a": 1,
+        "rgb": 4088797
+      }
+    },
+    {
+      "query": "path:wiki/plans/",
+      "color": {
+        "a": 1,
+        "rgb": 3187820
+      }
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"role": "planner", "task": 3, "facts": ["uv run pytest -q tests/test_dates.py", "4 passed", "src/dates.py:14", "pyproject.toml:31", "7f3c2a1", "C12"]}

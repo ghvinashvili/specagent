@@ -1,0 +1,30 @@
+schema_version: 1
+# Literal values of the template. ops/new-project.py replaces every occurrence of `default` in tracked text files
+# with the value given on the command line; a variable without a value keeps its default.
+variables:
+  - name: repo_name
+    default: example-repo
+    note: "also names the runs root beside the checkout when no ../runs/ carries .harness-runs: ../<repo_name>-runs"
+  - name: org
+    default: example-org
+    note: "owner handles in CODEOWNERS and loop files, the source-control line in docs/roles/auto-mode.json"
+  - name: vault_path
+    default: "~/vault"
+    note: "the owner's notes (rules and decisions for every project), read-only from a project; CLAUDE.md and docs/architecture/knowledge.md name it"
+  - name: commons_path
+    default: "~/aftpro-commons"
+    note: "the clone of the public commons where the global decisions and lessons of every user meet by pull request; a source, not an authority; ops/new-vault.py writes it into the vault's INDEX.md, harness doctor checks it, ops/contribute.py commits to it"
+skip:   # never rewritten: binary or generated content
+  - graphify-out/
+  - wiki/graph/
+  - uv.lock
+  - evals/results/
+  - .raw/captured/   # the pages as they were ingested: the source ledger holds the hash of each
+omit:   # never copied into a project: the template's own records; they left the repository on 2026-10-29 (owner: a clean
+        # template), and the names stay so that a project never receives them should they return
+  - design/
+  - context/fix-20261004/   # the material of the template's own fix after its audit of 2026-10-04
+  - docs/exec-plans/active/template-core/      # the plan of the template's own core run
+  - docs/exec-plans/done/template-core/   # the same plan once docs/exec-plans/active/README.md moves it
+  - docs/exec-plans/active/manager-build/      # the plan of the template's own manager-build run
+  - docs/exec-plans/done/manager-build/   # the same plan once docs/exec-plans/active/README.md moves it

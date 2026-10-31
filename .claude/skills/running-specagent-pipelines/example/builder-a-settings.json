@@ -1,0 +1,140 @@
+{
+  "model": "<model>",
+  "includeCoAuthoredBy": false,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"<checkout>/.claude/hooks/guard-read.py\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"<checkout>/.claude/hooks/guard-records.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Skill",
+      "WebFetch",
+      "WebSearch",
+      "Bash",
+      "SendMessage",
+      "ListAgents",
+      "ToolSearch"
+    ],
+    "deny": [
+      "Agent",
+      "EnterWorktree",
+      "AskUserQuestion",
+      "Edit(/<run-dir>/_*)",
+      "Write(/<run-dir>/_*)",
+      "Read(~/.config/**)",
+      "Bash(cat ~/.config/*)",
+      "Edit(/<vault>/**)",
+      "Write(/<vault>/**)",
+      "Edit(/<sources>/**)",
+      "Write(/<sources>/**)",
+      "Edit(~/.claude/**)",
+      "Write(~/.claude/**)",
+      "Edit(/<checkout>/<checkout-entry>/**)",
+      "Edit(/<checkout>/<checkout-file>)",
+      "Edit(/<checkout>/.git/hooks/**)",
+      "Edit(/<checkout>/.git/config)",
+      "Write(/<checkout>/<checkout-entry>/**)",
+      "Write(/<checkout>/<checkout-file>)",
+      "Write(/<checkout>/.git/hooks/**)",
+      "Write(/<checkout>/.git/config)",
+      "Bash(git push:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)",
+      "Bash(git switch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git worktree:*)",
+      "Bash(git stash:*)",
+      "Bash(git commit --amend:*)",
+      "Edit(/<plan-worktree>/**)",
+      "Write(/<plan-worktree>/**)",
+      "Edit(/<worktree-b>/**)",
+      "Write(/<worktree-b>/**)",
+      "Edit(/<verify-worktree>/**)",
+      "Write(/<verify-worktree>/**)",
+      "Read(~/.claude/projects/**)",
+      "Read(/<run-dir>/_control/**)",
+      "Read(/<checkout>/docs/handoff/**)",
+      "Read(//proc/**)",
+      "Bash(claude agents:*)",
+      "Bash(claude logs:*)",
+      "Bash(claude attach:*)",
+      "Bash(ps:*)",
+      "Bash(pgrep:*)",
+      "Read(~/.claude/.credentials.json)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "allowUnsandboxedCommands": false,
+    "failIfUnavailable": true,
+    "filesystem": {
+      "allowWrite": [
+        "<worktree-a>",
+        "<run-dir>",
+        "~/.cache",
+        "~/.local/share/uv",
+        "~/.npm",
+        "<checkout>/.git"
+      ],
+      "denyRead": [
+        "~/.config",
+        "~/.claude/projects",
+        "~/.claude/agent-memory",
+        "~/.ssh",
+        "~/.aws",
+        "~/.gnupg",
+        "<run-dir>/_control",
+        "<checkout>/docs/handoff",
+        "~/.claude/.credentials.json"
+      ]
+    },
+    "network": {
+      "allowedDomains": [
+        "pypi.org",
+        "files.pythonhosted.org",
+        "github.com",
+        "objects.githubusercontent.com",
+        "releases.astral.sh",
+        "code.claude.com",
+        "platform.claude.com",
+        "registry.npmjs.org"
+      ]
+    }
+  },
+  "worktree": {
+    "bgIsolation": "none"
+  },
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "",
+    "CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"
+  },
+  "crossSessionInbound": "accept"
+}

@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "deny": [
+    {
+      "pattern": "(^|\\s)rm\\s+-[a-zA-Z]*r[a-zA-Z]*\\s+(/|~|\\.\\.)",
+      "reason": "Recursive delete outside the working tree is blocked."
+    },
+    {
+      "pattern": "git\\s+push\\b.*(\\s--force\\b|\\s-f\\b)",
+      "reason": "Force push is never allowed."
+    },
+    {
+      "pattern": "git\\s+push\\b.*\\s(main|master)(\\s|$)",
+      "reason": "Pushing to main or master is a human action."
+    },
+    {
+      "pattern": "(^|\\s|;|&&|\\|)claude(\\s*$|\\s+(?!(agents|logs|attach|stop|rm|respawn|daemon|plugin|mcp|doctor|auth|install|setup-token|--version)\\b)(?!.*--agent\\s))",
+      "reason": "A role session is launched only through `harness launch`, which passes --agent."
+    },
+    {
+      "pattern": "--dangerously-skip-permissions",
+      "reason": "Bypass mode is set by the launcher inside the container only."
+    },
+    {
+      "check": "inbox",
+      "reason": "Files under _inbox/ are untrusted text; only the quarantine reader opens them, with the Read tool."
+    },
+    {
+      "check": "run_files",
+      "when": "role",
+      "reason": "Write result.json and the other run files with the Write tool: the schema check runs there, not in the shell."
+    },
+    {
+      "check": "git_sweep",
+      "when": "role",
+      "reason": "Stage the files you changed by name (`git add <path> ...`). The sandbox hides files you may not read, and git sees a hidden file as deleted: `git add -A`, `git add .` and `git commit -a` would commit those deletions."
+    },
+    {
+      "check": "unsandboxed",
+      "when": "role",
+      "reason": "A role session does not run what runs outside the sandbox (`sandbox.excludedCommands`), also not behind env, sudo, exec or bash -c."
+    },
+    {
+      "check": "unreadable",
+      "when": "role",
+      "reason": "The command cannot be read (an open quote): write it as one plain command."
+    }
+  ]
+}

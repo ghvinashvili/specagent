@@ -1,0 +1,32 @@
+---
+title: The control plane lives in the skill
+type: decision
+status: draft
+updated: 2026-10-30
+created: 2026-10-29
+audience: [all]
+decided: 2026-10-29
+by: owner
+why: the pipeline skill starts and watches the roles, so the files that follow them are written by its scripts in the run folder, out of the roles' reach
+would_change_if: a run in which the manager needed the harness's state or status line to follow a skill run, or a file under `_control/` lost an order or a session
+decision_status: decided
+scope: global
+tags:
+  - decision
+---
+# The control plane lives in the skill
+
+The registry, the orders and the record monitor of a pipeline run are files in the run folder, written by the pipeline
+skill's scripts with the standard library only: `watch_agents.py` (version 3) keeps `_control/registry.json`, with each
+session matched by the id recorded at its launch, and appends each `--order` to `_control/orders.jsonl`;
+`monitor_records.py` keeps `_control/monitor.json`; `scripts/manager/surface.py` renders the owner's surface from the
+registry. The harness's `state.json`, `harness poll` and `statusline.py` are not extended to skill runs. `_control/`
+sits behind the run folder's deny, so the roles stay blind to these files. This is the owner's answer (a) to question 10
+of the manager spec (2026-10-29); answer (b), the harness's state, fell with question 1, which made the skill's main
+session the manager.
+
+## Record and source
+- [The watcher](../../.claude/skills/running-specagent-pipelines/scripts/docs/watch_agents.md)
+- [Watching a run](../../.claude/skills/running-specagent-pipelines/references/watching.md)
+- [The record monitor](../../.claude/skills/running-specagent-pipelines/scripts/docs/monitor_records.md)
+- [The manager is the pipeline skill's main session](the-manager-is-the-pipeline-skill-main-session.md)

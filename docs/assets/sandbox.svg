@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="824" viewBox="0 0 1340 824" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description">
+        <title id="archify-diagram-title">A role session&#39;s sandbox</title>
+        <desc id="archify-diagram-description">A role session, started with claude --agent &lt;type&gt; --bg and its own --settings, runs its shell commands inside the sandbox (bubblewrap on Linux), with no unsandboxed retry: its Bash writes only in its worktree, where it commits on its own branch, the run folder, the temp dir, the package caches and the main repository's .git, which its commits need, and reaches only the package hosts. Two guards run before a Read, Write or Edit call, never on a Bash call: guard-read.py on Read refuses a whole read of a file over 20,000 bytes; guard-records.py on Write and Edit keeps a record appended to, where only line 1, the STATUS line, and a brief's line-2 field (judge.md's VERDICT:, critique.md's Reviewed:) change. Its records are in the run folder (build-log.md, verify.md, its hand-over note) and scratch/&lt;role&gt;/. The protected paths in the worktree (.claude/settings.json, .claude/skills, .claude/hooks, .claude/agents, .claude/commands, .mcp.json, .git/hooks, .git/config) are closed to its shell and open to Write and Edit. The transcripts, the run's _control/ folder, docs/handoff/, the credentials file, /proc, ps, pgrep and claude agents, logs and attach are denied and hidden, so no role learns a model or an author. A refused step is one SANDBOX: line in its record, never a workaround, and a COPY-REQUEST:, CHECKOUT-REQUEST: or FF-REQUEST: line asks for a copy into the protected paths, a checkout or a fast-forward the same way. The records monitor wakes the manager chat, which runs outside the sandbox with four guards, supplies the path, host or material or does the copy, checkout or fast-forward, and answers below the line: SUPPLIED: to a SANDBOX: line, COPIED: to a COPY-REQUEST:, CHECKED-OUT: to a CHECKOUT-REQUEST:, FF-DONE: to an FF-REQUEST:, or REFUSED:; the sandbox is never weakened.</desc>
+<style>
+svg{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Noto Sans Mono CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace}
+.c-grid{stroke:#1e293b;fill:none}
+.c-mask{fill:#0f172a;stroke:none}
+.c-backend{fill:rgba(6, 78, 59, 0.4);stroke:#34d399}
+.c-database{fill:rgba(76, 29, 149, 0.4);stroke:#a78bfa}
+.c-security{fill:rgba(136, 19, 55, 0.4);stroke:#fb7185}
+.t-primary{fill:#ffffff}
+.t-muted{fill:#94a3b8}
+.t-backend{fill:#34d399}
+.t-database{fill:#a78bfa}
+.t-security{fill:#fb7185}
+.t-messagebus{fill:#fb923c}
+svg .semantic-sigil{fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;opacity:0.76}
+svg .semantic-sigil > *{vector-effect:non-scaling-stroke}
+svg .semantic-sigil .sigil-fill{fill:currentColor;stroke:none}
+svg .s-backend{color:#34d399}
+svg .s-database{color:#a78bfa}
+svg .s-security{color:#fb7185}
+.a-default{stroke:#64748b;fill:none}
+.a-emphasis{stroke:#34d399;fill:none}
+.a-dashed{stroke:#a78bfa;fill:none;stroke-dasharray:4,4}
+.m-default{fill:#64748b}
+.m-emphasis{fill:#34d399}
+.m-security{fill:#fb7185}
+.m-dashed{fill:#a78bfa}
+.c-security-group{fill:transparent;stroke:#fb7185;stroke-dasharray:4,4}
+</style>
+<rect x="0" y="0" width="1340" height="824" rx="16" fill="#020617"/>
+<rect x="0" y="0" width="1340" height="824" rx="16" fill="rgba(15, 23, 42, 0.5)"/>
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Boundaries (behind everything) -->
+        <rect x="10" y="50" width="1030" height="546" rx="8" class="c-security-group" stroke-width="1"/>
+
+        <!-- Connection paths (before components for correct z-order) -->
+        <path d="M 250 258 L 340 258" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 580 258 L 670 258" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 145 220 L 145 204 Q 145 196 153 196 L 308 196 Q 316 196 316 188 L 316 126 Q 316 118 324 118 L 340 118" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 152 296 L 152 312 Q 152 320 160 320 L 308 320 Q 316 320 316 328 L 316 390 Q 316 398 324 398 L 340 398" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 600 398 L 670 398" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 790 436 L 790 460 Q 790 468 798 468 L 832 468 Q 840 468 840 476 L 840 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 138 296 L 138 680" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 790 220 L 790 126 Q 790 118 798 118 L 1080 118" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 1190 156 L 1190 250 Q 1190 258 1182 258 L 910 258" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Components -->
+        <g id="node-role" tabindex="0" role="button" aria-label="Focus role session, claude --agent &lt;type&gt; --bg, a role session and what it may touch" aria-pressed="false">
+          <title>role session · claude --agent &lt;type&gt; --bg · a role session and what it may touch · its own --settings</title>
+          <rect x="40" y="220" width="210" height="76" rx="6" class="c-mask"/>
+          <rect x="40" y="220" width="210" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(46 226) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text x="145" y="256" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">role session</text>
+        <text x="145" y="272" class="t-muted" font-size="9" text-anchor="middle">claude --agent &lt;type&gt; --bg</text>
+        <text x="145" y="288" class="t-backend" font-size="7" text-anchor="middle">its own --settings</text>
+        </g>
+
+        <g id="node-guardRead" tabindex="0" role="button" aria-label="Focus guard-read.py, on Read: no whole read over 20,000 bytes, a role session and what it may touch" aria-pressed="false">
+          <title>guard-read.py · on Read: no whole read over 20,000 bytes · a role session and what it may touch</title>
+          <rect x="340" y="80" width="240" height="76" rx="6" class="c-mask"/>
+          <rect x="340" y="80" width="240" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-security" transform="translate(346 86) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text x="460" y="116" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">guard-read.py</text>
+        <text x="460" y="132" class="t-muted" font-size="9" text-anchor="middle">on Read: no whole read over 20,000 bytes</text>
+        </g>
+
+        <g id="node-guardRecords" tabindex="0" role="button" aria-label="Focus guard-records.py, on Write, Edit: a record is appended to, a role session and what it may touch" aria-pressed="false">
+          <title>guard-records.py · on Write, Edit: a record is appended to · a role session and what it may touch · line 1 and a line-2 field may change</title>
+          <rect x="340" y="220" width="240" height="76" rx="6" class="c-mask"/>
+          <rect x="340" y="220" width="240" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-security" transform="translate(346 226) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text x="460" y="256" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">guard-records.py</text>
+        <text x="460" y="272" class="t-muted" font-size="9" text-anchor="middle">on Write, Edit: a record is appended to</text>
+        <text x="460" y="288" class="t-security" font-size="7" text-anchor="middle">line 1 and a line-2 field may change</text>
+        </g>
+
+        <g id="node-bash" tabindex="0" role="button" aria-label="Focus Bash in the sandbox, writes: worktree, run folder, temp dir, a role session and what it may touch" aria-pressed="false">
+          <title>Bash in the sandbox · writes: worktree, run folder, temp dir · a role session and what it may touch · and package caches; network: package hosts</title>
+          <rect x="340" y="360" width="260" height="76" rx="6" class="c-mask"/>
+          <rect x="340" y="360" width="260" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-security" transform="translate(346 366) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text x="470" y="396" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Bash in the sandbox</text>
+        <text x="470" y="412" class="t-muted" font-size="9" text-anchor="middle">writes: worktree, run folder, temp dir</text>
+        <text x="470" y="428" class="t-security" font-size="7" text-anchor="middle">and package caches; network: package hosts</text>
+        </g>
+
+        <g id="node-records" tabindex="0" role="button" aria-label="Focus run folder, build-log.md, verify.md, its note, a role session and what it may touch" aria-pressed="false">
+          <title>run folder · build-log.md, verify.md, its note · a role session and what it may touch · scratch/&lt;role&gt;/</title>
+          <rect x="670" y="220" width="240" height="76" rx="6" class="c-mask"/>
+          <rect x="670" y="220" width="240" height="76" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(676 226) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text x="790" y="256" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">run folder</text>
+        <text x="790" y="272" class="t-muted" font-size="9" text-anchor="middle">build-log.md, verify.md, its note</text>
+        <text x="790" y="288" class="t-database" font-size="7" text-anchor="middle">scratch/&lt;role&gt;/</text>
+        </g>
+
+        <g id="node-worktree" tabindex="0" role="button" aria-label="Focus its worktree, its own branch, a role session and what it may touch" aria-pressed="false">
+          <title>its worktree · its own branch · a role session and what it may touch</title>
+          <rect x="670" y="360" width="240" height="76" rx="6" class="c-mask"/>
+          <rect x="670" y="360" width="240" height="76" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(676 366) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text x="790" y="396" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">its worktree</text>
+        <text x="790" y="412" class="t-muted" font-size="9" text-anchor="middle">its own branch</text>
+        </g>
+
+        <g id="node-protected" tabindex="0" role="button" aria-label="Focus protected paths, .claude/ settings.json, skills, hooks, agents, commands, a role session and what it may touch" aria-pressed="false">
+          <title>protected paths · .claude/ settings.json, skills, hooks, agents, commands · a role session and what it may touch · .mcp.json, .git/hooks, .git/config: closed to its shell</title>
+          <rect x="670" y="500" width="340" height="76" rx="6" class="c-mask"/>
+          <rect x="670" y="500" width="340" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-security" transform="translate(676 506) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text x="840" y="536" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">protected paths</text>
+        <text x="840" y="552" class="t-muted" font-size="9" text-anchor="middle">.claude/ settings.json, skills, hooks, agents, commands</text>
+        <text x="840" y="568" class="t-security" font-size="7" text-anchor="middle">.mcp.json, .git/hooks, .git/config: closed to its shell</text>
+        </g>
+
+        <g id="node-manager" tabindex="0" role="button" aria-label="Focus manager chat, outside the sandbox, four guards, Architecture component" aria-pressed="false">
+          <title>manager chat · outside the sandbox, four guards · Architecture component · woken by the records monitor</title>
+          <rect x="1080" y="80" width="220" height="76" rx="6" class="c-mask"/>
+          <rect x="1080" y="80" width="220" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(1086 86) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text x="1190" y="116" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">manager chat</text>
+        <text x="1190" y="132" class="t-muted" font-size="9" text-anchor="middle">outside the sandbox, four guards</text>
+        <text x="1190" y="148" class="t-backend" font-size="7" text-anchor="middle">woken by the records monitor</text>
+        </g>
+
+        <g id="node-denied" tabindex="0" role="button" aria-label="Focus denied and hidden, transcripts, &lt;run&gt;/_control/, credentials, Architecture component" aria-pressed="false">
+          <title>denied and hidden · transcripts, &lt;run&gt;/_control/, credentials · Architecture component · /proc, ps, claude agents</title>
+          <rect x="20" y="680" width="250" height="76" rx="6" class="c-mask"/>
+          <rect x="20" y="680" width="250" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-security" transform="translate(26 686) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text x="145" y="716" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">denied and hidden</text>
+        <text x="145" y="732" class="t-muted" font-size="9" text-anchor="middle">transcripts, &lt;run&gt;/_control/, credentials</text>
+        <text x="145" y="748" class="t-security" font-size="7" text-anchor="middle">/proc, ps, claude agents</text>
+        </g>
+
+        <!-- Connection labels -->
+        <g>
+          <rect x="263.6" y="238" width="62.8" height="14" rx="3" class="c-mask"/>
+          <text x="295" y="248" class="t-backend" font-size="8" text-anchor="middle">Write, Edit</text>
+        </g>
+        <g>
+          <rect x="603.2" y="238" width="43.6" height="14" rx="3" class="c-mask"/>
+          <text x="625" y="248" class="t-backend" font-size="8" text-anchor="middle">appends</text>
+        </g>
+        <g>
+          <rect x="215.5" y="176" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="230.5" y="186" class="t-muted" font-size="8" text-anchor="middle">Read</text>
+        </g>
+        <g>
+          <rect x="219" y="300" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="234" y="310" class="t-muted" font-size="8" text-anchor="middle">Bash</text>
+        </g>
+        <g>
+          <rect x="613.2" y="378" width="43.6" height="14" rx="3" class="c-mask"/>
+          <text x="635" y="388" class="t-muted" font-size="8" text-anchor="middle">commits</text>
+        </g>
+        <g>
+          <rect x="798" y="448" width="34" height="14" rx="3" class="c-mask"/>
+          <text x="815" y="458" class="t-muted" font-size="8" text-anchor="middle">holds</text>
+        </g>
+        <g>
+          <rect x="118.6" y="636" width="38.8" height="14" rx="3" class="c-mask"/>
+          <text x="138" y="646" class="t-messagebus" font-size="8" text-anchor="middle">denied</text>
+        </g>
+        <g>
+          <rect x="798" y="98" width="274" height="14" rx="3" class="c-mask"/>
+          <text x="935" y="108" class="t-muted" font-size="8" text-anchor="middle">SANDBOX:, COPY-REQUEST:, CHECKOUT-REQUEST:, FF-REQUEST:</text>
+        </g>
+        <g>
+          <rect x="922.6" y="238" width="254.79999999999998" height="14" rx="3" class="c-mask"/>
+          <text x="1050" y="248" class="t-muted" font-size="8" text-anchor="middle">SUPPLIED:, COPIED:, CHECKED-OUT:, FF-DONE: below it</text>
+        </g>
+
+        <!-- Boundary labels (foreground masks keep routes out of titles) -->
+        <g>
+          <rect x="14" y="60" width="204.4" height="16" rx="3" class="c-mask"/>
+          <text x="18" y="73" class="t-security" font-size="9" font-weight="600">a role session and what it may touch</text>
+        </g>
+
+        <!-- Legend -->
+        <g>
+          <text x="40" y="788" class="t-primary" font-size="12" font-weight="650">Legend</text>
+          <g>
+            <rect x="40" y="799" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
+            <text x="62" y="808" class="t-muted" font-size="10" font-weight="500">Backend</text>
+          </g>
+          <g>
+            <rect x="140" y="799" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
+            <text x="162" y="808" class="t-muted" font-size="10" font-weight="500">Database</text>
+          </g>
+          <g>
+            <rect x="245" y="799" width="16" height="10" rx="2.5" class="c-security" stroke-width="1"/>
+            <text x="267" y="808" class="t-muted" font-size="10" font-weight="500">Security</text>
+          </g>
+        </g>
+      </svg>

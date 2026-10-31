@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {"title": "A role session's sandbox", "quality_profile": "showcase"},
+  "components": [
+    {"id": "role", "type": "backend", "label": "role session", "sublabel": "claude --agent <type> --bg", "tag": "its own --settings", "pos": [40, 220], "size": [210, 76]},
+    {"id": "guardRead", "type": "security", "label": "guard-read.py", "sublabel": "on Read: no whole read over 20,000 bytes", "pos": [340, 80], "size": [240, 76]},
+    {"id": "guardRecords", "type": "security", "label": "guard-records.py", "sublabel": "on Write, Edit: a record is appended to", "tag": "line 1 and a line-2 field may change", "pos": [340, 220], "size": [240, 76]},
+    {"id": "bash", "type": "security", "label": "Bash in the sandbox", "sublabel": "writes: worktree, run folder, temp dir", "tag": "and package caches; network: package hosts", "pos": [340, 360], "size": [260, 76]},
+    {"id": "records", "type": "database", "label": "run folder", "sublabel": "build-log.md, verify.md, its note", "tag": "scratch/<role>/", "pos": [670, 220], "size": [240, 76]},
+    {"id": "worktree", "type": "database", "label": "its worktree", "sublabel": "its own branch", "pos": [670, 360], "size": [240, 76]},
+    {"id": "protected", "type": "security", "label": "protected paths", "sublabel": ".claude/ settings.json, skills, hooks, agents, commands", "tag": ".mcp.json, .git/hooks, .git/config: closed to its shell", "pos": [670, 500], "size": [340, 76]},
+    {"id": "manager", "type": "backend", "label": "manager chat", "sublabel": "outside the sandbox, four guards", "tag": "woken by the records monitor", "pos": [1080, 80], "size": [220, 76]},
+    {"id": "denied", "type": "security", "label": "denied and hidden", "sublabel": "transcripts, <run>/_control/, credentials", "tag": "/proc, ps, claude agents", "pos": [20, 680], "size": [250, 76]}
+  ],
+  "boundaries": [
+    {"kind": "security-group", "label": "a role session and what it may touch", "wraps": ["role", "guardRead", "guardRecords", "bash", "worktree", "protected", "records"]}
+  ],
+  "connections": [
+    {"id": "write-edit", "from": "role", "to": "guardRecords", "label": "Write, Edit", "variant": "emphasis"},
+    {"id": "append", "from": "guardRecords", "to": "records", "label": "appends", "variant": "emphasis"},
+    {"id": "read", "from": "role", "to": "guardRead", "label": "Read", "fromSide": "top", "toSide": "left"},
+    {"id": "shell", "from": "role", "to": "bash", "label": "Bash", "fromSide": "bottom", "toSide": "left"},
+    {"id": "branch", "from": "bash", "to": "worktree", "label": "commits"},
+    {"id": "holds", "from": "worktree", "to": "protected", "label": "holds", "fromSide": "bottom", "toSide": "top"},
+    {"id": "deny", "from": "role", "to": "denied", "label": "denied", "variant": "dashed", "fromSide": "bottom", "toSide": "top", "labelDy": 360},
+    {"id": "wake", "from": "records", "to": "manager", "label": "SANDBOX:, COPY-REQUEST:, CHECKOUT-REQUEST:, FF-REQUEST:", "fromSide": "top", "toSide": "left", "via": [[790, 118]], "labelSegment": 1},
+    {"id": "answer", "from": "manager", "to": "records", "label": "SUPPLIED:, COPIED:, CHECKED-OUT:, FF-DONE: below it", "fromSide": "bottom", "toSide": "right", "via": [[1190, 258]], "labelSegment": 1}
+  ]
+}

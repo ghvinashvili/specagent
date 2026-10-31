@@ -1,0 +1,1 @@
+{"check": "pages-rule", "inputs": ["commits.json"], "found": ["commits.json: c1: no page under wiki/, docs/runbooks/ or docs/decisions/; no docs: none — <reason> on T1"]}

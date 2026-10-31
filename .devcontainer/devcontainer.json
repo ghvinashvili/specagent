@@ -1,0 +1,16 @@
+{
+  "name": "example-repo",
+  "build": { "dockerfile": "Dockerfile" },
+  "remoteUser": "node",
+  "runArgs": ["--cap-add=NET_ADMIN", "--cap-add=NET_RAW"],
+  "mounts": [
+    "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume"
+  ],
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "DISABLE_AUTOUPDATER": "1"
+  },
+  "postCreateCommand": "uv sync",
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh"
+}

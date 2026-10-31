@@ -1,0 +1,3 @@
+# gitignored files copied into every worktree Claude Code creates (gitignore syntax).
+# .env is copied so tests run in a worktree; Claude cannot read it (permissions.deny), tooling can.
+.env

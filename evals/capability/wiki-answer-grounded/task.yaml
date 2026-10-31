@@ -1,0 +1,29 @@
+schema_version: 1
+name: wiki-answer-grounded
+suite: capability
+role_type: researcher
+pipeline: software-factory
+stage: research
+trials: 3
+timeout_minutes: 15
+max_budget_usd: 2
+fixture: fixture
+brief: fixture/brief.md
+graders:
+  - type: file_exists
+    path: stages/research/output/findings.md
+  - type: json_schema
+    path: stages/research/result.json
+    schema: schemas/stage-result.schema.json
+  - type: regex
+    path: stages/research/output/findings.md
+    pattern: "`context/[^`]+:\\d+`"
+    min_matches: 2
+  - type: regex
+    path: stages/research/output/findings.md
+    pattern: "wiki/(concepts|entities|sources)/[a-z0-9-]+\\.md"
+    min_matches: 1
+  - type: llm
+    rubric: evals/rubrics/retrieval.md
+    weight: 0.5
+pass_rule: deterministic_all_and_llm_at_least_0.7

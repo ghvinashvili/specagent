@@ -1,0 +1,95 @@
+# model and effort of a stage are exact: a run takes them as the table has them, whatever session creates it;
+# `harness run --effort <stage>=<level>` changes one stage for one run (state.choose_stage, docs/decisions/0024).
+# A fix of defects already found and checked (an approved audit): the defects, their places and their probes are
+# the material, so no reader gathers facts first; the planner starts from the brief and that material. Every other
+# stage is the default table's.
+# A stage with `returns_to` sends work back when its verdict is `revise` (harness/rounds.py); `loop` bounds the rounds.
+version: 1
+loop:
+  counters:
+    plan: 3 # attack -> plan
+    work: 3 # verify -> write and judge -> write, one counter
+  max_runs:
+    write: 5 # every start and resume of write in one run
+stages:
+  - id: plan
+    role_type: planner
+    mode: bg
+    model: opus
+    effort: max
+    inputs: [brief, spec, context]
+    output: output/plan.md
+    gate: plan
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 360
+    max_attempts: 3
+
+  - id: attack
+    role_type: critic
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [plan]
+    # the plan with its trial (a checkout of the base with trial.patch, work.prepare) and the audit's material
+    inputs: [brief, spec, context, "plan:output/", "plan:tasks.json"]
+    output: output/critique.md
+    gate: attack
+    returns_to: {stage: plan, counter: plan}
+    approval: human
+    permission_mode: acceptEdits
+    max_minutes: 240
+    max_attempts: 2
+
+  - id: write
+    role_type: writer
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [attack]
+    # the plan with the patch of the planner's trial and the critic's attack tests
+    inputs: [brief, spec, "plan:output/", "plan:tasks.json", "attack:output/"]
+    output: output/
+    gate: write
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 480
+    max_attempts: 2
+
+  - id: verify
+    role_type: verifier
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [write]
+    inputs: [brief, spec, "plan:output/plan.md", "attack:output/", "write:output/", "write:tasks.json", "write:report.md", "write:checks.json"]
+    output: output/report.md
+    gate: verify
+    returns_to: {stage: write, counter: work}
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 360
+    max_attempts: 2
+
+  - id: judge
+    role_type: judge
+    mode: print
+    model: opus
+    effort: max
+    depends_on: [verify]
+    # the plan, both reports, and the change as changes.patch (work.prepare without a checkout)
+    inputs: ["plan:output/plan.md", "attack:output/critique.md", "verify:output/report.md", "write:checks.json"]
+    output: result.json
+    gate: judge
+    returns_to: {stage: write, counter: work}
+    json_schema: stage-result.schema.json
+    max_budget_usd: 15
+    max_turns: 60
+    approval: human
+    permission_mode: acceptEdits
+    max_minutes: 60
+    max_attempts: 2
+
+no_match:
+  action: escalate
+  message: "No role type matches this request. Answer with the name of an existing type from docs/generated/role-types.md, or create one with /new-role-type."

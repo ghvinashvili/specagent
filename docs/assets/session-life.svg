@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="660" viewBox="0 0 980 660" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description">
+        <title id="archify-diagram-title">A session&#39;s life</title>
+        <desc id="archify-diagram-description">A fresh session reads its brief, the hand-over rule, the Read first section of lessons.md, the facts pack its brief names and, last, its hand-over note, then a waiter wakes it when its input is there. It does one unit, such as a task built, and leaves records: a commit and a STATUS: line. If the unit is not done and its context is under 200k, it goes on with the unit. When the unit is done it hands over by itself; when its context passes 200k the watcher stops it and resumes it once with the order to hand over. Either way it commits its work first, so that nothing is half done, then writes a hand-over note of at most 40 lines of facts, and the watcher starts a fresh session at the note. Only files pass between sessions.</desc>
+<style>
+svg{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Noto Sans Mono CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace}
+.c-grid{stroke:#1e293b;fill:none}
+.c-mask{fill:#0f172a;stroke:none}
+.c-frontend{fill:rgba(8, 51, 68, 0.4);stroke:#22d3ee}
+.c-backend{fill:rgba(6, 78, 59, 0.4);stroke:#34d399}
+.c-cloud{fill:rgba(120, 53, 15, 0.3);stroke:#fbbf24}
+.c-security{fill:rgba(136, 19, 55, 0.4);stroke:#fb7185}
+.c-external{fill:rgba(30, 41, 59, 0.5);stroke:#94a3b8}
+.t-primary{fill:#ffffff}
+.t-muted{fill:#94a3b8}
+.t-dim{fill:#475569}
+.t-frontend{fill:#22d3ee}
+.t-backend{fill:#34d399}
+.t-cloud{fill:#fbbf24}
+.t-messagebus{fill:#fb923c}
+svg .semantic-sigil{fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;opacity:0.76}
+svg .semantic-sigil > *{vector-effect:non-scaling-stroke}
+svg .semantic-sigil .sigil-fill{fill:currentColor;stroke:none}
+svg .s-frontend{color:#22d3ee}
+svg .s-backend{color:#34d399}
+svg .s-cloud{color:#fbbf24}
+svg .s-external{color:#94a3b8}
+.a-default{stroke:#64748b;fill:none}
+.a-emphasis{stroke:#34d399;fill:none}
+.a-dashed{stroke:#a78bfa;fill:none;stroke-dasharray:4,4}
+.m-default{fill:#64748b}
+.m-emphasis{fill:#34d399}
+.m-security{fill:#fb7185}
+.m-dashed{fill:#a78bfa}
+</style>
+<rect x="0" y="0" width="980" height="660" rx="16" fill="#020617"/>
+<rect x="0" y="0" width="980" height="660" rx="16" fill="rgba(15, 23, 42, 0.5)"/>
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Lifecycle bands -->
+        <path d="M 72 112 L 908 112" class="a-default" stroke-width="0.8" stroke-dasharray="3,8"/>
+        <text x="72" y="100" class="t-dim" font-size="10" font-weight="600">01 / One session</text>
+        <path d="M 72 264 L 908 264" class="a-default" stroke-width="0.8" stroke-dasharray="3,8"/>
+        <text x="72" y="252" class="t-dim" font-size="10" font-weight="600">02 / After its unit</text>
+        <path d="M 72 436 L 908 436" class="a-default" stroke-width="0.8" stroke-dasharray="3,8"/>
+        <text x="72" y="424" class="t-dim" font-size="10" font-weight="600">03 / The hand-over</text>
+
+        <!-- Primary lifecycle rail -->
+        <path d="M 154 157 L 748 157" class="a-emphasis" stroke-width="2.2" marker-end="url(#arrowhead-emphasis)"/>
+
+        <!-- Transition paths -->
+        <path d="M 153 157 L 189 157" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
+        <path d="M 307 157 L 343 157" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
+        <path d="M 461 157 L 497 157" class="a-emphasis" stroke-width="2" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 615 157 L 651 157" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
+        <path d="M 710 188 L 710 278" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
+        <path d="M 630 307 L 566 307 Q 556 307 556 297 L 556 188" class="a-dashed" stroke-width="1.1" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 710 336 L 710 450" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
+        <path d="M 639 479 L 606 479" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
+        <path d="M 506 479 L 452 479" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
+        <path d="M 352 479 L 26 479 Q 16 479 16 469 L 16 166.5 Q 16 157 25.5 157 L 35 157" class="a-emphasis" stroke-width="2" marker-end="url(#arrowhead-emphasis)"/>
+
+        <!-- States -->
+        <g id="node-fresh" tabindex="0" role="button" aria-label="Focus fresh, a new session, One session" aria-pressed="false">
+          <title>fresh · a new session · One session</title>
+          <rect x="35" y="126" width="118" height="62" rx="7" class="c-mask"/>
+          <rect x="35" y="126" width="118" height="62" rx="7" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-frontend" transform="translate(136 132) scale(0.6875)">
+            <circle cx="8" cy="8" r="5"/>
+            <path d="m7 5.4 3.6 2.6L7 10.6Z" class="sigil-fill"/>
+          </g>
+        <text x="45" y="140" class="t-frontend" font-size="7" font-weight="700">01</text>
+          <text x="94" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">fresh</text>
+          <text x="94" y="163" class="t-muted" font-size="7" text-anchor="middle">a new session</text>
+        </g>
+
+        <g id="node-reads" tabindex="0" role="button" aria-label="Focus brief, Read first, facts pack, note last, One session" aria-pressed="false">
+          <title>brief, Read first · facts pack, note last · One session</title>
+          <rect x="189" y="126" width="118" height="62" rx="7" class="c-mask"/>
+          <rect x="189" y="126" width="118" height="62" rx="7" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(290 132) scale(0.6875)">
+            <path d="M2 8h3l1.5-3.5L9 12l1.6-4H14"/>
+          </g>
+        <text x="199" y="140" class="t-backend" font-size="7" font-weight="700">02</text>
+          <text x="248" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">brief, Read first</text>
+          <text x="248" y="163" class="t-muted" font-size="7" text-anchor="middle">facts pack, note last</text>
+        </g>
+
+        <g id="node-wait" tabindex="0" role="button" aria-label="Focus waiter, wakes on input, One session" aria-pressed="false">
+          <title>waiter · wakes on input · One session</title>
+          <rect x="343" y="126" width="118" height="62" rx="7" class="c-mask"/>
+          <rect x="343" y="126" width="118" height="62" rx="7" class="c-cloud" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-cloud" transform="translate(444 132) scale(0.6875)">
+            <path d="M4 2.5h8M4 13.5h8M5 3c0 2.8 2 3.2 3 5-1 1.8-3 2.2-3 5M11 3c0 2.8-2 3.2-3 5 1 1.8 3 2.2 3 5"/>
+          </g>
+        <text x="353" y="140" class="t-cloud" font-size="7" font-weight="700">03</text>
+          <text x="402" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">waiter</text>
+          <text x="402" y="163" class="t-muted" font-size="7" text-anchor="middle">wakes on input</text>
+        </g>
+
+        <g id="node-unit" tabindex="0" role="button" aria-label="Focus one unit, e.g. a task built, One session" aria-pressed="false">
+          <title>one unit · e.g. a task built · One session</title>
+          <rect x="497" y="126" width="118" height="62" rx="7" class="c-mask"/>
+          <rect x="497" y="126" width="118" height="62" rx="7" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(598 132) scale(0.6875)">
+            <path d="M2 8h3l1.5-3.5L9 12l1.6-4H14"/>
+          </g>
+        <text x="507" y="140" class="t-backend" font-size="7" font-weight="700">04</text>
+          <text x="556" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">one unit</text>
+          <text x="556" y="163" class="t-muted" font-size="7" text-anchor="middle">e.g. a task built</text>
+        </g>
+
+        <g id="node-files" tabindex="0" role="button" aria-label="Focus records, commit, STATUS:, One session" aria-pressed="false">
+          <title>records · commit, STATUS: · One session</title>
+          <rect x="651" y="126" width="118" height="62" rx="7" class="c-mask"/>
+          <rect x="651" y="126" width="118" height="62" rx="7" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-external" transform="translate(752 132) scale(0.6875)">
+            <rect x="3" y="3" width="10" height="10" rx="2"/>
+            <circle cx="8" cy="8" r="1.2" class="sigil-fill"/>
+          </g>
+        <text x="661" y="140" class="t-muted" font-size="7" font-weight="700">05</text>
+          <text x="710" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">records</text>
+          <text x="710" y="163" class="t-muted" font-size="7" text-anchor="middle">commit, STATUS:</text>
+        </g>
+
+        <g id="node-check" tabindex="0" role="button" aria-label="Focus unit done, or 200k?, by itself, or the watcher, After its unit" aria-pressed="false">
+          <title>unit done, or 200k? · by itself, or the watcher · After its unit</title>
+          <rect x="630" y="278" width="160" height="58" rx="7" class="c-mask"/>
+          <rect x="630" y="278" width="160" height="58" rx="7" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-external" transform="translate(773 284) scale(0.6875)">
+            <rect x="3" y="3" width="10" height="10" rx="2"/>
+            <circle cx="8" cy="8" r="1.2" class="sigil-fill"/>
+          </g>
+          <text x="710" y="299" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">unit done, or 200k?</text>
+          <text x="710" y="315" class="t-muted" font-size="7" text-anchor="middle">by itself, or the watcher</text>
+        </g>
+
+        <g id="node-commit" tabindex="0" role="button" aria-label="Focus commit, then note, nothing half done, The hand-over" aria-pressed="false">
+          <title>commit, then note · nothing half done · The hand-over</title>
+          <rect x="639" y="450" width="142" height="58" rx="7" class="c-mask"/>
+          <rect x="639" y="450" width="142" height="58" rx="7" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-external" transform="translate(764 456) scale(0.6875)">
+            <rect x="3" y="3" width="10" height="10" rx="2"/>
+            <circle cx="8" cy="8" r="1.2" class="sigil-fill"/>
+          </g>
+          <text x="710" y="471" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">commit, then note</text>
+          <text x="710" y="487" class="t-muted" font-size="7" text-anchor="middle">nothing half done</text>
+        </g>
+
+        <g id="node-handover" tabindex="0" role="button" aria-label="Focus hand-over, 40 lines of facts, The hand-over" aria-pressed="false">
+          <title>hand-over · 40 lines of facts · The hand-over</title>
+          <rect x="506" y="450" width="100" height="58" rx="7" class="c-mask"/>
+          <rect x="506" y="450" width="100" height="58" rx="7" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-external" transform="translate(589 456) scale(0.6875)">
+            <rect x="3" y="3" width="10" height="10" rx="2"/>
+            <circle cx="8" cy="8" r="1.2" class="sigil-fill"/>
+          </g>
+          <text x="556" y="471" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">hand-over</text>
+          <text x="556" y="487" class="t-muted" font-size="7" text-anchor="middle">40 lines of facts</text>
+        </g>
+
+        <g id="node-watcher" tabindex="0" role="button" aria-label="Focus watcher, starts the next, The hand-over" aria-pressed="false">
+          <title>watcher · starts the next · The hand-over</title>
+          <rect x="352" y="450" width="100" height="58" rx="7" class="c-mask"/>
+          <rect x="352" y="450" width="100" height="58" rx="7" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-external" transform="translate(435 456) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
+          </g>
+          <text x="402" y="471" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">watcher</text>
+          <text x="402" y="487" class="t-muted" font-size="7" text-anchor="middle">starts the next</text>
+        </g>
+
+        <!-- Transition labels -->
+
+
+
+
+
+        <g>
+          <rect x="540" y="226.5" width="32" height="16" rx="4" class="c-mask"/>
+          <text x="556" y="237.5" class="t-messagebus" font-size="8" text-anchor="middle">no</text>
+        </g>
+        <g>
+          <rect x="694" y="385" width="32" height="16" rx="4" class="c-mask"/>
+          <text x="710" y="396" class="t-muted" font-size="8" text-anchor="middle">yes</text>
+        </g>
+
+
+
+
+        <!-- Legend -->
+
+      </svg>

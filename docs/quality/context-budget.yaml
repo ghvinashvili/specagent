@@ -1,0 +1,46 @@
+schema_version: 1
+# severity error: the number is on an official page; `harness audit --ci` fails on it.
+# severity warning: the number comes from third-party material; it is reported and never fails a build.
+limits:
+  instruction_file_max_lines:
+    value: 200
+    severity: error
+    source: "official (memory, costs): keep each CLAUDE.md under 200 lines"
+  instruction_file_max_words:
+    value: 1200
+    severity: warning
+    source: "third-party; no official page names a word budget"
+  per_prompt_hooks_max:
+    value: 0
+    severity: warning
+    source: "third-party: audit hooks that inject on every prompt"
+  mcp_always_on_max:
+    value: 3
+    severity: warning
+    source: "third-party; officially MCP tool definitions are deferred by default"
+  preloaded_skills_per_type_max:
+    value: 5
+    severity: warning
+    source: "third-party"
+  pack_max_tokens:
+    value: 40000
+    severity: warning
+    source: "a choice of this repository; no source names a number. Adjust after measuring real sessions (harness cache-report)"
+  memory_index_max_bytes:
+    value: 5000
+    severity: warning
+    source: "owner (vault load-on-need, 2026-10-25): in an earlier project of the owner the memory index went from 15 KB to under 5 KB; officially the first 200 lines or 25KB of MEMORY.md load at every start (code.claude.com/docs/en/sub-agents, /memory)"
+instruction_globs:
+  - CLAUDE.md
+  - AGENTS.md
+  - "packages/*/CLAUDE.md"
+  - "packages/*/AGENTS.md"
+  - ".claude/rules/**/*.md"
+  - "packages/*/.claude/rules/**/*.md"
+memory_globs:
+  - ".claude/agent-memory/*/MEMORY.md"
+  - ".claude/agent-memory-local/*/MEMORY.md"
+always_loaded:
+  - CLAUDE.md
+  - AGENTS.md
+  - .claude/rules/harness.md

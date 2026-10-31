@@ -1,0 +1,3 @@
+#!/bin/sh
+# The code graph follows each commit (bash ops/graph.sh --quick, about 5 s; GRAPH_SKIP=1 skips it).
+bash ops/graph.sh --quick || true

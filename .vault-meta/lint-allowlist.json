@@ -1,0 +1,10 @@
+{
+  "exclude": [
+    "wiki/**/*.summary.md",
+    "wiki/graph/*"
+  ],
+  "dead_links": [
+    "plans/README.md",
+    "graph/index.md"
+  ]
+}

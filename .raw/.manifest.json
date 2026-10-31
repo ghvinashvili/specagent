@@ -1,0 +1,655 @@
+{
+  "address_map": {},
+  "description": "Ingest delta tracker. Source payloads are create-only.",
+  "sources": {
+    ".raw/captured/0219802fbc56040a88c7693b7adf523b1ebe6f83582d50ceb3b38c46c4618cbb.md": {
+      "hash": "0219802fbc56040a88c7693b7adf523b1ebe6f83582d50ceb3b38c46c4618cbb",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/collector-save-check.md"
+      ],
+      "source_id": "src-63cbdfec153ba54869e1"
+    },
+    ".raw/captured/027c1722cab4ad16290dfbe85a1ea928b6fbc0742f55bbc8e68d59083166cde1.md": {
+      "hash": "027c1722cab4ad16290dfbe85a1ea928b6fbc0742f55bbc8e68d59083166cde1",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-code-graph-is-generated-layered-and-refreshed-by-hooks.md"
+      ],
+      "source_id": "src-5fe6a0f092c20dabbd11"
+    },
+    ".raw/captured/04776a3fee06eb5689330b2becbfd0fc777f074b2c2190fcc0e833572c402386.md": {
+      "hash": "04776a3fee06eb5689330b2becbfd0fc777f074b2c2190fcc0e833572c402386",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-manager-runs-without-the-sandbox.md"
+      ],
+      "source_id": "src-e0cd5e26d3ed9bf07c36"
+    },
+    ".raw/captured/057146d1da53600ae05b1b52744eefad4302280cbaaafe415dba085c3be9c9af.md": {
+      "hash": "057146d1da53600ae05b1b52744eefad4302280cbaaafe415dba085c3be9c9af",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-launch-table-and-one-yes.md"
+      ],
+      "source_id": "src-4845bdb545817e8388b7"
+    },
+    ".raw/captured/06fbb2ca3384f2629d16da9cb0ea759511d0e161cf097af5d05962f62b4f9be5.md": {
+      "hash": "06fbb2ca3384f2629d16da9cb0ea759511d0e161cf097af5d05962f62b4f9be5",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-template-is-named-specagent.md"
+      ],
+      "source_id": "src-c85d7b4190324b4e5feb"
+    },
+    ".raw/captured/0b2f5941b3b87108b8eae5b9aea1f025182251b9d9ed5d057dbca3ce4910f17a.md": {
+      "hash": "0b2f5941b3b87108b8eae5b9aea1f025182251b9d9ed5d057dbca3ce4910f17a",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/no-fresh-session-after-a-finished-hand-off.md"
+      ],
+      "source_id": "src-990bab05a2f55528e1ae"
+    },
+    ".raw/captured/0fa20aaa3543c6ccc5694224548d1bca1c8af96a4d828d2b31d92aa461be434b.md": {
+      "hash": "0fa20aaa3543c6ccc5694224548d1bca1c8af96a4d828d2b31d92aa461be434b",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/owner-surface-by-script.md"
+      ],
+      "source_id": "src-25ee88fad4479089e8f7"
+    },
+    ".raw/captured/111d8e89784dbd9cb56968b39d40250ff868bea42472332dd5986fec5453f9e9.md": {
+      "hash": "111d8e89784dbd9cb56968b39d40250ff868bea42472332dd5986fec5453f9e9",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/spec-writer-writes-the-skeleton.md"
+      ],
+      "source_id": "src-a0cc493b2e0bbde8b2a1"
+    },
+    ".raw/captured/120045729a45d4169bcb853ab18e894a72d0f13ef13116244b9696d8f6770d26.md": {
+      "hash": "120045729a45d4169bcb853ab18e894a72d0f13ef13116244b9696d8f6770d26",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-learning-layer-is-a-later-run.md"
+      ],
+      "source_id": "src-3da31bd58016a8734a76"
+    },
+    ".raw/captured/14994272b64897465134be3a87bb7d70e961c326b191f47e0a2a83efcf910678.md": {
+      "hash": "14994272b64897465134be3a87bb7d70e961c326b191f47e0a2a83efcf910678",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/owner-surface-by-script.md"
+      ],
+      "source_id": "src-573b00acceb557132137"
+    },
+    ".raw/captured/1a3f1f3abc80fef2ae1b9dda70d33b3e11b3b83834628d813f72fa7ea7ac47d6.md": {
+      "hash": "1a3f1f3abc80fef2ae1b9dda70d33b3e11b3b83834628d813f72fa7ea7ac47d6",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/bootstrap-runs-eleven-steps-in-order.md"
+      ],
+      "source_id": "src-69ec3417c4ad2eff9222"
+    },
+    ".raw/captured/1d63dcab30674c404358de1a147cfb0391dae0a48d85925239e38bfd2a53bdd7.md": {
+      "hash": "1d63dcab30674c404358de1a147cfb0391dae0a48d85925239e38bfd2a53bdd7",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/ecc-content-is-pinned-never-its-mechanism.md"
+      ],
+      "source_id": "src-c77f8adad6e6b3af8320"
+    },
+    ".raw/captured/1fadcd610c5f37129811386e5f9fb21c6f91398b6e1761fc6cb5a71b9e0cc842.md": {
+      "hash": "1fadcd610c5f37129811386e5f9fb21c6f91398b6e1761fc6cb5a71b9e0cc842",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/adrs-and-decision-pages-stay-two-stores.md"
+      ],
+      "source_id": "src-a294c519aaed28f15ecf"
+    },
+    ".raw/captured/20204afe32d001508bd2b183cff01a46fdcbe38ade00fa4db3aba276be558827.md": {
+      "hash": "20204afe32d001508bd2b183cff01a46fdcbe38ade00fa4db3aba276be558827",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/pipelines-run-as-specagent-sessions-from-a-template-skill.md"
+      ],
+      "source_id": "src-afce92fbf3d34c0d200d"
+    },
+    ".raw/captured/2155736d3c782f86c9aac622435415dac02277a2223389c2aed9f1c2ad82188d.md": {
+      "hash": "2155736d3c782f86c9aac622435415dac02277a2223389c2aed9f1c2ad82188d",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/collector-yes-then-standing-rule.md"
+      ],
+      "source_id": "src-0358cc114857639395fa"
+    },
+    ".raw/captured/27809455a22d224a6e0ec27502b0c048212c17a74d1d26895abc489f52ae4fb6.md": {
+      "hash": "27809455a22d224a6e0ec27502b0c048212c17a74d1d26895abc489f52ae4fb6",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/one-score-per-run-by-script.md"
+      ],
+      "source_id": "src-b4311394ee5a5ac97243"
+    },
+    ".raw/captured/308ee7f3d34e6d66914c7a431c0cb7acc47cd7f72df453aec622be51c74485fb.md": {
+      "hash": "308ee7f3d34e6d66914c7a431c0cb7acc47cd7f72df453aec622be51c74485fb",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/roles-are-blind-to-models-and-authors.md"
+      ],
+      "source_id": "src-aa576729809d35366241"
+    },
+    ".raw/captured/3660ff097e57a6703fad96dcd0166de5a688627c0e0c326c343cc38431071b41.md": {
+      "hash": "3660ff097e57a6703fad96dcd0166de5a688627c0e0c326c343cc38431071b41",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-control-plane-is-a-later-run.md"
+      ],
+      "source_id": "src-0d8aabf09b4ebd756585"
+    },
+    ".raw/captured/375780e0ef04d0e32b0182492eb2f7e8c71c8088eb93465114a8886b6e47513c.md": {
+      "hash": "375780e0ef04d0e32b0182492eb2f7e8c71c8088eb93465114a8886b6e47513c",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/no-fresh-session-after-a-finished-hand-off.md"
+      ],
+      "source_id": "src-272562c26e676c3d1b4f"
+    },
+    ".raw/captured/38910fdb54771346cf09ecfbd419442ca88a64f19b3a6e93597222fb3cec5f75.md": {
+      "hash": "38910fdb54771346cf09ecfbd419442ca88a64f19b3a6e93597222fb3cec5f75",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/ecc-texts-live-under-claude-ecc.md"
+      ],
+      "source_id": "src-740bc47f5ee468e01e65"
+    },
+    ".raw/captured/39d887963e6ce2847426f759b76d297556f173f06cb1efd0c0b53568ee613930.md": {
+      "hash": "39d887963e6ce2847426f759b76d297556f173f06cb1efd0c0b53568ee613930",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-manager-is-the-pipeline-skill-main-session.md"
+      ],
+      "source_id": "src-e9658705fcd9ca040d79"
+    },
+    ".raw/captured/3a3899ac16cbfa4e9a984efd490d84df3bc1d72eb9a2139fc8874af6da581557.md": {
+      "hash": "3a3899ac16cbfa4e9a984efd490d84df3bc1d72eb9a2139fc8874af6da581557",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-manager-is-the-pipeline-skill-main-session.md"
+      ],
+      "source_id": "src-5e83a21d3905f61c00f3"
+    },
+    ".raw/captured/3e0294bb93277c6d6d2c6da59b4d79fadb9b6f0720311cc8e727d7aa5eecd6f4.md": {
+      "hash": "3e0294bb93277c6d6d2c6da59b4d79fadb9b6f0720311cc8e727d7aa5eecd6f4",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/plan-fixer-and-translator-are-role-types.md"
+      ],
+      "source_id": "src-0b7d7794775212cd31a1"
+    },
+    ".raw/captured/436b53236f953e6aa5eb753ea49552485bb01faedb94e94a422b4b33afb33a2d.md": {
+      "hash": "436b53236f953e6aa5eb753ea49552485bb01faedb94e94a422b4b33afb33a2d",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/pipelines-run-as-specagent-sessions-from-a-template-skill.md"
+      ],
+      "source_id": "src-9e87400e054f494fbc15"
+    },
+    ".raw/captured/46986ee47724fbd30aa66164c6ee6ad002687c7c89a214ab7d78903879af155c.md": {
+      "hash": "46986ee47724fbd30aa66164c6ee6ad002687c7c89a214ab7d78903879af155c",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/planner-answers-its-findings-fixer-on-demand.md"
+      ],
+      "source_id": "src-36ccf52744c71bcbe4d0"
+    },
+    ".raw/captured/484ecf758a32a1257a3faeaa62d4b4e16083d742a1e9eb846b9f6815acbd0db9.md": {
+      "hash": "484ecf758a32a1257a3faeaa62d4b4e16083d742a1e9eb846b9f6815acbd0db9",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/request-answer-lines.md"
+      ],
+      "source_id": "src-79c34cd48d5f6b302ff1"
+    },
+    ".raw/captured/54a716a1b52d4f8af591bcd050f984840a36f5876fff718c4dbae89372daf6b8.md": {
+      "hash": "54a716a1b52d4f8af591bcd050f984840a36f5876fff718c4dbae89372daf6b8",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-template-is-english-only.md"
+      ],
+      "source_id": "src-93c97b8b71c2d714a8ba"
+    },
+    ".raw/captured/559e28af02036ed6c17844255f4bf5dbadfd22a23cdfcf44713ca4889e1582ab.md": {
+      "hash": "559e28af02036ed6c17844255f4bf5dbadfd22a23cdfcf44713ca4889e1582ab",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-manager-profile-is-measured-at-its-first-call.md"
+      ],
+      "source_id": "src-1fc9ad43d2c75241b59d"
+    },
+    ".raw/captured/5e970b0220aa7aad53846023b4e582b44086788dc04f695a2c4705035221dcf2.md": {
+      "hash": "5e970b0220aa7aad53846023b4e582b44086788dc04f695a2c4705035221dcf2",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-template-is-english-only.md"
+      ],
+      "source_id": "src-f92516ee1eb46c6c65ee"
+    },
+    ".raw/captured/6b22c8aaa15fe6e6bd092afff73feb467cd2c7d1c7239783008d072521e4e9c4.md": {
+      "hash": "6b22c8aaa15fe6e6bd092afff73feb467cd2c7d1c7239783008d072521e4e9c4",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-cache-is-measured-in-dollars-and-set-per-role.md"
+      ],
+      "source_id": "src-4c866e4e37096b643225"
+    },
+    ".raw/captured/6c9487daac05a187f354f32513e9961b4d7aecc15092e06ddd9a3643f984242f.md": {
+      "hash": "6c9487daac05a187f354f32513e9961b4d7aecc15092e06ddd9a3643f984242f",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/roles-are-blind-to-models-and-authors.md"
+      ],
+      "source_id": "src-efb2679b86cd0fc76dd0"
+    },
+    ".raw/captured/6d8e7c4a5fd610118e31523f92ff751be669161fafd212af527d97531e12f5a8.md": {
+      "hash": "6d8e7c4a5fd610118e31523f92ff751be669161fafd212af527d97531e12f5a8",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/duty-list-from-the-plan.md"
+      ],
+      "source_id": "src-fd84299f2d46233d1393"
+    },
+    ".raw/captured/6f38c9d2f9e87eb16b79f71c29a3ca290e2444a176f93d9caaa36b95b0f1871a.md": {
+      "hash": "6f38c9d2f9e87eb16b79f71c29a3ca290e2444a176f93d9caaa36b95b0f1871a",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/dated-api-prices.md"
+      ],
+      "source_id": "src-f4a5f9b59d3c2c3106af"
+    },
+    ".raw/captured/6f981866081d5851a008c579a8cab32d147faa0358fa3ee159fdd34a957e46d5.md": {
+      "hash": "6f981866081d5851a008c579a8cab32d147faa0358fa3ee159fdd34a957e46d5",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/finished-plans-live-in-exec-plans-done.md"
+      ],
+      "source_id": "src-54e911784cf06e284380"
+    },
+    ".raw/captured/700b5f4d0032976e7e251dab8309cef41cc4eeb0e3cc70577beca152aba8d3b6.md": {
+      "hash": "700b5f4d0032976e7e251dab8309cef41cc4eeb0e3cc70577beca152aba8d3b6",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/control-plane-in-the-skill.md"
+      ],
+      "source_id": "src-36e5a5c9e3fe7efb6a10"
+    },
+    ".raw/captured/7727ef1108c49193d77a1d263f51577693ce47e00629d0260b0f14a6a233750d.md": {
+      "hash": "7727ef1108c49193d77a1d263f51577693ce47e00629d0260b0f14a6a233750d",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/collector-save-check.md"
+      ],
+      "source_id": "src-e300b6c1d3ef006d955c"
+    },
+    ".raw/captured/8006a7d4264e08760e53f479142002362ec2b450560bde38c1d28a1cee2da0b6.md": {
+      "hash": "8006a7d4264e08760e53f479142002362ec2b450560bde38c1d28a1cee2da0b6",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/dated-api-prices.md"
+      ],
+      "source_id": "src-696d8b35d559bb4c7f38"
+    },
+    ".raw/captured/852d76b251f1e76b214bce5dad51cc0b49b323725949335b186c9f26e2b6235e.md": {
+      "hash": "852d76b251f1e76b214bce5dad51cc0b49b323725949335b186c9f26e2b6235e",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/control-plane-in-the-skill.md"
+      ],
+      "source_id": "src-559f90f3768924b466f1"
+    },
+    ".raw/captured/8d620fe626a43c9a7023cd44ea0cb53860bb305fb9f9ae34eae743fd82d81e1c.md": {
+      "hash": "8d620fe626a43c9a7023cd44ea0cb53860bb305fb9f9ae34eae743fd82d81e1c",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/roles-and-sessions-keep-their-names.md"
+      ],
+      "source_id": "src-279a2f463f20a6b5f4b2"
+    },
+    ".raw/captured/90b9f74f1dbab4338de03d862faa5dadd540e7ab607dedd643a414348ace846c.md": {
+      "hash": "90b9f74f1dbab4338de03d862faa5dadd540e7ab607dedd643a414348ace846c",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-owners-vault-is-read-on-need.md"
+      ],
+      "source_id": "src-4bce529829ed7b706ee0"
+    },
+    ".raw/captured/925455f81832f2eb297ee62a12aa3f8e96fdb9f2b24d44cbfd369850a531e4b5.md": {
+      "hash": "925455f81832f2eb297ee62a12aa3f8e96fdb9f2b24d44cbfd369850a531e4b5",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/monitor-answers-no-request.md"
+      ],
+      "source_id": "src-a4caaf7e386a7db16c36"
+    },
+    ".raw/captured/96ef183967e533ccb1f3e17dffd36ca39a1a5b9576dd9086262193a8d06c4f62.md": {
+      "hash": "96ef183967e533ccb1f3e17dffd36ca39a1a5b9576dd9086262193a8d06c4f62",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-spec-writers-model-is-a-dated-exception.md"
+      ],
+      "source_id": "src-cbb67cb9ccf6072a1c93"
+    },
+    ".raw/captured/9fdb4d999baaaaf8d19e559dd5d3f971afece03c188649e3b9eac389d41a51b7.md": {
+      "hash": "9fdb4d999baaaaf8d19e559dd5d3f971afece03c188649e3b9eac389d41a51b7",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/monitor-answers-no-request.md"
+      ],
+      "source_id": "src-a5aca17d991267c78dc6"
+    },
+    ".raw/captured/a2aa9577f781c5f30c4fbe3f59c18a9d1378b4d5ec11bd6a043153912b88beca.md": {
+      "hash": "a2aa9577f781c5f30c4fbe3f59c18a9d1378b4d5ec11bd6a043153912b88beca",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/decisions-are-written-with-the-work.md"
+      ],
+      "source_id": "src-f9a029f920db7b4497f6"
+    },
+    ".raw/captured/b110746af8013bf7b410189b70c64b9f300681e67c7a6339ebeea866dfa1e2af.md": {
+      "hash": "b110746af8013bf7b410189b70c64b9f300681e67c7a6339ebeea866dfa1e2af",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/critic-on-the-plan-verifier-on-the-code.md"
+      ],
+      "source_id": "src-5a3c50743638e751785d"
+    },
+    ".raw/captured/b1cd21e33f6aa33bcea434f7bc921cae9aad189f11791ccbc48cdb2583d47d25.md": {
+      "hash": "b1cd21e33f6aa33bcea434f7bc921cae9aad189f11791ccbc48cdb2583d47d25",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/code-cases-gate-every-push-sessions-run-nightly.md"
+      ],
+      "source_id": "src-abef67df9b01d13a4a5a"
+    },
+    ".raw/captured/b336ca144cc105dac72f2b45b8587d78c7de2a8e39b6d344f961c319e34eb525.md": {
+      "hash": "b336ca144cc105dac72f2b45b8587d78c7de2a8e39b6d344f961c319e34eb525",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-launch-table-and-one-yes.md"
+      ],
+      "source_id": "src-adf3e68ed4614a213705"
+    },
+    ".raw/captured/ba87b2dee7be4bce47e22a0fc9bcaa693a8215631f52c56181e6dda9f9a2959e.md": {
+      "hash": "ba87b2dee7be4bce47e22a0fc9bcaa693a8215631f52c56181e6dda9f9a2959e",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/pipeline-economy-estimate-model-classes-open-items.md"
+      ],
+      "source_id": "src-98aa66b621f73f918292"
+    },
+    ".raw/captured/c1bebef57237c73fe0a12a06e60f6d9f16b9c3a21a1dcf10e57eeee151bcf0ce.md": {
+      "hash": "c1bebef57237c73fe0a12a06e60f6d9f16b9c3a21a1dcf10e57eeee151bcf0ce",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/skill-script-pages.md"
+      ],
+      "source_id": "src-b2a831a1fcaa2ad51572"
+    },
+    ".raw/captured/c1d567a3a0f9ca20b3f93d468dffa5c72f54d0477ce035aeb17ecb3d3e049b08.md": {
+      "hash": "c1d567a3a0f9ca20b3f93d468dffa5c72f54d0477ce035aeb17ecb3d3e049b08",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/diagrams-are-mermaid-text.md"
+      ],
+      "source_id": "src-4a8fc34c5cd9b994e6f9"
+    },
+    ".raw/captured/c235a9c7a13f3994b5911ed493f9ac453b82e3cb2c6f4d4bbb281a9190b6493c.md": {
+      "hash": "c235a9c7a13f3994b5911ed493f9ac453b82e3cb2c6f4d4bbb281a9190b6493c",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-shared-knowledge-base.md"
+      ],
+      "source_id": "src-7c66c557d83cee8da1b0"
+    },
+    ".raw/captured/c426b2e5b915895247ab6df9dae69039f77d9dd372dfeda4f160233dd68e7262.md": {
+      "hash": "c426b2e5b915895247ab6df9dae69039f77d9dd372dfeda4f160233dd68e7262",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/manager-lessons-live-in-the-vault.md"
+      ],
+      "source_id": "src-08a19e2f9cad969d7c58"
+    },
+    ".raw/captured/c789c226feb221f27431b9e8208483e171a9e5483104c80748e07280634af4ee.md": {
+      "hash": "c789c226feb221f27431b9e8208483e171a9e5483104c80748e07280634af4ee",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/ecc-text-reaches-a-brief-by-line-range.md"
+      ],
+      "source_id": "src-bba07184c20fee4e055c"
+    },
+    ".raw/captured/d1a626dc56ce67dbc1eceb6a106bd9e89a4d3a6b105c7ef7d39169294d36278d.md": {
+      "hash": "d1a626dc56ce67dbc1eceb6a106bd9e89a4d3a6b105c7ef7d39169294d36278d",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/a-vault-graph-is-measured-before-it-is-built.md"
+      ],
+      "source_id": "src-5f30c5dc7592f7cdf30a"
+    },
+    ".raw/captured/d3bab480e6690d3f58a4ad111f9206d2d8410b5ffc48756bac54c1b90a0d7c39.md": {
+      "hash": "d3bab480e6690d3f58a4ad111f9206d2d8410b5ffc48756bac54c1b90a0d7c39",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/request-answer-lines.md"
+      ],
+      "source_id": "src-e619f36977052ea55f0b"
+    },
+    ".raw/captured/d9347b3355ce2cea483d2e61e261344ea5b7357b314fdd27ecddb48932c49e37.md": {
+      "hash": "d9347b3355ce2cea483d2e61e261344ea5b7357b314fdd27ecddb48932c49e37",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/ecc-content-is-pinned-never-its-mechanism.md"
+      ],
+      "source_id": "src-164ba98435b12ec72380"
+    },
+    ".raw/captured/d9435ba109e2631a1c433915447f249ba339e956dc63d4581c61ba725a44077b.md": {
+      "hash": "d9435ba109e2631a1c433915447f249ba339e956dc63d4581c61ba725a44077b",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/critic-on-the-plan-verifier-on-the-code.md"
+      ],
+      "source_id": "src-210e8bf83a32cef94367"
+    },
+    ".raw/captured/d99f45dcaa23cabe3ed1750cb3399c6b1b17422c05c0bb9ff779e5972ef328fd.md": {
+      "hash": "d99f45dcaa23cabe3ed1750cb3399c6b1b17422c05c0bb9ff779e5972ef328fd",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/collector-yes-then-standing-rule.md"
+      ],
+      "source_id": "src-3b0ba3e8d5b0410a1458"
+    },
+    ".raw/captured/86b2359990a1341fdf73bccc5f6b6a2153e58a0811778f6c7d128db5facbd4d4.md": {
+      "hash": "86b2359990a1341fdf73bccc5f6b6a2153e58a0811778f6c7d128db5facbd4d4",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-checkout-is-a-claude-obsidian-vault.md"
+      ],
+      "source_id": "src-79d3349816901483a64a"
+    },
+    ".raw/captured/d9e6f8c120b09c47196eee0b2bf26559b3e07b0b704c5b4d3f0a358e0d1e2156.md": {
+      "hash": "d9e6f8c120b09c47196eee0b2bf26559b3e07b0b704c5b4d3f0a358e0d1e2156",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/planner-answers-its-findings-fixer-on-demand.md"
+      ],
+      "source_id": "src-195e35740e80c8b1d2cd"
+    },
+    ".raw/captured/deb3175b69c97d49557d5be27e41b57e1f407052f492f59b8e7cb1a10a643609.md": {
+      "hash": "deb3175b69c97d49557d5be27e41b57e1f407052f492f59b8e7cb1a10a643609",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/duty-list-from-the-plan.md"
+      ],
+      "source_id": "src-753a1012ba0368af7e2f"
+    },
+    ".raw/captured/e10ad4767b067d40d76783b6b8b51eb134f02f9f22c88325b56b80b458bf677e.md": {
+      "hash": "e10ad4767b067d40d76783b6b8b51eb134f02f9f22c88325b56b80b458bf677e",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/one-score-per-run-by-script.md"
+      ],
+      "source_id": "src-e02a1ca3f3d1860a1653"
+    },
+    ".raw/captured/e1e85593b35764f4952912124be3fe7f6154cfe75f6137b244e3fe8b6cfd65cf.md": {
+      "hash": "e1e85593b35764f4952912124be3fe7f6154cfe75f6137b244e3fe8b6cfd65cf",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-sandbox-sets-itself-up-and-a-refusal-is-reported.md"
+      ],
+      "source_id": "src-2163958963ac63292e74"
+    },
+    ".raw/captured/e59a0fed82e1c1b4c54c1685e74111c2decc7ff2e76f11ec47a443055a1110fd.md": {
+      "hash": "e59a0fed82e1c1b4c54c1685e74111c2decc7ff2e76f11ec47a443055a1110fd",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/diagrams-are-mermaid-text.md"
+      ],
+      "source_id": "src-d913e696597881c2914d"
+    },
+    ".raw/captured/ee046949e35457f2b16e96ce596bc775d7ef561c3f0627d98f693333058aba83.md": {
+      "hash": "ee046949e35457f2b16e96ce596bc775d7ef561c3f0627d98f693333058aba83",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/pipeline-economy-hand-over-units-checks-facts-pack.md"
+      ],
+      "source_id": "src-da4a8e4506ec101f1976"
+    },
+    ".raw/captured/ee0ba2d975e4bc0662bd35a7c55d5ab4d51bb13e70e28b5963c96fc452b9555c.md": {
+      "hash": "ee0ba2d975e4bc0662bd35a7c55d5ab4d51bb13e70e28b5963c96fc452b9555c",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/skill-script-pages.md"
+      ],
+      "source_id": "src-6d698461a67ffd674d4d"
+    },
+    ".raw/captured/ee312278b0063f5d97931d99d4801deac182cbe4ff6bab43ac21fa532d9e424b.md": {
+      "hash": "ee312278b0063f5d97931d99d4801deac182cbe4ff6bab43ac21fa532d9e424b",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/plan-steps-and-blocks-in-two-files.md"
+      ],
+      "source_id": "src-df8f227233030d5906b0"
+    },
+    ".raw/captured/f2c6817ee63e259d412ea701352c2a1db0afd9951a39a68ef4fb35be289c558d.md": {
+      "hash": "f2c6817ee63e259d412ea701352c2a1db0afd9951a39a68ef4fb35be289c558d",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/the-manager-profile-is-measured-at-its-first-call.md"
+      ],
+      "source_id": "src-34467aa9d9ab4d688dad"
+    },
+    ".raw/captured/f2f87d6e19ffe2311d6995223cbb3bf8f894041d92a7fc13dcec3614c22bdb7c.md": {
+      "hash": "f2f87d6e19ffe2311d6995223cbb3bf8f894041d92a7fc13dcec3614c22bdb7c",
+      "ingested_at": "2026-10-31",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/ecc-text-reaches-a-brief-by-line-range.md"
+      ],
+      "source_id": "src-9ec878cfa69c543e13b0"
+    },
+    ".raw/captured/f74129fdfc437c864af12d9e1f66a0e8ef98c238803496c9fe516334ecc2f78e.md": {
+      "hash": "f74129fdfc437c864af12d9e1f66a0e8ef98c238803496c9fe516334ecc2f78e",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/bootstrap-runs-eleven-steps-in-order.md"
+      ],
+      "source_id": "src-b5ee9fef51a2db8aa613"
+    },
+    ".raw/captured/f7ba18feb9c0d78e8bed1e58d761b9ddd981142e14220d9c778154dfe3830b14.md": {
+      "hash": "f7ba18feb9c0d78e8bed1e58d761b9ddd981142e14220d9c778154dfe3830b14",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/what-an-agent-reads-is-small-and-layered.md"
+      ],
+      "source_id": "src-34c1f39110dd526141bc"
+    },
+    ".raw/captured/fca8a85544af6936d35383265e2271f32bdba4fd930647605b914d1f2575f351.md": {
+      "hash": "fca8a85544af6936d35383265e2271f32bdba4fd930647605b914d1f2575f351",
+      "ingested_at": "2026-10-30",
+      "pages_created": [],
+      "pages_updated": [
+        "wiki/decisions/roles-and-sessions-keep-their-names.md"
+      ],
+      "source_id": "src-5d2639386d85db8b8b76"
+    }
+  },
+  "version": 1
+}

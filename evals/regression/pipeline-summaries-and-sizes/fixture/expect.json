@@ -1,0 +1,1 @@
+{"check": "summaries-and-sizes", "inputs": ["wiki", "docs/runbooks"], "max_bytes": 200, "found": ["docs/runbooks/restart.md: 282 bytes, over 200", "wiki/decisions/no-summary.md: no .summary.md summary", "wiki/index.md: an index of 254 bytes, over 200"]}

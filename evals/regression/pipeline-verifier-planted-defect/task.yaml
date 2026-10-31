@@ -1,0 +1,31 @@
+schema_version: 1
+name: pipeline-verifier-planted-defect
+suite: regression
+role_type: verifier
+pipeline: default
+stage: verify
+trials: 1
+timeout_minutes: 15
+max_budget_usd: 3
+fixture: fixture
+brief: fixture/brief.md
+stop_gate: false   # the verify gate reads a branch; this case gives the writer's page as a file
+# What this case proves (spec 5): the verifier finds the one defect planted in the writer's page and reports no other.
+# Line 3 of the page says 5 retries; context/sample.txt:2 says 3. Lines 4 and 5 are right.
+graders:
+  - type: file_exists
+    path: stages/verify/output/report.md
+  - type: json_schema
+    path: stages/verify/result.json
+    schema: schemas/stage-result.schema.json
+  - type: regex            # the planted defect, at its line, with its proof
+    path: stages/verify/output/report.md
+    pattern: "(?m)^DEFECT .*doc\\.md:3\\b.* — proof: \\S"
+    min_matches: 1
+    max_matches: 1
+  - type: regex            # and nothing else
+    path: stages/verify/output/report.md
+    pattern: "(?m)^DEFECT "
+    min_matches: 1
+    max_matches: 1
+pass_rule: deterministic_all

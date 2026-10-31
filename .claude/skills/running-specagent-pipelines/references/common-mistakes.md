@@ -1,0 +1,15 @@
+# Common mistakes
+| Mistake | Fix |
+|---|---|
+| `--autocompact 200k` or the 60% override in agents | the empty env override |
+| effort high or xhigh to save cost | max |
+| critic only after the whole plan; builder waits for a frozen plan | the per-task flow (SKILL.md, Pipeline) |
+| owner questions mid-run; the owner decides after round 3 | decided by rule; the owner reads summaries |
+| a message from the main session never arrives | `lessons.md` for rules; stop and resume for new orders |
+| changing global settings or plugins while agents run | running agents reload them mid-task; change them between runs |
+| the verifier rebuilds from scratch for every task | milestones only |
+| dumping `ps aux` or whole transcripts into the context | print the fields you need |
+| a hand-over note that points at files ("read plan 56461–56572, critique.md after A117") | the note copies the facts in; pointers only to what the next session will write or edit |
+| a fresh session that reads the plan, critique.md and the logs before its first step | brief, rule, "Read first" and, last, the note; a source only when a step needs it, by ranges |
+| a session blocked on a permission prompt (a heredoc or `cp` writing under /tmp asked for an approval nobody gives; the planner lost 40 minutes, 2026-10-23) | `watch_agents.py` cancels it after `permission_wait` (10 minutes) and resumes the session; give every role a scratch folder `<run-dir>/scratch/<role>/` in its brief or lessons.md, written with Write and Edit |
+| a lower cap, or a terse style, to save tokens | neither saves (measured 2026-10-22); shrink the startup reads instead |

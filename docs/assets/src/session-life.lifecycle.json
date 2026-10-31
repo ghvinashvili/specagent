@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {"title": "A session's life", "quality_profile": "showcase", "legend": {"mode": "hidden"}, "viewBox": [980, 660]},
+  "lanes": [
+    {"id": "main", "label": "One session"},
+    {"id": "end", "label": "After its unit"},
+    {"id": "terminal", "label": "The hand-over"}
+  ],
+  "states": [
+    {"id": "fresh", "type": "start", "label": "fresh", "sublabel": "a new session", "lane": "main", "col": 0, "step": "01"},
+    {"id": "reads", "type": "active", "label": "brief, Read first", "sublabel": "facts pack, note last", "lane": "main", "col": 1, "step": "02"},
+    {"id": "wait", "type": "waiting", "label": "waiter", "sublabel": "wakes on input", "lane": "main", "col": 2, "step": "03"},
+    {"id": "unit", "type": "active", "label": "one unit", "sublabel": "e.g. a task built", "lane": "main", "col": 3, "step": "04"},
+    {"id": "files", "type": "neutral", "label": "records", "sublabel": "commit, STATUS:", "lane": "main", "col": 4, "step": "05"},
+    {"id": "check", "type": "decision", "label": "unit done, or 200k?", "sublabel": "by itself, or the watcher", "lane": "end", "col": 2, "width": 160},
+    {"id": "commit", "type": "neutral", "label": "commit, then note", "sublabel": "nothing half done", "lane": "terminal", "col": 2, "width": 142},
+    {"id": "handover", "type": "neutral", "label": "hand-over", "sublabel": "40 lines of facts", "lane": "terminal", "col": 1, "width": 100},
+    {"id": "watcher", "type": "external", "label": "watcher", "sublabel": "starts the next", "lane": "terminal", "col": 0, "width": 100}
+  ],
+  "transitions": [
+    {"id": "t1", "from": "fresh", "to": "reads", "route": "straight"},
+    {"id": "t2", "from": "reads", "to": "wait", "route": "straight"},
+    {"id": "t3", "from": "wait", "to": "unit", "route": "straight", "variant": "emphasis"},
+    {"id": "t4", "from": "unit", "to": "files", "route": "straight"},
+    {"id": "t5", "from": "files", "to": "check", "fromSide": "bottom", "toSide": "top", "route": "straight"},
+    {"id": "no", "from": "check", "to": "unit", "label": "no", "variant": "dashed", "fromSide": "left", "toSide": "bottom"},
+    {"id": "yes", "from": "check", "to": "commit", "label": "yes", "fromSide": "bottom", "toSide": "top", "route": "straight", "labelDy": 70},
+    {"id": "t6", "from": "commit", "to": "handover", "fromSide": "left", "toSide": "right", "route": "straight"},
+    {"id": "t8", "from": "handover", "to": "watcher", "fromSide": "left", "toSide": "right", "route": "straight"},
+    {"id": "t9", "from": "watcher", "to": "fresh", "variant": "emphasis", "fromSide": "left", "toSide": "left", "route": "left-channel", "channelX": 16}
+  ]
+}

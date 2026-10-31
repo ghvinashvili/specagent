@@ -1,0 +1,1 @@
+{"check": "expected-lines", "inputs": ["plan/task-01.md"], "found": ["plan/task-01.md:12: a command block without an Expected: line"]}

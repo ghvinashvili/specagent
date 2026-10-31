@@ -1,0 +1,215 @@
+# What each role type may receive and read. Read by harness/access.py on every launch and resume.
+# A stage whose `inputs` ask for more than its type's row allows is refused before anything starts,
+# and a role type without a row is not launched.
+schema_version: 1
+
+defaults:
+  steps: warn
+  # A role session's working directories: `stage` is its own stage directory, `escalations` the run's question
+  # directory, `inbox` the untrusted-input directory, `runs` the whole runs root.
+  dirs: [stage, escalations]
+  blind: false                 # true: the type reviews work and must not learn who made it or what others found
+  brief_drop: []               # regular expressions; matching lines of the brief are not passed on
+  # Prompt cache lifetime of the main conversation: 5m or 1h. One hour: a stage runs at max effort, where one response
+  # can generate for five to nine minutes, so a five-minute entry expires while the session works and its next
+  # request writes the whole conversation again. Measured on 2026-10-04 on a planner and a frame at max: all 8 misses
+  # were such expiries, and one hour would have cost 14 % less (ADR-0016). A type whose sessions are short and keep a
+  # low effort of their own sets 5m in its row.
+  cache_ttl: 1h
+  plugins: []                  # project plugins this type keeps; every other project plugin is switched off
+  mcp_servers: []              # servers of .mcp.json this type is given; a role session loads no other
+  # Repository files that join the type's knowledge pack (appended to its system prompt). The project's own
+  # instruction files are in every pack: a subagent sent into this repository would be given them, so a role
+  # session is given them too (ADR-0006). A type that lists files of its own repeats the two.
+  pack_files: ["CLAUDE.md", "AGENTS.md"]
+  bundled_skills: false        # true: the type keeps Claude Code's bundled skills (/code-review, /simplify, ...)
+  plugin_skills: []            # skills of a kept plugin the type may use without an approval: "<plugin>:<skill>"
+  skills: []                   # project skills the type may use without an approval, besides its agent file's list
+  changes_repository: false    # true: the type commits on a branch of its own; its session gets a worktree name
+  trial_checkout: false        # true: the type builds and runs its design once in a checkout of its own before it
+                               # writes; the checkout goes when the next stage starts, its change is handed on as a patch
+  # The models a role session may run on. Fable is not among them: the human's rule of 2026-10-02 is that the
+  # sessions the harness starts run on Opus, Sonnet or Haiku. `harness validate` checks every agent file and
+  # every stage table against this list.
+  models: [opus, sonnet, haiku]
+  # When a stage names a directory as an input, these are left out of the copy.
+  never_copy: ["result.json", "progress.md", "prompt.md", "pack.md", "gate.json", "escalation.json", "logs/**", "input/**"]
+  # Repository paths no role session reads. A type that is not blind reads everything else a subagent sent into this
+  # repository could read (ADR-0015); secrets are closed to every session by the project's settings.
+  repo_deny:
+    - ".claude/agent-memory/**"
+    - "docs/handoff/**"           # the manager's and the human's handoffs: who did what, the budget, the models
+  # Added to repo_deny for a blind type only: the texts that name every type and stage, its model, effort and budget,
+  # and how the flow judges the work (ADR-0015).
+  blind_deny:
+    - ".claude/agents/**"
+    - "docs/roles/stages.yaml"
+    - "docs/roles/pipelines/**"
+    - "docs/roles/need-to-know.yaml"
+    - "docs/generated/role-types.md"
+    - "design/**"                 # the design record of the flow itself; it describes every type and its budget
+  # Home paths a role session may not read: other sessions' transcripts.
+  home_deny:
+    - "~/.claude/projects/**"
+    - "~/.claude/jobs/**"
+  # User-level instruction files a role session does not load.
+  user_instructions:
+    - "~/.claude/CLAUDE.md"
+    - "~/.claude/rules/**"
+  # Project instruction files Claude Code does not load into a role session by itself: there they would sit in the
+  # first message, which no two sessions share in the cache (measured on 2026-10-02: 3,895 of the 14,030 tokens of
+  # a reader's first request, written again by every session). A role session gets them in its system prompt
+  # instead: `role_rules` first, then the root map and `AGENTS.md` through `pack_files`.
+  project_instructions:
+    - "CLAUDE.md"
+    - "AGENTS.md"
+    - "CLAUDE.local.md"
+    - ".claude/rules/harness.md"
+  # Paths outside the working directories that a sandboxed command of a role session may reach: the tools of
+  # the project's stack and their caches. A role session reads nothing else under the home directory
+  # (`blockReadsOutsideWorkingDirectories`), so a tool installed there (`~/.local/bin/uv`, `~/.cargo/bin`,
+  # `~/.nvm`) does not exist for it until its directory is listed here. A path that does not exist is skipped.
+  toolchain:
+    read: ["~/.local/bin", "~/.local/share/uv", "~/.cache/uv"]
+    write: ["~/.cache/uv"]
+  # The rules of every role session. They open the text appended to the type's system prompt; the pack follows.
+  role_rules: ".claude/rules/harness.md"
+  # Project plugins that exist; a type's `plugins` picks from this list.
+  project_plugins:
+    - "code-intel@example-repo-plugins"
+    - "obsidian-vault@example-repo-plugins"
+
+types:
+  reader:
+    may_receive: [brief, context, spec]
+    outputs_of: []
+    plugins: ["obsidian-vault@example-repo-plugins"]
+    plugin_skills: ["obsidian-vault:wiki-query"]   # the vault answers before a directory is read
+  researcher:
+    may_receive: [brief, context]
+    outputs_of: [planner]
+    plugins: ["code-intel@example-repo-plugins"]
+  story-writer:
+    may_receive: [brief]
+    outputs_of: [researcher]
+  # The spec writer writes the skeleton: intent, requirements, limits, done, out of scope, about one page. It is given
+  # the brief and what the researcher and the story writer found; the plan's content is the planner's.
+  spec-writer:
+    may_receive: [brief]
+    outputs_of: [researcher, story-writer]
+    pack_files: ["CLAUDE.md", "AGENTS.md", "specs/constitution.md"]
+  # The planner puts the flesh on the spec's skeleton: data, flows, interfaces, and tasks with files, commands, tests.
+  planner:
+    may_receive: [brief, context, spec]
+    outputs_of: [reader, story-writer, spec-writer]
+    pack_files: ["CLAUDE.md", "AGENTS.md", "specs/constitution.md"]
+    plugins: ["code-intel@example-repo-plugins", "obsidian-vault@example-repo-plugins"]
+    plugin_skills: ["obsidian-vault:wiki-query"]   # the vault answers before a directory is read
+    trial_checkout: true       # a plan is written after its design was built and run once
+  writer:
+    may_receive: [brief, spec]
+    outputs_of: [planner, spec-writer, reader, critic]    # the reader's notes are where it looks a fact up; the
+    # critic's findings and attack tests on the plan are part of the work (specs/002-run-loop)
+    repo_deny_extra: ["evals/cases/**", "evals/baseline/**", "evals/results/**"]   # hidden cases stay hidden
+    plugins: ["code-intel@example-repo-plugins", "obsidian-vault@example-repo-plugins"]
+    changes_repository: true
+    plugin_skills: ["obsidian-vault:wiki-query", "obsidian-vault:save"]   # the type writes pages; its commit skill is the agent file's
+    skills: [python-patterns, python-testing]   # ECC skills for the template's own language (.claude/ecc/README.md)
+  librarian:
+    may_receive: [brief, context]
+    outputs_of: []
+    plugins: ["obsidian-vault@example-repo-plugins"]
+    changes_repository: true
+    plugin_skills: ["obsidian-vault:wiki-query", "obsidian-vault:save", "obsidian-vault:wiki-lint"]   # the type keeps the pages; its commit skill is the agent file's
+  advisor:
+    may_receive: [brief]
+    outputs_of: [planner]
+    dirs: [stage]              # an advisor sees neither another advisor nor another stage's question
+  synthesizer:
+    may_receive: []
+    outputs_of: [planner, advisor, comparator, researcher, critic]
+
+  # Reviewing types. They get the work and the material, never the budget or anything that names the model behind a
+  # stage. Since specs/002-run-loop the critic attacks a plan before any work, and the verifier and the judge read its
+  # findings: a reviewer checks the work against them instead of finding them again (docs/decisions/0024). Their
+  # questions go to `escalation.json` in their own stage directory; `harness poll` files it.
+  verifier:
+    blind: true
+    dirs: [stage]
+    brief_drop: ['^\s*- Budget:.*$']
+    may_receive: [brief, spec]
+    outputs_of: [planner, writer, librarian, critic]      # never validator, test-verifier or judge
+    alias: { writer: work, librarian: work, planner: plan }
+    plugins: ["code-intel@example-repo-plugins"]
+  test-verifier:
+    blind: true
+    dirs: [stage]
+    brief_drop: ['^\s*- Budget:.*$']
+    may_receive: [brief]
+    outputs_of: [story-writer, writer]
+    alias: { writer: work, story-writer: story }
+    plugins: ["code-intel@example-repo-plugins", "obsidian-vault@example-repo-plugins"]
+    changes_repository: true
+    plugin_skills: ["obsidian-vault:wiki-query", "obsidian-vault:save"]   # the type writes pages; its commit skill is the agent file's
+    skills: [python-patterns, python-testing]   # ECC skills for the template's own language (.claude/ecc/README.md)
+  validator:
+    blind: true
+    dirs: [stage]
+    brief_drop: ['^\s*- Budget:.*$']
+    may_receive: [brief]
+    outputs_of: [story-writer, spec-writer, writer]
+    alias: { writer: work, story-writer: story, spec-writer: spec }
+    plugins: ["code-intel@example-repo-plugins"]
+  critic:
+    blind: true
+    dirs: [stage]
+    brief_drop: ['^\s*- Budget:.*$']
+    may_receive: [brief, context, spec]
+    outputs_of: [writer, researcher, analyst, planner, reader]     # a plan, its trial and the reader's notes before
+    # any work (specs/002-run-loop); never verifier, validator, test-verifier, judge or another critic
+    alias: { writer: work, researcher: work, analyst: work }
+    plugins: ["code-intel@example-repo-plugins"]
+  comparator:
+    blind: true
+    dirs: [stage]
+    brief_drop: ['^\s*- Budget:.*$']
+    may_receive: []
+    outputs_of: [planner, advisor]
+    alias: { advisor: candidates, planner: question }
+  judge:
+    blind: true
+    dirs: [stage]
+    brief_drop: ['^\s*- Budget:.*$']               # no budget and no approvals; the attempt number is in no input
+    may_receive: []
+    outputs_of: [verifier, critic, test-verifier, validator, analyst, planner, writer]   # the plan and the change
+    alias: { writer: work }    # itself, as changes.patch without a checkout (specs/002-run-loop)
+
+  # Untrusted input and routing.
+  quarantine-reader:
+    dirs: [stage, inbox]       # the only type that may open untrusted text
+    may_receive: [brief, context]
+    outputs_of: []
+    repo_deny_extra: ["**"]    # it needs nothing from the repository
+    pack_files: []             # and is told nothing about it
+    cache_ttl: 5m              # it keeps sonnet at medium effort: its responses never outlive five minutes
+  classifier:
+    dirs: [stage]
+    may_receive: [brief]
+    outputs_of: [quarantine-reader]
+    repo_deny_extra: ["**"]
+    pack_files: []
+    cache_ttl: 5m              # it keeps haiku at low effort
+
+  # Learning.
+  analyst:
+    dirs: [stage, escalations, runs]   # past runs are its material
+    may_receive: [brief, context]
+    outputs_of: []
+
+  # Plan fixing and rendering.
+  plan-fixer:
+    may_receive: [brief, spec]
+    outputs_of: [planner, critic, verifier]
+  translator:
+    may_receive: [brief]
+    outputs_of: [writer, synthesizer]

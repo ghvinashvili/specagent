@@ -1,0 +1,125 @@
+# model and effort of a stage are exact: a run takes them as the table has them, whatever session creates it;
+# `harness run --effort <stage>=<level>` changes one stage for one run (state.choose_stage, docs/decisions/0024).
+version: 1
+stages:
+  - id: research
+    role_type: researcher
+    mode: bg
+    model: opus
+    effort: max
+    inputs: [brief, context]
+    output: output/findings.md
+    gate: research
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 360
+    max_attempts: 3
+
+  - id: story
+    role_type: story-writer
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [research]
+    inputs: [brief, "research:output/findings.md"]
+    output: output/story.md
+    gate: story
+    approval: human
+    permission_mode: acceptEdits
+    max_minutes: 270
+    max_attempts: 3
+
+  - id: spec
+    role_type: spec-writer
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [story]
+    inputs: [brief, "research:output/findings.md", "story:output/story.md"]
+    output: output/spec.md
+    gate: spec
+    approval: human
+    permission_mode: acceptEdits
+    max_minutes: 360
+    max_attempts: 3
+
+  - id: plan
+    role_type: planner
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [spec]
+    inputs: [brief, "story:output/story.md", "spec:output/spec.md"]
+    output: output/plan.md
+    gate: plan
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 360
+    max_attempts: 3
+
+  - id: write
+    role_type: writer
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [plan]
+    inputs: [brief, "spec:output/spec.md", "plan:output/", "plan:tasks.json"]
+    output: output/
+    gate: write
+    parallel: per_task
+    max_shards: 4
+    approval: none
+    permission_mode: auto
+    max_minutes: 720
+    max_attempts: 2
+
+  - id: accept
+    role_type: test-verifier
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [write]
+    inputs: [brief, "story:output/story.md", "write:output/"]
+    output: output/acceptance.md
+    gate: accept
+    parallel_with: [validate]
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 360
+    max_attempts: 2
+
+  - id: validate
+    role_type: validator
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [write]
+    inputs: [brief, "story:output/story.md", "spec:output/spec.md", "write:output/"]
+    output: output/findings.md
+    gate: validate
+    parallel_with: [accept]
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 270
+    max_attempts: 2
+
+  - id: judge
+    role_type: judge
+    mode: print
+    model: opus
+    effort: max
+    depends_on: [accept, validate]
+    inputs: ["accept:output/acceptance.md", "validate:output/findings.md"]
+    output: result.json
+    gate: judge
+    json_schema: stage-result.schema.json
+    max_budget_usd: 5
+    max_turns: 60
+    approval: human
+    permission_mode: acceptEdits
+    max_minutes: 30
+    max_attempts: 2
+
+no_match:
+  action: escalate
+  message: "No role type matches this request. Answer with the name of an existing type from docs/generated/role-types.md, or create one with /new-role-type."

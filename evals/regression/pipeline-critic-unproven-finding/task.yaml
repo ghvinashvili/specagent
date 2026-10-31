@@ -1,0 +1,40 @@
+schema_version: 1
+name: pipeline-critic-unproven-finding
+suite: regression
+role_type: critic
+pipeline: default
+stage: attack
+trials: 1
+timeout_minutes: 15
+max_budget_usd: 3
+fixture: fixture
+brief: fixture/brief.md
+stop_gate: false   # the attack gate asks for tests of the plan's tasks; this plan has none
+# What this case proves (spec 5): the critic reports the defect it can prove and refuses the claim it cannot.
+# The plan's step 3 cites context/sample.txt:9, a file of 4 lines; the reader's notes claim, with no line or quote,
+# that step 2 deletes the user's reports, which step 2 itself rules out.
+graders:
+  - type: file_exists
+    path: stages/attack/output/critique.md
+  - type: json_schema
+    path: stages/attack/result.json
+    schema: schemas/stage-result.schema.json
+  - type: regex            # the proven defect is reported, with its proof
+    path: stages/attack/output/critique.md
+    pattern: "(?m)^FINDING (?=.* — proof: \\S).*(sample\\.txt:9|line 9 of (context/)?sample\\.txt)"  # the location may sit in the proof part
+    min_matches: 1
+  - type: regex            # the unproven claim is not
+    path: stages/attack/output/critique.md
+    pattern: "(?im)^FINDING .*delet"
+    max_matches: 0
+    min_matches: 0
+  - type: regex            # no finding without its proof (the evidence rule)
+    path: stages/attack/output/critique.md
+    pattern: "(?m)^FINDING (?!.* — proof: \\S)"
+    max_matches: 0
+    min_matches: 0
+  - type: regex            # what could not be proven has its own heading
+    path: stages/attack/output/critique.md
+    pattern: "(?m)^## To check"
+    min_matches: 1
+pass_rule: deterministic_all

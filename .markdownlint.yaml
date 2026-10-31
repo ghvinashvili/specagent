@@ -1,0 +1,11 @@
+default: true
+MD013: false
+MD024:
+  siblings_only: true
+MD033: false
+MD041: false
+# The repository's documents are written compactly: no blank line is required around headings and lists,
+# and a wiki page has a frontmatter title and one heading.
+MD022: false
+MD025: false
+MD032: false

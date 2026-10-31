@@ -1,0 +1,26 @@
+schema_version: 1
+name: reader-quotes-locations
+suite: regression
+role_type: reader
+trials: 3
+timeout_minutes: 15
+max_budget_usd: 2
+fixture: fixture
+brief: fixture/brief.md
+graders:
+  - type: file_exists
+    path: stages/read/output/notes.md
+  - type: json_schema
+    path: stages/read/result.json
+    schema: schemas/stage-result.schema.json
+  - type: regex
+    path: stages/read/output/notes.md
+    pattern: "`context/sample\\.txt:\\d+`"
+    min_matches: 3
+  - type: python
+    script: evals/graders/no_opinion_words.py
+    args: [stages/read/output/notes.md]
+  - type: llm
+    rubric: evals/rubrics/notes-faithful.md
+    weight: 0.5
+pass_rule: deterministic_all_and_llm_at_least_0.7

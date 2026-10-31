@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/stage-result.schema.json",
+  "title": "Stage result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "stage", "role_type", "status", "outputs", "summary", "evidence", "open_questions"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "run_id": { "type": "string" },
+    "stage": { "type": "string" },
+    "role_type": { "type": "string" },
+    "status": { "enum": ["complete", "partial", "escalated", "failed"] },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "kind"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative to the stage directory, for example output/notes.md. For kind code: the file's path in the repository, on the stage's branch."
+          },
+          "kind": { "enum": ["notes", "plan", "tasks", "code", "report", "verdict", "other"] },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "summary": { "type": "string", "maxLength": 2000 },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "how_checked"],
+        "properties": {
+          "claim": { "type": "string" },
+          "how_checked": { "type": "string" },
+          "command": { "type": "string" },
+          "exit_code": { "type": "integer" },
+          "expected_exit_code": { "type": "integer" }
+        }
+      }
+    },
+    "open_questions": { "type": "array", "items": { "type": "string" } },
+    "verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "reasons"],
+      "properties": {
+        "decision": { "enum": ["accept", "revise", "replan", "reject"] },
+        "reasons": { "type": "array", "items": { "type": "string" } },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "items", "embedded_instructions"],
+      "properties": {
+        "source": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "text", "locator"],
+            "properties": {
+              "kind": { "enum": ["fact", "request", "question", "identifier", "other"] },
+              "text": { "type": "string", "maxLength": 500 },
+              "locator": { "type": "string" }
+            }
+          }
+        },
+        "embedded_instructions": { "type": "array", "items": { "type": "string", "maxLength": 300 } }
+      }
+    },
+    "label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "confidence"],
+      "properties": {
+        "value": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "alternatives": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "ranking": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["order"],
+      "properties": {
+        "order": { "type": "array", "items": { "type": "string" } },
+        "strongest": { "type": "string" },
+        "blind_spots": { "type": "array", "items": { "type": "string" } },
+        "missed_by_all": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "stop_reason": { "type": "string" }
+  }
+}

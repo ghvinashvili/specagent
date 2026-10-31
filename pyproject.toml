@@ -1,0 +1,25 @@
+[project]
+name = "example-repo"
+version = "0.0.0"
+description = "Workspace root; packages live under packages/*"
+requires-python = ">=3.12"
+dependencies = ["harness"]   # the workspace packages, so that `uv sync` installs them and `uv run harness` works
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+harness = { workspace = true }
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6", "jsonschema>=4", "pyyaml>=6"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+# The design record holds code blocks as they were written, and the audit's probes stay as they were run; the
+# formatter leaves Markdown alone everywhere.
+extend-exclude = ["design", "context/fix-20261004", "*.md", ".claude/skills/agent-self-evaluation/scripts", ".claude/skills/docs-governance/scripts", "templates/vault/ops"]
+
+[tool.pytest.ini_options]
+testpaths = ["packages", ".claude/skills/running-specagent-pipelines/scripts/tests", "ops/tests"]

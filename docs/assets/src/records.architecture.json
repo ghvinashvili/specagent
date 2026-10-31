@@ -1,0 +1,450 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "The record files of a run",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    }
+  },
+  "components": [
+    {
+      "id": "manager",
+      "type": "backend",
+      "label": "the manager",
+      "sublabel": "your chat: briefs, launch",
+      "pos": [
+        40,
+        90
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "briefs",
+      "type": "database",
+      "label": "the briefs",
+      "sublabel": "_common.md, _<role>-assignment.md",
+      "tag": "_launch.md: your Yes: line",
+      "pos": [
+        380,
+        90
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "spec",
+      "type": "database",
+      "label": "spec-log.md",
+      "sublabel": "spec-writer: Spec: written",
+      "tag": "only when no spec exists",
+      "pos": [
+        720,
+        90
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "plan",
+      "type": "database",
+      "label": "plan-log.md",
+      "sublabel": "planner: each task written",
+      "pos": [
+        1060,
+        90
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "control",
+      "type": "security",
+      "label": "_control/",
+      "sublabel": "settings, duties, registry",
+      "tag": "denied to every role",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "lessons",
+      "type": "database",
+      "label": "lessons.md",
+      "sublabel": "rules from shared causes",
+      "pos": [
+        380,
+        240
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "critique",
+      "type": "database",
+      "label": "critique.md",
+      "sublabel": "critic: C and A findings",
+      "pos": [
+        1060,
+        240
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "watcher",
+      "type": "backend",
+      "label": "the watcher",
+      "sublabel": "scripts/watch_agents.py",
+      "pos": [
+        40,
+        390
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "role",
+      "type": "backend",
+      "label": "a role session",
+      "sublabel": "any role, one unit each",
+      "pos": [
+        380,
+        390
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "resp",
+      "type": "database",
+      "label": "critique-response.md",
+      "sublabel": "planner or plan fixer: answers",
+      "pos": [
+        720,
+        390
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "build",
+      "type": "database",
+      "label": "build-log.md",
+      "sublabel": "builder: Task N done, V fixed",
+      "pos": [
+        1060,
+        390
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "watch",
+      "type": "database",
+      "label": "_watch.log",
+      "sublabel": "watcher: hand-overs, revivals",
+      "pos": [
+        40,
+        540
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "handoff",
+      "type": "database",
+      "label": "handoff-<role>.md",
+      "sublabel": "facts for the next session",
+      "pos": [
+        380,
+        540
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "verify",
+      "type": "database",
+      "label": "verify.md",
+      "sublabel": "verifier: V findings, repro",
+      "pos": [
+        1060,
+        540
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "human",
+      "type": "external",
+      "label": "you",
+      "sublabel": "head -1 <run>/*.md",
+      "pos": [
+        40,
+        690
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "summaries",
+      "type": "database",
+      "label": "*.summary.md",
+      "sublabel": "each role's, in English",
+      "pos": [
+        380,
+        690
+      ],
+      "size": [
+        220,
+        76
+      ]
+    },
+    {
+      "id": "judge",
+      "type": "database",
+      "label": "judge.md",
+      "sublabel": "judge: VERDICT: on line 2",
+      "pos": [
+        1060,
+        690
+      ],
+      "size": [
+        220,
+        76
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "writes",
+      "from": "manager",
+      "to": "briefs",
+      "label": "writes",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "settings",
+      "from": "manager",
+      "to": "control",
+      "label": "settings, duties",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 50
+    },
+    {
+      "id": "launch",
+      "from": "briefs",
+      "to": "spec",
+      "label": "the launch",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "thespec",
+      "from": "spec",
+      "to": "plan",
+      "label": "the spec",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "review",
+      "from": "plan",
+      "to": "critique",
+      "label": "reviewed",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 50
+    },
+    {
+      "id": "built",
+      "from": "critique",
+      "to": "build",
+      "label": "built",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 50
+    },
+    {
+      "id": "checked",
+      "from": "build",
+      "to": "verify",
+      "label": "each commit",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 50
+    },
+    {
+      "id": "judged",
+      "from": "verify",
+      "to": "judge",
+      "label": "all verified",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 50
+    },
+    {
+      "id": "ca",
+      "from": "critique",
+      "to": "resp",
+      "label": "C, A ids",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "top"
+    },
+    {
+      "id": "bids",
+      "from": "build",
+      "to": "resp",
+      "label": "B ids",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "id": "vids",
+      "from": "verify",
+      "to": "resp",
+      "label": "(plan), (spec) V ids",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "bottom"
+    },
+    {
+      "id": "registry",
+      "from": "watcher",
+      "to": "control",
+      "label": "registry.json",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -24
+    },
+    {
+      "id": "logs",
+      "from": "watcher",
+      "to": "watch",
+      "label": "logs",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 50
+    },
+    {
+      "id": "starts",
+      "from": "watcher",
+      "to": "role",
+      "label": "starts, revives",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "note",
+      "from": "role",
+      "to": "handoff",
+      "label": "at a unit's end",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDx": -45,
+      "labelDy": 50
+    },
+    {
+      "id": "readnote",
+      "from": "handoff",
+      "to": "role",
+      "label": "read first",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDx": 33,
+      "labelDy": -24
+    },
+    {
+      "id": "rule",
+      "from": "role",
+      "to": "lessons",
+      "label": "a shared cause: a rule",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDx": 62,
+      "labelDy": -24
+    },
+    {
+      "id": "readrules",
+      "from": "lessons",
+      "to": "role",
+      "label": "before each task",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDx": -48,
+      "labelDy": 50
+    },
+    {
+      "id": "summary",
+      "from": "role",
+      "to": "summaries",
+      "label": "at its end",
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [
+          660,
+          428
+        ],
+        [
+          660,
+          728
+        ]
+      ]
+    },
+    {
+      "id": "read",
+      "from": "summaries",
+      "to": "human",
+      "label": "what you read",
+      "fromSide": "left",
+      "toSide": "right"
+    }
+  ]
+}

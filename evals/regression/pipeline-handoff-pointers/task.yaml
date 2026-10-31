@@ -1,0 +1,14 @@
+schema_version: 1
+name: pipeline-handoff-pointers
+suite: regression
+session: false   # graded by code on a copy of fixture/, with no model and no API key (ADR-0028)
+trials: 1
+fixture: fixture
+# What this case proves: a hand-over note that points at files instead of carrying its facts, one over 40 lines and one
+# whose line 1 is not the HANDOFF line are found (error class 7); a note that carries its facts is not.
+graders:
+  - type: python
+    base: workspace
+    script: evals/graders/pipeline_plan.py
+    args: ["."]
+pass_rule: deterministic_all

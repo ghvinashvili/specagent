@@ -1,0 +1,168 @@
+{
+  "run_dir": "<run-dir>",
+  "common": [
+    "--strict-mcp-config",
+    "--effort",
+    "max",
+    "--permission-mode",
+    "auto",
+    "--setting-sources",
+    "local"
+  ],
+  "blocked_files": [
+    "plan-log.md",
+    "critique.md",
+    "critique-response.md",
+    "build-log-a.md",
+    "build-log-b.md",
+    "verify.md",
+    "fixer-log.md"
+  ],
+  "cap": 200000,
+  "handoff_at": 150000,
+  "handoff_wait": 1200,
+  "unit_end_grace": 600,
+  "permission_wait": 600,
+  "interval": 120,
+  "nudges": 6,
+  "ack_wait": 900,
+  "ack_resends": 2,
+  "handoff_order": "Orders from the owner: your context has passed the size limit (200k tokens per call). Finish the step you are on at a point where nothing is half done (not the whole task), save and commit what you have, then write your hand-over note exactly as <run-dir>/_handoff-rule.md says (handoff-<role>.md, line 1 `HANDOFF <role> after Task <N> — <date time>`) and end your turn. Start no waiter and no new work; a fresh session continues from your note and the files. The note carries the facts the next session needs, copied in, not pointers to them.",
+  "fresh": {
+    "planner": "You are a fresh planner session; the previous one handed over to keep the context small. Read {run}/_planner-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md, the \"Read first\" section of {run}/lessons.md and, last, {run}/handoff-planner.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Answer open findings first, then write the next task the note names. Hand over after it, as the rule says. Work in English only.",
+    "critic": "You are a fresh critic session; the previous one handed over to keep the context small. Read {run}/_critic-assignment.md, {run}/_handoff-rule.md and {run}/handoff-critic.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Continue with the unit the note names, check waiting answers, and hand over after it. Work in English only.",
+    "builder-a": "You are a fresh builder-a session; the previous one handed over to keep the context small. Read {run}/_builder-a-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md, the \"Read first\" section of {run}/lessons.md and, last, {run}/handoff-builder-a.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Fix open V findings first, then build the task the note names, and hand over after it. Work in English only.",
+    "builder-b": "You are a fresh builder-b session; the previous one handed over to keep the context small. Read {run}/_builder-b-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md, the \"Read first\" section of {run}/lessons.md and, last, {run}/handoff-builder-b.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Fix open V findings first, then build the task the note names, and hand over after it. Work in English only.",
+    "verifier": "You are a fresh verifier session; the previous one handed over to keep the context small. Read {run}/_verifier-assignment.md, {run}/_handoff-rule.md and {run}/handoff-verifier.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Continue with the commit or milestone the note names and hand over after it. Work in English only.",
+    "plan-fixer": "You are a fresh plan-fixer session; the previous one handed over to keep the context small. Read {run}/_plan-fixer-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md, the \"Read first\" section of {run}/lessons.md and, last, {run}/handoff-plan-fixer.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Answer the ids waiting, then hand over. Work in English only."
+  },
+  "pack": false,
+  "milestones": [],
+  "budget": {
+    "calls": 300,
+    "output_tokens": 4000000
+  },
+  "agents": {
+    "<project>/planner": {
+      "cwd": "<plan-worktree>",
+      "add_dirs": [
+        "<run-dir>",
+        "<checkout>",
+        "<sources>",
+        "<skill-dir>",
+        "<vault>"
+      ],
+      "settings": "_control/planner-settings.json",
+      "status": "critique-response.md",
+      "final": "STATUS: done"
+    },
+    "<project>/plan-fixer": {
+      "cwd": "<plan-worktree>",
+      "add_dirs": [
+        "<run-dir>",
+        "<checkout>",
+        "<sources>",
+        "<skill-dir>",
+        "<vault>",
+        "<worktree-a>",
+        "<worktree-b>"
+      ],
+      "settings": "_control/plan-fixer-settings.json",
+      "status": "fixer-log.md",
+      "final": "STATUS: done",
+      "work_check": [
+        "python3",
+        "{skill}/open_ids.py",
+        "{run}",
+        "--kind",
+        "C,A,B,V,R",
+        "--cause",
+        "plan"
+      ],
+      "on_demand": true,
+      "demand": {
+        "kinds": [
+          "C",
+          "A",
+          "B",
+          "V",
+          "R"
+        ],
+        "cause": "plan",
+        "parity": "all",
+        "queue": 6,
+        "wait_minutes": 45
+      }
+    },
+    "<project>/critic": {
+      "cwd": "<plan-worktree>",
+      "add_dirs": [
+        "<run-dir>",
+        "<checkout>",
+        "<sources>",
+        "<skill-dir>",
+        "<vault>",
+        "<worktree-a>",
+        "<worktree-b>"
+      ],
+      "settings": "_control/critic-settings.json",
+      "status": "critique.md",
+      "final": "STATUS: done",
+      "work_check": [
+        "python3",
+        "{skill}/wait_for_task.py",
+        "--log",
+        "{run}/plan-log.md",
+        "--critique",
+        "{run}/critique.md",
+        "--response",
+        "{run}/critique-response.md",
+        "--once"
+      ]
+    },
+    "<project>/builder-a": {
+      "cwd": "<worktree-a>",
+      "add_dirs": [
+        "<run-dir>",
+        "<plan-worktree>",
+        "<checkout>",
+        "<sources>",
+        "<skill-dir>",
+        "<vault>"
+      ],
+      "settings": "_control/builder-a-settings.json",
+      "status": "build-log-a.md",
+      "final": "STATUS: done"
+    },
+    "<project>/builder-b": {
+      "cwd": "<worktree-b>",
+      "add_dirs": [
+        "<run-dir>",
+        "<plan-worktree>",
+        "<checkout>",
+        "<sources>",
+        "<skill-dir>",
+        "<vault>"
+      ],
+      "settings": "_control/builder-b-settings.json",
+      "status": "build-log-b.md",
+      "final": "STATUS: done"
+    },
+    "<project>/verifier": {
+      "cwd": "<verify-worktree>",
+      "add_dirs": [
+        "<run-dir>",
+        "<plan-worktree>",
+        "<checkout>",
+        "<sources>",
+        "<skill-dir>",
+        "<vault>",
+        "<worktree-a>",
+        "<worktree-b>"
+      ],
+      "settings": "_control/verifier-settings.json",
+      "status": "verify.md",
+      "final": "STATUS: done"
+    }
+  }
+}

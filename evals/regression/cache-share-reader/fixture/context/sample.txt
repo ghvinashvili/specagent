@@ -1,0 +1,9 @@
+Retry policy for the upload client.
+A failed upload is retried at most three times.
+The wait before the first retry is two seconds.
+Each later wait is twice the previous one.
+A response with status 400 is never retried.
+A response with status 503 is always retried.
+After the last retry fails, the file name is written to failed.log.
+The policy was introduced in version 1.4.
+Uploads larger than 2 GB are split before any retry logic applies.

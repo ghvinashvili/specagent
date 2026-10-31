@@ -1,0 +1,13 @@
+{
+ "_usage": "python3 -I <skill-dir>/scripts/make_pack.py [--no-note] <run-dir>/_packs.json [<role> ...]; packs are off (2026-10-25); this builds them to measure again; --no-note leaves a handoff-*.md note out (stable first, unique last)",
+ "name": "<run-name>",
+ "roles": {
+  "planner": ["_common.md", "_planner-assignment.md", "_first-pass-rules.md", "_handoff-rule.md"],
+  "plan-fixer": ["_common.md", "_plan-fixer-assignment.md", "_first-pass-rules.md", "_handoff-rule.md"],
+  "critic": ["_common.md", "_critic-assignment.md", "_handoff-rule.md"],
+  "builder-a": ["_common.md", "_builder-a-assignment.md", "_first-pass-rules.md", "_handoff-rule.md"],
+  "builder-b": ["_common.md", "_builder-b-assignment.md", "_first-pass-rules.md", "_handoff-rule.md"],
+  "verifier": ["_common.md", "_verifier-assignment.md", "_handoff-rule.md"],
+  "judge": ["_common.md", "_judge-assignment.md", "_handoff-rule.md"]
+ }
+}

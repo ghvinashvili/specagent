@@ -1,0 +1,49 @@
+# model and effort of a stage are exact: a run takes them as the table has them, whatever session creates it;
+# `harness run --effort <stage>=<level>` changes one stage for one run (state.choose_stage, docs/decisions/0024).
+version: 1
+stages:
+  - id: digest
+    role_type: quarantine-reader
+    mode: print
+    model: sonnet
+    effort: medium
+    inputs: [brief, context]
+    output: result.json
+    gate: digest
+    json_schema: stage-result.schema.json
+    max_budget_usd: 2
+    max_turns: 20
+    approval: none
+    permission_mode: dontAsk
+    max_minutes: 15
+    max_attempts: 2
+
+  - id: classify
+    role_type: classifier
+    mode: print
+    model: haiku
+    effort: low
+    depends_on: [digest]
+    inputs: [brief, "digest:result.json"]
+    output: result.json
+    gate: classify
+    json_schema: stage-result.schema.json
+    max_budget_usd: 1
+    max_turns: 10
+    approval: none
+    permission_mode: dontAsk
+    max_minutes: 10
+    max_attempts: 2
+
+routes:
+  stage: classify
+  labels:
+    feature: software-factory
+    question: research
+    decision: council
+    knowledge: wiki-ingest
+    other: escalate
+
+no_match:
+  action: escalate
+  message: "No role type matches this request. Answer with the name of an existing type from docs/generated/role-types.md, or create one with /new-role-type."

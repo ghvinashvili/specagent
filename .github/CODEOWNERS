@@ -1,0 +1,6 @@
+*                         @example-org/platform
+/.claude/                 @example-org/platform
+/docs/roles/              @example-org/platform
+/schemas/                 @example-org/platform
+/plugins/                 @example-org/platform
+/specs/                   @example-org/product

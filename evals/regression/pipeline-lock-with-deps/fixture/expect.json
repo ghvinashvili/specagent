@@ -1,0 +1,1 @@
+{"check": "lock-with-deps", "inputs": ["commits/a1.diff", "commits/b2.diff"], "found": ["commits/a1.diff:9: pyproject.toml adds a dependency and uv.lock does not change"]}

@@ -1,0 +1,5 @@
+{
+ "_about": "Topic of each memory file for the layered indexes (ops/build_indexes.py): `topics` maps a key to its title, `files` maps a memory file's name to its key. Used only when the memory category has more than 40 documents.",
+ "topics": {},
+ "files": {}
+}

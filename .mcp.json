@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "harness-state": {
+      "command": "uv",
+      "args": ["run", "--package", "harness", "harness", "mcp-state"]
+    }
+  }
+}

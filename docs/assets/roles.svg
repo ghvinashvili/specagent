@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1390" height="924" viewBox="0 0 1390 924" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description">
+        <title id="archify-diagram-title">The roles and their records</title>
+        <desc id="archify-diagram-description">When no spec exists, the spec-writer writes it in specs/ and the planner starts from it. The planner writes each task (plan-log.md) and answers the critic's C and A findings (critique-response.md); the critic reviews each task (critique.md); the watcher launches a plan fixer on demand when open ids pass a count or an age. Two builders take reviewed tasks (build-log-a.md, build-log-b.md); the verifier checks each commit (verify.md), sends V findings back to the builders and plan findings to the planner. The plan fixer answers the critic's open ids, the builders' B ids (wrong steps) and the verifier's (plan) and (spec) V ids, and edits the unbuilt tasks. It sends the fixed task files to the builders, and an answer line in critique-response.md to the critic and the verifier: the role that raised an id re-checks it and closes it. When every task is verified, a script starts the judge (judge.md). A blocker of the judge, with proof, goes back: its (code) blockers to the builders, its (plan) and (spec) blockers to the plan fixer; its majors and minors stay in judge.md for the owner. A blocker's fix is one commit, logged with its J id and sha; the verifier re-checks it like a V fix, the gate at the merge waits for that line, and the judge does not run again. The judge sends its verdict to the manager chat, which merges at the gate.</desc>
+<style>
+svg{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Noto Sans Mono CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace}
+.c-grid{stroke:#1e293b;fill:none}
+.c-mask{fill:#0f172a;stroke:none}
+.c-frontend{fill:rgba(8, 51, 68, 0.4);stroke:#22d3ee}
+.c-backend{fill:rgba(6, 78, 59, 0.4);stroke:#34d399}
+.c-security{fill:rgba(136, 19, 55, 0.4);stroke:#fb7185}
+.t-primary{fill:#ffffff}
+.t-muted{fill:#94a3b8}
+.t-backend{fill:#34d399}
+.t-messagebus{fill:#fb923c}
+svg .semantic-sigil{fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;opacity:0.76}
+svg .semantic-sigil > *{vector-effect:non-scaling-stroke}
+svg .semantic-sigil .sigil-fill{fill:currentColor;stroke:none}
+svg .s-frontend{color:#22d3ee}
+svg .s-backend{color:#34d399}
+svg .s-security{color:#fb7185}
+.a-default{stroke:#64748b;fill:none}
+.a-emphasis{stroke:#34d399;fill:none}
+.a-dashed{stroke:#a78bfa;fill:none;stroke-dasharray:4,4}
+.m-default{fill:#64748b}
+.m-emphasis{fill:#34d399}
+.m-security{fill:#fb7185}
+.m-dashed{fill:#a78bfa}
+</style>
+<rect x="0" y="0" width="1390" height="924" rx="16" fill="#020617"/>
+<rect x="0" y="0" width="1390" height="924" rx="16" fill="rgba(15, 23, 42, 0.5)"/>
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Boundaries (behind everything) -->
+
+
+        <!-- Connection paths (before components for correct z-order) -->
+        <path d="M 180 358 L 250 358" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path d="M 400 365 L 450 365" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 450 351 L 400 351" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 600 365 L 700 365" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 700 351 L 600 351" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 525 396 L 525 412 Q 525 420 533 420 L 668 420 Q 676 420 676 428 L 676 810 Q 676 818 684 818 L 700 818" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 850 780 L 850 396" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 836 396 L 836 780" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 1000 818 L 1262 818 Q 1270 818 1270 810 L 1270 396" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 1350 358 L 1367 358 Q 1375 358 1375 366 L 1375 912 Q 1375 920 1367 920 L 858 920 Q 850 920 850 912 L 850 856" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 1190 358 L 1174 358 Q 1166 358 1166 366 L 1166 373 Q 1166 381 1158 381 L 1032 381 Q 1024 381 1024 373 L 1024 373 Q 1024 365 1016 365 L 1000 365" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 1000 351 L 1016 351 Q 1024 351 1024 359 L 1024 359 Q 1024 367 1032 367 L 1158 367 Q 1166 367 1166 359 L 1166 352 Q 1166 344 1174 344 L 1190 344" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 1270 320 L 1270 78 Q 1270 70 1262 70 L 333 70 Q 325 70 325 78 L 325 320" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 1190 372 L 1178 372 Q 1170 372 1170 380 L 1170 570 Q 1170 578 1162 578 L 1150 578" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 1080 616 L 1080 676" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path d="M 1010 578 L 872 578 Q 864 578 864 586 L 864 780" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path d="M 1080 540 L 1080 476 Q 1080 468 1072 468 L 872 468 Q 864 468 864 460 L 864 396" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+
+        <!-- Components -->
+        <g id="node-spec" tabindex="0" role="button" aria-label="Focus spec-writer, writes specs/, Architecture component" aria-pressed="false">
+          <title>spec-writer · writes specs/ · Architecture component</title>
+          <rect x="40" y="320" width="140" height="76" rx="6" class="c-mask"/>
+          <rect x="40" y="320" width="140" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(46 326) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text x="110" y="356" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">spec-writer</text>
+        <text x="110" y="372" class="t-muted" font-size="9" text-anchor="middle">writes specs/</text>
+        </g>
+
+        <g id="node-planner" tabindex="0" role="button" aria-label="Focus planner, plan-log.md, Architecture component" aria-pressed="false">
+          <title>planner · plan-log.md · Architecture component · critique-response.md</title>
+          <rect x="250" y="320" width="150" height="76" rx="6" class="c-mask"/>
+          <rect x="250" y="320" width="150" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(256 326) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text x="325" y="356" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">planner</text>
+        <text x="325" y="372" class="t-muted" font-size="9" text-anchor="middle">plan-log.md</text>
+        <text x="325" y="388" class="t-backend" font-size="7" text-anchor="middle">critique-response.md</text>
+        </g>
+
+        <g id="node-critic" tabindex="0" role="button" aria-label="Focus critic, critique.md: C, A, Architecture component" aria-pressed="false">
+          <title>critic · critique.md: C, A · Architecture component</title>
+          <rect x="450" y="320" width="150" height="76" rx="6" class="c-mask"/>
+          <rect x="450" y="320" width="150" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(456 326) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text x="525" y="356" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">critic</text>
+        <text x="525" y="372" class="t-muted" font-size="9" text-anchor="middle">critique.md: C, A</text>
+        </g>
+
+        <g id="node-fixer" tabindex="0" role="button" aria-label="Focus plan fixer, edits unbuilt tasks, Architecture component" aria-pressed="false">
+          <title>plan fixer · edits unbuilt tasks · Architecture component · on demand</title>
+          <rect x="700" y="320" width="300" height="76" rx="6" class="c-mask"/>
+          <rect x="700" y="320" width="300" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(706 326) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text x="850" y="356" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">plan fixer</text>
+        <text x="850" y="372" class="t-muted" font-size="9" text-anchor="middle">edits unbuilt tasks</text>
+        <text x="850" y="388" class="t-backend" font-size="7" text-anchor="middle">on demand</text>
+        </g>
+
+        <g id="node-builders" tabindex="0" role="button" aria-label="Focus builders a, b, build-log-a.md, build-log-b.md, Architecture component" aria-pressed="false">
+          <title>builders a, b · build-log-a.md, build-log-b.md · Architecture component · in parallel, disjoint files</title>
+          <rect x="700" y="780" width="300" height="76" rx="6" class="c-mask"/>
+          <rect x="700" y="780" width="300" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(706 786) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text x="850" y="816" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">builders a, b</text>
+        <text x="850" y="832" class="t-muted" font-size="9" text-anchor="middle">build-log-a.md, build-log-b.md</text>
+        <text x="850" y="848" class="t-backend" font-size="7" text-anchor="middle">in parallel, disjoint files</text>
+        </g>
+
+        <g id="node-verifier" tabindex="0" role="button" aria-label="Focus verifier, verify.md: V, Architecture component" aria-pressed="false">
+          <title>verifier · verify.md: V · Architecture component</title>
+          <rect x="1190" y="320" width="160" height="76" rx="6" class="c-mask"/>
+          <rect x="1190" y="320" width="160" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-security" transform="translate(1196 326) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text x="1270" y="356" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">verifier</text>
+        <text x="1270" y="372" class="t-muted" font-size="9" text-anchor="middle">verify.md: V</text>
+        </g>
+
+        <g id="node-judge" tabindex="0" role="button" aria-label="Focus judge, judge.md: J, Architecture component" aria-pressed="false">
+          <title>judge · judge.md: J · Architecture component</title>
+          <rect x="1010" y="540" width="140" height="76" rx="6" class="c-mask"/>
+          <rect x="1010" y="540" width="140" height="76" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-security" transform="translate(1016 546) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text x="1080" y="576" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">judge</text>
+        <text x="1080" y="592" class="t-muted" font-size="9" text-anchor="middle">judge.md: J</text>
+        </g>
+
+        <g id="node-manager" tabindex="0" role="button" aria-label="Focus manager chat, gate, merge, Architecture component" aria-pressed="false">
+          <title>manager chat · gate, merge · Architecture component</title>
+          <rect x="1010" y="676" width="140" height="76" rx="6" class="c-mask"/>
+          <rect x="1010" y="676" width="140" height="76" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-frontend" transform="translate(1016 682) scale(0.6875)">
+            <rect x="2" y="3" width="12" height="10" rx="2"/>
+            <path d="M2 6.5h12"/>
+            <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
+            <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
+          </g>
+          <text x="1080" y="712" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">manager chat</text>
+        <text x="1080" y="728" class="t-muted" font-size="9" text-anchor="middle">gate, merge</text>
+        </g>
+
+        <!-- Connection labels -->
+        <g>
+          <rect x="190.8" y="338" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="215" y="348" class="t-muted" font-size="8" text-anchor="middle">the spec</text>
+        </g>
+
+        <g>
+          <rect x="410" y="331" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="425" y="341" class="t-messagebus" font-size="8" text-anchor="middle">C, A</text>
+        </g>
+        <g>
+          <rect x="625.8" y="365" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="650" y="375" class="t-messagebus" font-size="8" text-anchor="middle">open ids</text>
+        </g>
+        <g>
+          <rect x="618.6" y="311" width="62.8" height="14" rx="3" class="c-mask"/>
+          <text x="650" y="321" class="t-messagebus" font-size="8" text-anchor="middle">answer line</text>
+        </g>
+        <g>
+          <rect x="576.3" y="400" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="600.5" y="410" class="t-backend" font-size="8" text-anchor="middle">reviewed</text>
+        </g>
+        <g>
+          <rect x="858" y="498" width="34" height="14" rx="3" class="c-mask"/>
+          <text x="875" y="508" class="t-messagebus" font-size="8" text-anchor="middle">B ids</text>
+        </g>
+        <g>
+          <rect x="740.6" y="593" width="86.8" height="14" rx="3" class="c-mask"/>
+          <text x="784" y="603" class="t-messagebus" font-size="8" text-anchor="middle">fixed task files</text>
+        </g>
+
+        <g>
+          <rect x="985" y="910" width="30" height="14" rx="3" class="c-mask"/>
+          <text x="1000" y="920" class="t-messagebus" font-size="8" text-anchor="middle">V</text>
+        </g>
+        <g>
+          <rect x="1027" y="375.5" width="106" height="14" rx="3" class="c-mask"/>
+          <text x="1080" y="385.5" class="t-messagebus" font-size="8" text-anchor="middle">(plan), (spec) V ids</text>
+        </g>
+        <g>
+          <rect x="1062.6" y="319" width="62.8" height="14" rx="3" class="c-mask"/>
+          <text x="1094" y="329" class="t-messagebus" font-size="8" text-anchor="middle">answer line</text>
+        </g>
+        <g>
+          <rect x="563.8" y="60" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="600" y="70" class="t-messagebus" font-size="8" text-anchor="middle">plan findings</text>
+        </g>
+        <g>
+          <rect x="1136.2" y="455" width="67.6" height="14" rx="3" class="c-mask"/>
+          <text x="1170" y="465" class="t-backend" font-size="8" text-anchor="middle">all verified</text>
+        </g>
+        <g>
+          <rect x="1088.2" y="636" width="43.6" height="14" rx="3" class="c-mask"/>
+          <text x="1110" y="646" class="t-backend" font-size="8" text-anchor="middle">verdict</text>
+        </g>
+        <g>
+          <rect x="872" y="587" width="82" height="14" rx="3" class="c-mask"/>
+          <text x="913" y="597" class="t-messagebus" font-size="8" text-anchor="middle">(code) blockers</text>
+        </g>
+        <g>
+          <rect x="911.8" y="434" width="120.39999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="972" y="444" class="t-messagebus" font-size="8" text-anchor="middle">(plan), (spec) blockers</text>
+        </g>
+
+        <!-- Boundary labels (foreground masks keep routes out of titles) -->
+
+
+        <!-- Legend -->
+
+      </svg>

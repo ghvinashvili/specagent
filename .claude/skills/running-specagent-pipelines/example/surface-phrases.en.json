@@ -1,0 +1,18 @@
+{
+  "run": "Run {run} as of {written_at}: cost ${cost} of the ${budget} budget ({pct}%), {running} of {roles} roles running, elapsed {elapsed}. Record: {record}",
+  "run_unbudgeted": "Run {run} as of {written_at}: cost ${cost}, no $ budget on the Budget: line of _launch.md, {running} of {roles} roles running, elapsed {elapsed}. Record: {record}",
+  "role": "{role}: {state}, unit \"{unit}\" for {unit_elapsed}, context {context} tokens, cost ${cost}, waiting for {waiting}. Record: {record}",
+  "usage": "Usage read at {taken_at}: {limits}; next reset {next_reset}. Record: {record}",
+  "usage_missing": "No usage reading at {now}: the manager writes _control/usage.json before each launch. Record: {record}",
+  "limit": "{name} {used_pct}% until {resets_at}",
+  "caps": "Cap events: {count} hand-over orders, the last for {role} at {at}. Record: {record}",
+  "caps_none": "Cap events: {count} hand-over orders. Record: {record}",
+  "disk": "Free disk at {record}: {free_mb} MB.",
+  "alarm": "Alarm {kind} since {since}: {text}. Record: {record}",
+  "duration": "{h}h{mm}m",
+  "none": "none",
+  "state_running": "running",
+  "state_stopped": "stopped",
+  "state_blocked": "blocked",
+  "state_done": "done"
+}

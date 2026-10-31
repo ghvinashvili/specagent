@@ -1,0 +1,32 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: ["**"]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install uv
+      - run: uv sync
+      - run: uv run ruff check . && uv run ruff format --check .
+      - run: uv run pytest -q
+      - run: uv run harness eval --suite regression --baseline --threshold 1.0
+      - run: uv run harness validate
+      - run: uv run harness loop validate
+      - run: uv run harness audit --ci
+      - run: uv run harness wiki-lint
+  plugins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install -g @anthropic-ai/claude-code@2.1.281
+      - run: claude plugin validate ./plugins
+      - run: claude plugin validate ./plugins/code-intel --strict

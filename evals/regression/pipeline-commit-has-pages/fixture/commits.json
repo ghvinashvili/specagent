@@ -1,0 +1,1 @@
+{"commits": [{"id": "c1", "changed": ["src/score.py", "tests/test_score.py", "wiki/decisions/score-rule.md"], "tasks": [{"id": "T1"}]}, {"id": "c2", "changed": ["src/rank.py", "docs/runbooks/rank.md"], "tasks": [{"id": "T2"}]}]}

@@ -1,0 +1,1 @@
+{"check": "disjoint-files", "inputs": ["plan/00-index.md"], "found": ["plan/00-index.md:6: Task 1 (builder a) and Task 2 (builder b) both list src/lexer.py"]}

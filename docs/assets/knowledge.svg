@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="620" viewBox="0 0 1080 620" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description">
+        <title id="archify-diagram-title">The knowledge layer</title>
+        <desc id="archify-diagram-description">A run's lessons become decision pages in wiki/ of the checkout. The wiki is compiled from the raw sources in context/. Ingesting a page writes its claims into the ledgers and refreshes wiki/hot.md. wiki/hot.md is injected into every session at its start. The code graph is rebuilt from the repository after each commit, and its layered articles are kept in wiki/graph/. A session asks the graph before it reads whole directories, so it reads hot.md, the index, the graph, then files. A decision for every project goes to your vault, which sessions read on need. A run's records and transcripts are measured into your vault. With your yes for one page, contribute.py refuses secrets, names and the other classes it lists. A page that passes goes to the public commons, which is not built yet. A session reads the commons as a source, never an authority: your vault wins.</desc>
+<style>
+svg{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Noto Sans Mono CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace}
+.c-grid{stroke:#1e293b;fill:none}
+.c-mask{fill:#0f172a;stroke:none}
+.c-backend{fill:rgba(6, 78, 59, 0.4);stroke:#34d399}
+.c-database{fill:rgba(76, 29, 149, 0.4);stroke:#a78bfa}
+.c-security{fill:rgba(136, 19, 55, 0.4);stroke:#fb7185}
+.c-external{fill:rgba(30, 41, 59, 0.5);stroke:#94a3b8}
+.t-primary{fill:#ffffff}
+.t-muted{fill:#94a3b8}
+.t-dim{fill:#475569}
+.t-messagebus{fill:#fb923c}
+svg .semantic-sigil{fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;opacity:0.76}
+svg .semantic-sigil > *{vector-effect:non-scaling-stroke}
+svg .semantic-sigil .sigil-fill{fill:currentColor;stroke:none}
+svg .s-backend{color:#34d399}
+svg .s-database{color:#a78bfa}
+svg .s-security{color:#fb7185}
+svg .s-external{color:#94a3b8}
+.a-default{stroke:#64748b;fill:none}
+.a-dashed{stroke:#a78bfa;fill:none;stroke-dasharray:4,4}
+.m-default{fill:#64748b}
+.m-emphasis{fill:#34d399}
+.m-security{fill:#fb7185}
+.m-dashed{fill:#a78bfa}
+.c-lane{fill:rgba(15, 23, 42, 0.22);stroke:#334155;stroke-dasharray:6,6}
+</style>
+<rect x="0" y="0" width="1080" height="620" rx="16" fill="#020617"/>
+<rect x="0" y="0" width="1080" height="620" rx="16" fill="rgba(15, 23, 42, 0.5)"/>
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Data Stages -->
+        <rect x="16" y="46" width="168" height="500" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="100" y="68" class="t-dim" font-size="9" font-weight="600" text-anchor="middle">01 / Sources</text>
+
+        <rect x="231" y="46" width="168" height="500" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="315" y="68" class="t-dim" font-size="9" font-weight="600" text-anchor="middle">02 / The checkout</text>
+
+        <rect x="446" y="46" width="168" height="500" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="530" y="68" class="t-dim" font-size="9" font-weight="600" text-anchor="middle">03 / Read</text>
+
+        <rect x="661" y="46" width="168" height="500" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="745" y="68" class="t-dim" font-size="9" font-weight="600" text-anchor="middle">04 / Private</text>
+
+        <rect x="876" y="46" width="168" height="500" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="960" y="68" class="t-dim" font-size="9" font-weight="600" text-anchor="middle">05 / Shared</text>
+
+        <!-- Flow paths -->
+        <path d="M 165 264 L 250 264" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path d="M 165 385 L 207.5 385 L 207.5 278 L 250 278" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path d="M 315 242 L 315 186" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path d="M 388 157 L 460 157" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path d="M 380 271 L 465 271" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path d="M 530 242 L 530 186" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path d="M 315 300 L 315 385 L 680 385" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path d="M 173 499 L 745 499 L 745 414" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path d="M 810 385 L 885 385" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path d="M 960 356 L 960 300" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path d="M 960 242 L 960 157 L 600 157" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
+
+        <!-- Nodes -->
+        <g id="node-lessons" tabindex="0" role="button" aria-label="Focus lessons.md, a run&#39;s lessons, 01 / Sources" aria-pressed="false">
+          <title>lessons.md · a run&#39;s lessons · 01 / Sources</title>
+          <rect x="35" y="235" width="130" height="58" rx="6" class="c-mask"/>
+          <rect x="35" y="235" width="130" height="58" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(41 241) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text x="100" y="256" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">lessons.md</text>
+          <text x="100" y="272" class="t-muted" font-size="7" text-anchor="middle">a run&#39;s lessons</text>
+        </g>
+
+        <g id="node-context" tabindex="0" role="button" aria-label="Focus context/, raw sources, 01 / Sources" aria-pressed="false">
+          <title>context/ · raw sources · 01 / Sources</title>
+          <rect x="35" y="356" width="130" height="58" rx="6" class="c-mask"/>
+          <rect x="35" y="356" width="130" height="58" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(41 362) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text x="100" y="377" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">context/</text>
+          <text x="100" y="393" class="t-muted" font-size="7" text-anchor="middle">raw sources</text>
+        </g>
+
+        <g id="node-records" tabindex="0" role="button" aria-label="Focus a run&#39;s records, logs, transcripts, 01 / Sources" aria-pressed="false">
+          <title>a run&#39;s records · logs, transcripts · 01 / Sources</title>
+          <rect x="27" y="470" width="146" height="58" rx="6" class="c-mask"/>
+          <rect x="27" y="470" width="146" height="58" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(33 476) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text x="100" y="491" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">a run&#39;s records</text>
+          <text x="100" y="507" class="t-muted" font-size="7" text-anchor="middle">logs, transcripts</text>
+        </g>
+
+        <g id="node-hot" tabindex="0" role="button" aria-label="Focus ledgers, hot.md, claims, hot cache, 02 / The checkout" aria-pressed="false">
+          <title>ledgers, hot.md · claims, hot cache · 02 / The checkout</title>
+          <rect x="242" y="128" width="146" height="58" rx="6" class="c-mask"/>
+          <rect x="242" y="128" width="146" height="58" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(248 134) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text x="315" y="149" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">ledgers, hot.md</text>
+          <text x="315" y="165" class="t-muted" font-size="7" text-anchor="middle">claims, hot cache</text>
+        </g>
+
+        <g id="node-wiki" tabindex="0" role="button" aria-label="Focus wiki/, index, decision pages, 02 / The checkout" aria-pressed="false">
+          <title>wiki/ · index, decision pages · 02 / The checkout</title>
+          <rect x="250" y="242" width="130" height="58" rx="6" class="c-mask"/>
+          <rect x="250" y="242" width="130" height="58" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(256 248) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text x="315" y="263" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">wiki/</text>
+          <text x="315" y="279" class="t-muted" font-size="7" text-anchor="middle">index, decision pages</text>
+        </g>
+
+        <g id="node-session" tabindex="0" role="button" aria-label="Focus every session, hot.md, index, graph, files, 03 / Read" aria-pressed="false">
+          <title>every session · hot.md, index, graph, files · 03 / Read</title>
+          <rect x="460" y="128" width="140" height="58" rx="6" class="c-mask"/>
+          <rect x="460" y="128" width="140" height="58" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-backend" transform="translate(466 134) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text x="530" y="149" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">every session</text>
+          <text x="530" y="165" class="t-muted" font-size="7" text-anchor="middle">hot.md, index, graph, files</text>
+        </g>
+
+        <g id="node-graph" tabindex="0" role="button" aria-label="Focus code graph, graphify, wiki/graph/, 03 / Read" aria-pressed="false">
+          <title>code graph · graphify, wiki/graph/ · 03 / Read</title>
+          <rect x="465" y="242" width="130" height="58" rx="6" class="c-mask"/>
+          <rect x="465" y="242" width="130" height="58" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(471 248) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text x="530" y="263" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">code graph</text>
+          <text x="530" y="279" class="t-muted" font-size="7" text-anchor="middle">graphify, wiki/graph/</text>
+        </g>
+
+        <g id="node-vault" tabindex="0" role="button" aria-label="Focus your vault, read on need, 04 / Private" aria-pressed="false">
+          <title>your vault · read on need · 04 / Private</title>
+          <rect x="680" y="356" width="130" height="58" rx="6" class="c-mask"/>
+          <rect x="680" y="356" width="130" height="58" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-database" transform="translate(686 362) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text x="745" y="377" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">your vault</text>
+          <text x="745" y="393" class="t-muted" font-size="7" text-anchor="middle">read on need</text>
+        </g>
+
+        <g id="node-gate" tabindex="0" role="button" aria-label="Focus contribute.py, refuses secrets, names, 05 / Shared" aria-pressed="false">
+          <title>contribute.py · refuses secrets, names · 05 / Shared</title>
+          <rect x="885" y="356" width="150" height="58" rx="6" class="c-mask"/>
+          <rect x="885" y="356" width="150" height="58" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-security" transform="translate(891 362) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text x="960" y="377" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">contribute.py</text>
+          <text x="960" y="393" class="t-muted" font-size="7" text-anchor="middle">refuses secrets, names</text>
+        </g>
+
+        <g id="node-commons" tabindex="0" role="button" aria-label="Focus public commons, not built yet, 05 / Shared" aria-pressed="false">
+          <title>public commons · not built yet · 05 / Shared</title>
+          <rect x="885" y="242" width="150" height="58" rx="6" class="c-mask"/>
+          <rect x="885" y="242" width="150" height="58" rx="6" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" class="semantic-sigil s-external" transform="translate(891 248) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
+          </g>
+          <text x="960" y="263" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">public commons</text>
+          <text x="960" y="279" class="t-muted" font-size="7" text-anchor="middle">not built yet</text>
+        </g>
+
+        <!-- Flow labels -->
+        <g>
+          <rect x="179.45" y="243" width="56.1" height="16" rx="4" class="c-mask"/>
+          <text x="207.5" y="254" class="t-muted" font-size="8" text-anchor="middle">decisions</text>
+        </g>
+        <g>
+          <rect x="181.9" y="310.5" width="51.2" height="16" rx="4" class="c-mask"/>
+          <text x="207.5" y="321.5" class="t-muted" font-size="8" text-anchor="middle">compiled</text>
+        </g>
+        <g>
+          <rect x="294.3" y="221" width="41.4" height="16" rx="4" class="c-mask"/>
+          <text x="315" y="232" class="t-muted" font-size="8" text-anchor="middle">ingest</text>
+        </g>
+        <g>
+          <rect x="398.4" y="136" width="51.2" height="16" rx="4" class="c-mask"/>
+          <text x="424" y="147" class="t-muted" font-size="8" text-anchor="middle">at start</text>
+        </g>
+        <g>
+          <rect x="389.55" y="250" width="65.9" height="16" rx="4" class="c-mask"/>
+          <text x="422.5" y="261" class="t-muted" font-size="8" text-anchor="middle">each commit</text>
+        </g>
+        <g>
+          <rect x="501.95" y="221" width="56.1" height="16" rx="4" class="c-mask"/>
+          <text x="530" y="232" class="t-muted" font-size="8" text-anchor="middle">ask first</text>
+        </g>
+        <g>
+          <rect x="459.65" y="364" width="75.7" height="16" rx="4" class="c-mask"/>
+          <text x="497.5" y="375" class="t-muted" font-size="8" text-anchor="middle">every project</text>
+        </g>
+        <g>
+          <rect x="709.6" y="435.5" width="70.8" height="16" rx="4" class="c-mask"/>
+          <text x="745" y="446.5" class="t-muted" font-size="8" text-anchor="middle">measurements</text>
+        </g>
+        <g>
+          <rect x="821.9" y="364" width="51.2" height="16" rx="4" class="c-mask"/>
+          <text x="847.5" y="375" class="t-muted" font-size="8" text-anchor="middle">your yes</text>
+        </g>
+        <g>
+          <rect x="939.3" y="335" width="41.4" height="16" rx="4" class="c-mask"/>
+          <text x="960" y="346" class="t-muted" font-size="8" text-anchor="middle">passes</text>
+        </g>
+        <g>
+          <rect x="754.4" y="136" width="51.2" height="16" rx="4" class="c-mask"/>
+          <text x="780" y="147" class="t-messagebus" font-size="8" text-anchor="middle">a source</text>
+        </g>
+
+        <!-- Legend -->
+
+      </svg>

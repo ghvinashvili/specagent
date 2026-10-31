@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(//home/u/template/**)",
+      "Write(//home/u/template/**)",
+      "Edit(//home/u/tem/**)",
+      "Edit(//home/u/run/_*)",
+      "Write(//home/u/run/**)",
+      "Read(//home/u/run/**)",
+      "Edit(~/**)",
+      "Edit(/<checkout>/**)",
+      "Bash(rm -rf:*)"
+    ]
+  },
+  "sandbox": {
+    "filesystem": {
+      "allowWrite": [
+        "/home/u/template/.git",
+        "/home/u/run",
+        "~/.cache",
+        "<checkout>/.git"
+      ],
+      "denyWrite": [
+        "/home/u",
+        "/home/u/run/_control"
+      ]
+    }
+  }
+}

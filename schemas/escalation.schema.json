@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/escalation.schema.json",
+  "title": "Escalation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "run_id", "stage", "session_id", "created_at", "question", "context", "options", "recommendation", "blocking", "status", "answer"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[0-9]{3}$" },
+    "run_id": { "type": "string" },
+    "stage": { "type": "string" },
+    "shard": { "type": "integer", "minimum": 1 },
+    "session_id": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "question": { "type": "string", "minLength": 1, "maxLength": 1000 },
+    "context": { "type": "string", "maxLength": 4000 },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text"],
+        "properties": {
+          "id": { "type": "string" },
+          "text": { "type": "string" },
+          "consequence": { "type": "string" }
+        }
+      }
+    },
+    "recommendation": { "type": ["string", "null"] },
+    "blocking": { "type": "boolean" },
+    "status": { "enum": ["open", "answered", "withdrawn"] },
+    "answer": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["text", "answered_by", "answered_at"],
+      "properties": {
+        "option_id": { "type": ["string", "null"] },
+        "text": { "type": "string" },
+        "answered_by": { "type": "string" },
+        "answered_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

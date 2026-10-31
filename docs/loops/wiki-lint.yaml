@@ -1,0 +1,27 @@
+schema_version: 1
+name: wiki-lint
+enabled: true
+purpose: Keep the generated wiki free of orphans, dead links, expired pages and pages without a source.
+goal:
+  statement: The wiki passes its lint.
+  done_when:
+    - "`uv run harness wiki-lint` exits 0"
+action:
+  kind: command
+  command: uv run harness wiki-lint
+trigger:
+  kind: ci-cron
+  schedule: "12 7 * * 1"
+stops:
+  max_iterations: 1
+  max_minutes: 10
+  no_progress_after: 1
+exit:
+  success: exit code 0
+  failure: exit code 1; the findings are the command's JSON output
+readiness:
+  repeats_weekly: { met: true, evidence: "pages are added every night by wiki-ingest" }
+  verification_is_automatic: { met: true, evidence: "the lint is code and reads files only" }
+  budget_tolerates_waste: { met: true, evidence: "no model is called" }
+  agent_can_run_the_check: { met: true, evidence: "a plain command in CI" }
+owner: "@example-org/docs"

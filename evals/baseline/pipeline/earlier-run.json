@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "label": "an earlier run of the owner's pipeline, 2026-10",
+  "summary": {
+    "tasks": 53,
+    "findings": 435,
+    "rounds_per_finding": 1.0,
+    "per_task": {
+      "findings": 8.2075
+    }
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "agent_chars": 5561,
+    "pack_chars": 20345,
+    "system_prompt_chars": 25905,
+    "first_request_cache_read": 0,
+    "first_request_cache_write": 22411
+  },
+  {
+    "agent_chars": 5561,
+    "pack_chars": 20345,
+    "system_prompt_chars": 25905,
+    "first_request_cache_read": 13819,
+    "first_request_cache_write": 8595
+  }
+]

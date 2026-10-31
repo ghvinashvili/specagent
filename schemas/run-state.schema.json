@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/run-state.schema.json",
+  "title": "Run state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "status", "updated_at", "current_stage", "config_fingerprint", "stages", "escalations"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "run_id": { "type": "string" },
+    "status": { "enum": ["created", "running", "waiting_human", "paused", "done", "failed", "aborted"] },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "changed_at": { "type": "string", "format": "date-time", "description": "the last change of statuses, gates, approvals, attempts or escalations (state.save)" },
+    "aborted": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["at", "reason", "from"],
+      "description": "harness abort: when, the human's reason, and the status the run had",
+      "properties": {
+        "at": { "type": "string", "format": "date-time" },
+        "reason": { "type": "string", "minLength": 1 },
+        "from": { "enum": ["created", "running", "waiting_human", "paused", "done", "failed"] }
+      }
+    },
+    "current_stage": { "type": ["string", "null"] },
+    "config_fingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "refrozen_at": { "type": ["string", "null"], "format": "date-time" },
+    "stages": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/stage_state" }
+    },
+    "escalations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "stage", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "stage": { "type": "string" },
+          "status": { "enum": ["open", "answered", "withdrawn"] }
+        }
+      }
+    },
+    "loop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rounds", "history"],
+      "description": "The loops inside the run (harness/rounds.py, docs/decisions/0024).",
+      "properties": {
+        "rounds": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["round", "counter", "from", "to", "items", "signature", "at"],
+            "properties": {
+              "round": { "type": "integer", "minimum": 1 },
+              "counter": { "type": "string" },
+              "from": { "type": "string" },
+              "to": { "type": "string" },
+              "items": { "type": "integer", "minimum": 0 },
+              "signature": { "type": "string" },
+              "at": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "moving": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["round", "target", "units"],
+          "description": "A round the state holds whose files are not yet under rounds/<n>/ (rounds.move_round).",
+          "properties": {
+            "round": { "type": "integer", "minimum": 1 },
+            "target": { "type": "string" },
+            "units": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "stop": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "stage", "at"],
+          "description": "Why the loop stopped for the human; `harness approve` of that stage answers it.",
+          "properties": {
+            "action": { "enum": ["loop_cap", "no_progress", "rejected", "replan"] },
+            "stage": { "type": "string" },
+            "at": { "type": "string", "format": "date-time" },
+            "detail": { "type": "string" }
+          }
+        }
+      }
+    },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "print_total_usd": { "type": "number", "minimum": 0 },
+        "note": { "type": "string" }
+      }
+    }
+  },
+  "definitions": {
+    "last_poll": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["at", "state"],
+      "properties": {
+        "at": { "type": "string", "format": "date-time" },
+        "state": { "type": "string" },
+        "status": { "type": ["string", "null"] },
+        "waitingFor": { "type": ["string", "null"] }
+      }
+    },
+    "last_error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["at", "exit_code", "stderr"],
+      "properties": {
+        "at": { "type": "string", "format": "date-time" },
+        "exit_code": { "type": "integer" },
+        "stderr": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+    "shard_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "attempts", "session_ids", "gate"],
+      "properties": {
+        "status": { "enum": ["pending", "launched", "working", "blocked", "checkpointed", "stopped", "failed", "gate_failed", "done", "skipped", "rework", "recheck"] },
+        "round_start": { "type": "integer", "minimum": 0, "description": "attempts before the current round of a loop (harness/rounds.py)" },
+        "attempts": { "type": "integer", "minimum": 0 },
+        "session_ids": { "type": "array", "items": { "type": "string" } },
+        "job_ids": { "type": "array", "items": { "type": "string" } },
+        "started_at": { "type": ["string", "null"], "format": "date-time" },
+        "finished_at": { "type": ["string", "null"], "format": "date-time" },
+        "last_poll": { "$ref": "#/definitions/last_poll" },
+        "last_error": { "$ref": "#/definitions/last_error" },
+        "last_checkpoint_at": { "type": ["string", "null"], "format": "date-time" },
+        "gate": { "enum": ["pending", "pass", "fail"] },
+        "note": { "type": "string" }
+      }
+    },
+    "stage_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "attempts", "session_ids", "gate", "approval"],
+      "properties": {
+        "status": { "enum": ["pending", "launched", "working", "blocked", "checkpointed", "stopped", "failed", "gate_failed", "done", "skipped", "rework", "recheck"] },
+        "round_start": { "type": "integer", "minimum": 0, "description": "attempts before the current round of a loop (harness/rounds.py)" },
+        "attempts": { "type": "integer", "minimum": 0 },
+        "session_ids": { "type": "array", "items": { "type": "string" } },
+        "job_ids": { "type": "array", "items": { "type": "string" } },
+        "started_at": { "type": ["string", "null"], "format": "date-time" },
+        "finished_at": { "type": ["string", "null"], "format": "date-time" },
+        "last_poll": { "$ref": "#/definitions/last_poll" },
+        "last_error": { "$ref": "#/definitions/last_error" },
+        "last_checkpoint_at": { "type": ["string", "null"], "format": "date-time" },
+        "gate": { "enum": ["pending", "pass", "fail"] },
+        "approval": { "enum": ["not_required", "pending", "approved", "rejected"] },
+        "worktree_branch": { "type": ["string", "null"] },
+        "note": { "type": "string" },
+        "shards": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[0-9]{2}$" },
+          "additionalProperties": { "$ref": "#/definitions/shard_state" }
+        }
+      }
+    }
+  }
+}

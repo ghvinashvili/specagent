@@ -1,0 +1,29 @@
+schema_version: 1
+name: wiki-ingest
+enabled: true
+purpose: Compile new source material under context/ into wiki pages, with every claim linked to its source.
+goal:
+  statement: Every file under context/ that changed since the last entry in wiki/log.md is reflected in the wiki.
+  done_when:
+    - "the gates ingest and wikicheck pass"
+    - "`uv run harness wiki-lint` exits 0 on the worktree branch"
+action:
+  kind: pipeline
+  pipeline: wiki-ingest
+  context: [context, wiki]
+trigger:
+  kind: local-cron
+  schedule: "23 2 * * *"
+stops:
+  max_iterations: 2
+  max_minutes: 180
+  no_progress_after: 2
+exit:
+  success: both gates pass; the branch is ready for a pull request
+  failure: a gate fails after the stage's attempts, or an escalation is open
+readiness:
+  repeats_weekly: { met: true, evidence: "material is added to context/ in most weeks" }
+  verification_is_automatic: { met: true, evidence: "harness wiki-lint plus the verifier's path:line check of every claim" }
+  budget_tolerates_waste: { met: true, evidence: "the librarian runs on sonnet; two iterations at most" }
+  agent_can_run_the_check: { met: true, evidence: "the librarian may run uv run harness wiki-lint" }
+owner: "@example-org/docs"

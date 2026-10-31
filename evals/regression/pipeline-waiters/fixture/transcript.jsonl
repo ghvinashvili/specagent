@@ -1,0 +1,20 @@
+{"type": "user", "message": {"role": "user", "content": "Read your assignment."}}
+{"type": "assistant", "message": {"content": [{"type": "text", "text": "I will wait: sleep 60"}, {"type": "tool_use", "name": "Bash", "input": {"command": "python3 /run/_wait_for_log.py /run/plan-log.md 2", "description": "Wait for the index"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "sleep 300 && grep -c written /run/plan-log.md"}}]}}
+{"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "t3", "content": "sleep 300 done"}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "python3 /run/_wait_for_log.py /run/plan-log.md 1"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "cd /run &&   python3 /run/_wait_for_task.py  /run/build-log-b.md 4"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "for i in 1 2 3; do\n  sleep 60\ndone"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "echo \"sleep 5 is not used here\"; grep -c sleepy /run/log"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Monitor", "input": {"command": "until grep -q done /run/log; do sleep 30; done"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "timeout 600 bash -c 'until grep -q x /run/f; do sleep 5; done'"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "uv run python ops/wait_ready.py --run /run"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "git -C /run log --oneline -3"}}]}}
+{"type": "summary", "summary": "Waiting for the plan"}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "grep -c done /run/plan-log.md\nsleep 30\ngrep -c done /run/plan-log.md"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "python3 /run/_wait_for_ready.py /run/build-log-a.md 12"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "python3 /run/_wait_for_ready.py /run/build-log-a.md"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "python3 /run/_wait_for_ready.py /run/build-log-c.md 12"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "python3 /run/_wait_for_ready.py /run/build-log-a-md 12"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "python3 /run/_wait_for_log.py /run/critique.md 40"}}]}}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash", "input": {"command": "python3 /run/_wait_for_log.py /run/verify.md 9"}}]}}

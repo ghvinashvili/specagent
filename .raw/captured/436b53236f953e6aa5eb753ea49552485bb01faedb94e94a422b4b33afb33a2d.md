@@ -1,0 +1,25 @@
+---
+title: Pipelines run as SpecAgent sessions from a template skill
+type: decision
+status: draft
+updated: 2026-10-29
+created: 2026-10-28
+audience: [all]
+decided: 2026-10-28
+by: owner
+why: a pipeline written for one project was rewritten for the next; a skill in the template carries its briefs, settings, waiters and checks to every project
+would_change_if: the harness's run loop runs the planner, critic, builders and verifier with fewer hand-overs and less cost on a measured run
+decision_status: decided
+scope: global
+tags:
+  - decision
+---
+# Pipelines run as SpecAgent sessions from a template skill
+
+A run's planner, plan fixer, critic, builders, verifier and judge are chat sessions started from the skill; its example
+briefs and settings are copied into a run folder, its waiters and watcher keep each session to one unit of work, and its
+scripts make the knowledge pack and the judge's tree; a project's own names go into the copied briefs, never into the
+skill.
+
+## Record and source
+- [The pipeline skill's SKILL.md](../../.claude/skills/running-specagent-pipelines/SKILL.md)

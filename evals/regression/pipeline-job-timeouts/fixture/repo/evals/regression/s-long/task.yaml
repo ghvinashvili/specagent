@@ -1,0 +1,6 @@
+schema_version: 1
+name: s-long
+suite: regression
+role_type: reader
+trials: 3
+timeout_minutes: 15

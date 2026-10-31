@@ -1,0 +1,1 @@
+Reference outcome for pipeline-critic-unproven-finding: the line cited past the end of the file is a finding with its proof, the reader's remark without proof is under To check. Graded with --baseline.

@@ -1,0 +1,6 @@
+# Lines for the operator's own crontab (`crontab -e`); the repository installs nothing.
+# Times are local. Minutes avoid :00 and :30. Replace /srv/example-repo with the checkout path.
+# m    h           dom mon dow  command
+23     2           *   *   *    /srv/example-repo/ops/night-tick.sh wiki-ingest
+17     3           *   *   6    /srv/example-repo/ops/night-tick.sh learning-review
+*/10   22-23,0-6   *   *   *    /srv/example-repo/ops/night-tick.sh poll

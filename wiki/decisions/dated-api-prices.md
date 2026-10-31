@@ -1,0 +1,27 @@
+---
+title: usage_report.py's prices carry their date and source
+type: decision
+status: draft
+updated: 2026-10-30
+created: 2026-10-29
+audience: [all]
+decided: 2026-10-29
+by: owner
+why: list prices change, and a cost figure is worth only as much as the date and page of the prices it was computed from
+would_change_if: a report printed with prices the official page no longer lists, or a price table changed without its date
+decision_status: decided
+scope: global
+tags:
+  - decision
+---
+# usage_report.py's prices carry their date and source
+
+`usage_report.py` prices each model family with the list prices of 2026-10-29 from the official pricing page
+(`https://platform.claude.com/docs/en/about-claude/pricing`): the prices in `PRICE`, their date in `PRICES_AS_OF` and
+the page in `PRICES_URL`, printed on the report's first line, `prices of <date> from <url>` (the header is now line 2).
+Each family has one flat tuple; long-prompt prices, fast mode and US-only inference are left out (tracker TD-021).
+The rows it replaced held the prices of older models (manager spec 8.3.14).
+
+## Record and source
+- [usage_report.py](../../.claude/skills/running-specagent-pipelines/scripts/docs/usage_report.md)
+- Task 10 of the manager-build run, commit 129a9d5

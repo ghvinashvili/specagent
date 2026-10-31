@@ -1,0 +1,1 @@
+{"check": "cited-lines", "inputs": ["plan/task-01.md"], "base": "repo", "found": ["plan/task-01.md:4: cites src/app.js:9 past the file's 3 lines", "plan/task-01.md:5: cites src/util.js:4 which does not exist at the base"]}

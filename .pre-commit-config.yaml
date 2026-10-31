@@ -1,0 +1,44 @@
+default_install_hook_types: [pre-commit, commit-msg]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "<release tag>"
+    hooks:
+      - id: check-json
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: "<release tag>"
+    hooks:
+      - id: gitleaks
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: "<release tag>"
+    hooks:
+      - id: markdownlint-cli2
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: "<release tag>"
+    hooks:
+      - id: check-jsonschema
+        name: validate .claude/settings.json
+        files: ^\.claude/settings\.json$
+        args: ["--schemafile", "https://json.schemastore.org/claude-code-settings.json"]
+      - id: check-jsonschema
+        name: validate stages.yaml
+        files: ^docs/roles/stages\.yaml$
+        args: ["--schemafile", "schemas/stages.schema.json"]
+      - id: check-github-workflows
+  - repo: https://github.com/rhysd/actionlint
+    rev: "<release tag>"
+    hooks:
+      - id: actionlint
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "<release tag>"
+    hooks:
+      - id: ruff
+      - id: ruff-format
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: "<release tag>"
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]

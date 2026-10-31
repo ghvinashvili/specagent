@@ -1,0 +1,6 @@
+schema_version: 1
+name: s-pair
+suite: regression
+role_type: reader
+sessions: 2
+timeout_minutes: 20

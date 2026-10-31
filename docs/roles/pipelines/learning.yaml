@@ -1,0 +1,51 @@
+# model and effort of a stage are exact: a run takes them as the table has them, whatever session creates it;
+# `harness run --effort <stage>=<level>` changes one stage for one run (state.choose_stage, docs/decisions/0024).
+version: 1
+stages:
+  - id: analyze
+    role_type: analyst
+    mode: bg
+    model: opus
+    effort: max
+    inputs: [brief, context]
+    output: output/taxonomy.md
+    gate: analyze
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 540
+    max_attempts: 2
+
+  - id: challenge
+    role_type: critic
+    mode: bg
+    model: opus
+    effort: max
+    depends_on: [analyze]
+    inputs: [brief, "analyze:output/"]
+    output: output/critique.md
+    gate: challenge
+    approval: none
+    permission_mode: acceptEdits
+    max_minutes: 270
+    max_attempts: 2
+
+  - id: judge
+    role_type: judge
+    mode: print
+    model: opus
+    effort: max
+    depends_on: [analyze, challenge]
+    inputs: ["analyze:output/taxonomy.md", "challenge:output/critique.md"]
+    output: result.json
+    gate: judge
+    json_schema: stage-result.schema.json
+    max_budget_usd: 5
+    max_turns: 60
+    approval: human
+    permission_mode: acceptEdits
+    max_minutes: 30
+    max_attempts: 2
+
+no_match:
+  action: escalate
+  message: "No role type matches this request. Answer with the name of an existing type from docs/generated/role-types.md, or create one with /new-role-type."

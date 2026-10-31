@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/loop-state.schema.json",
+  "title": "Loop state (<runs root>/_loops/<name>/state.json)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "name", "status", "episode", "iterations", "episode_started_at", "last_tick_at", "last_run_id", "last_exit", "progress_keys", "spent_usd", "escalated"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "status": { "enum": ["idle", "running"] },
+    "episode": { "type": "integer", "minimum": 0 },
+    "iterations": { "type": "integer", "minimum": 0 },
+    "episode_started_at": { "type": ["string", "null"], "format": "date-time" },
+    "last_tick_at": { "type": ["string", "null"], "format": "date-time" },
+    "last_run_id": { "type": ["string", "null"] },
+    "last_exit": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["rule", "at"],
+      "properties": {
+        "rule": { "enum": ["success", "failure", "max_iterations", "max_minutes", "max_usd", "no_progress"] },
+        "at": { "type": "string", "format": "date-time" },
+        "detail": { "type": "string" }
+      }
+    },
+    "progress_keys": { "type": "array", "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" } },
+    "spent_usd": { "type": "number", "minimum": 0 },
+    "escalated": { "type": "array", "items": { "type": "string" } }
+  }
+}

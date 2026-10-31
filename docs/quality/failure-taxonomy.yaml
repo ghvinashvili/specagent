@@ -1,0 +1,39 @@
+schema_version: 1
+# One class per finding. `signal` is what the analyst must be able to show in run files; `fix_in` is where a proposal may point.
+classes:
+  - id: no-real-check
+    signal: a unit passed its gate and a later stage, an eval or the human found the defect the gate should have caught
+    fix_in: [gate, eval-case]
+  - id: soft-completion
+    signal: result.json says complete while an output is missing, empty or untested
+    fix_in: [gate, hook]
+  - id: goal-drift
+    signal: the output answers a different question than the goal of the brief
+    fix_in: [template, instruction]
+  - id: self-preference
+    signal: a checking stage repeats the maker's claim without evidence of its own
+    fix_in: [instruction, stage-table]
+  - id: early-stop
+    signal: the session ended with partial coverage and neither an escalation nor a stop_reason
+    fix_in: [instruction, gate]
+  - id: no-progress
+    signal: the same gate checks failed on consecutive attempts
+    fix_in: [instruction, skill]
+  - id: handoff
+    signal: every stage passed its gate and the run still failed at the judge or at the human approval
+    fix_in: [schema, stage-table]
+  - id: context-rot
+    signal: an instruction was followed early in the session and ignored after a compaction or a resume
+    fix_in: [instruction, hook]
+  - id: avoidable-escalation
+    signal: the answer to an escalation was already in the material the stage received
+    fix_in: [template, instruction]
+  - id: permission-block
+    signal: a session waited on a permission prompt, or a tool call it needed was denied
+    fix_in: [settings, stage-table]
+  - id: limit-or-api
+    signal: a StopFailure record (rate_limit, overloaded, billing_error, authentication_failed)
+    fix_in: [operations]
+  - id: unclassified
+    signal: none of the above; reviewed by a human, and a recurring one becomes a new class
+    fix_in: []

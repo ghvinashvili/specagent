@@ -1,0 +1,27 @@
+schema_version: 1
+name: doc-gardening
+enabled: true
+purpose: Find documentation that no longer matches the repository and open a fix-up pull request.
+goal:
+  statement: harness docs-check reports no finding on main.
+  done_when:
+    - "`uv run harness docs-check` exits 0, or a pull request named chore/doc-gardening-<date> is open"
+action:
+  kind: ci
+  file: .github/workflows/doc-gardening.yml
+trigger:
+  kind: ci-cron
+  schedule: "0 6 * * 1"
+stops:
+  max_iterations: 1
+  max_minutes: 30
+  no_progress_after: 1
+exit:
+  success: the check is clean or the pull request exists
+  failure: the workflow job fails
+readiness:
+  repeats_weekly: { met: true, evidence: "documents drift with every merged change" }
+  verification_is_automatic: { met: true, evidence: "harness docs-check, markdownlint and lychee" }
+  budget_tolerates_waste: { met: true, evidence: "--max-turns 40 in the workflow" }
+  agent_can_run_the_check: { met: true, evidence: "the workflow allows Bash(uv run harness docs-check)" }
+owner: "@example-org/docs"

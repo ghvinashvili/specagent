@@ -1,0 +1,19 @@
+# Same syntax as .gitignore; merged with .gitignore and evaluated last (graphify README).
+evals/results/
+.claude/worktrees/
+.venv/
+# Noise out before extraction (measured on this template: 9,889 nodes before, 5,668 after): raw material (the root
+# context/ only; a nested one may hold code), JSON schemas, the plugins' vendored JavaScript, the eval cases.
+/context/
+schemas/**/*.json
+plugins/**/*.mjs
+evals/
+# Generated: the graph and its pages in the vault.
+graphify-out/
+wiki/graph/
+# The vault's link to the plans (read once, under docs/exec-plans/) and Obsidian's settings.
+wiki/plans/
+.obsidian/
+.raw/
+.vault-meta/
+inbox/

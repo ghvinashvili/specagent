@@ -1,0 +1,14 @@
+schema_version: 1
+name: pipeline-job-timeouts
+suite: regression
+session: false   # graded by code on a copy of fixture/, with no model and no API key (ADR-0028)
+trials: 1
+fixture: fixture
+# What this case proves: a job whose timeout is shorter than the minutes its eval selection can run is found (the wrapper timeout
+# under its cases' sum, 2026-10-29); one that covers them, a baseline run and a run without sessions are not.
+graders:
+  - type: python
+    base: workspace
+    script: evals/graders/pipeline_plan.py
+    args: ["."]
+pass_rule: deterministic_all

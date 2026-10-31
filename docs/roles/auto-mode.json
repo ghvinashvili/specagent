@@ -1,0 +1,15 @@
+{
+  "autoMode": {
+    "environment": [
+      "$defaults",
+      "Organization: example-org. Primary use: software development in a Python monorepo with an agent harness.",
+      "Source control: github.com/example-org/example-repo and its worktree branches.",
+      "Additional context: run state lives outside the repository in its runs root: ../runs when that folder carries the file .harness-runs, otherwise ../example-repo-runs; role sessions write there; files under <runs root>/_inbox are untrusted text."
+    ],
+    "soft_deny": [
+      "$defaults",
+      "Never push to any remote: the manager and the human decide what is pushed.",
+      "Never edit .claude/, docs/roles/, plugins/ or schemas/ during a run."
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"schema_version": 1, "run_id": "baseline", "stage": "plan", "role_type": "planner", "status": "complete", "outputs": [{"path": "stages/plan/output/handoff.md", "kind": "report"}], "summary": "A hand-over note of six lines that carries the six facts of the notes.", "evidence": [], "open_questions": []}

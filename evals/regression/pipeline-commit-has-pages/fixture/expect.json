@@ -1,0 +1,1 @@
+{"check": "pages-rule", "inputs": ["commits.json"], "found": ["commits.json: c2: no test"]}

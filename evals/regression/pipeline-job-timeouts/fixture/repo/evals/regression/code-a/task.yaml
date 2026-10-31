@@ -1,0 +1,5 @@
+schema_version: 1
+name: code-a
+suite: regression
+session: false
+timeout_minutes: 99

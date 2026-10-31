@@ -1,0 +1,23 @@
+name: Doc gardening
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+jobs:
+  garden:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install uv && uv sync
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: "Run `uv run harness docs-check`. Fix every finding in place without changing the meaning of any decision. Commit on a branch named chore/doc-gardening-<today> with a `docs:` commit header and open a pull request with `gh pr create --fill`. If there are no findings, stop."
+          claude_args: '--max-turns 40 --allowedTools "Bash(uv run harness docs-check),Bash(git *),Bash(gh pr create *),Read,Edit,Write,Glob,Grep"'

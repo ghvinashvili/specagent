@@ -1,0 +1,177 @@
+{
+  "advisor": {
+    "1": "read: question.md; read: tasks.json",
+    "2": "output: answer.md exists",
+    "3": "wrote: output/answer.md",
+    "4": "output: answer.md has 150 to 300 words; output: the answer does not name its perspective",
+    "5": "output: the task of the shard passes"
+  },
+  "analyst": {
+    "1": "read: failure-taxonomy.yaml; read: CHANGELOG.md",
+    "2": "read: state.json; read: gate.json",
+    "3": "wrote: output/taxonomy.md",
+    "4": "output: every proposal names a run file",
+    "5": "output: every proposal has the sections of templates/change-proposal.md; output: every proposal names a run file",
+    "6": "trust: the order of the proposals is the analyst's; a script cannot tell which fix did not hold",
+    "7": "ran: harness skill-usage; wrote: output/skill-usage.json"
+  },
+  "classifier": {
+    "1": "read: prompt.md",
+    "2": "read: result.json",
+    "3": "output: label.value is one of the route labels",
+    "4": "output: label.confidence is given",
+    "5": "trust: the object is the print run's result; the launcher writes result.json from it or the run fails"
+  },
+  "comparator": {
+    "1": "read: prompt.md",
+    "2": "read: answer.md",
+    "3": "output: ranking.order names every candidate exactly once",
+    "4": "output: ranking.order names every candidate exactly once",
+    "5": "trust: what a candidate did not see is a judgement on the texts; no check reads ranking.blind_spots",
+    "6": "trust: the object is the print run's result; the launcher writes result.json from it or the run fails"
+  },
+  "critic": {
+    "1": "read: prompt.md",
+    "2": "output: critique.md has a coverage line",
+    "3": "when: code_changed; read: changes.patch",
+    "4": "output: every finding has a source",
+    "5": "when: code_changed; ran: python; wrote: output/*.py",
+    "6": "when: code_changed; ran: {test}",
+    "7": "wrote: output/critique.md",
+    "8": "wrote: output/critique.md",
+    "9": "output: critique.md has a coverage line; output: every severity is blocks, must fix or minor"
+  },
+  "judge": {
+    "1": "read: brief.md",
+    "2": "output: every cited entry exists in its report",
+    "3": "output: every reason names its source as `<stage>#<n>`",
+    "4": "output: accept leaves no finding of the reports unanswered",
+    "5": "output: every cited entry exists in its report",
+    "6": "output: verdict.decision is accept, revise, replan or reject; output: accept leaves no finding of the reports unanswered",
+    "7": "output: every reason names its source as `<stage>#<n>`; output: every cited entry exists in its report",
+    "8": "trust: the object is the print run's result; the launcher writes result.json from it or the run fails"
+  },
+  "librarian": {
+    "1": "read: brief.md",
+    "2": "read: context/*",
+    "3": "output: the branch changes wiki/ only",
+    "4": "output: every `path:line` names an existing file and line",
+    "5": "output: harness wiki-lint is clean on the branch",
+    "6": "trust: a contradiction is rare; when it happens the page is marked disputed and an escalation is filed",
+    "7": "trust: a replaced statement leaves no trace a script can tell from an update",
+    "8": "ran: harness wiki-lint; ran: git commit",
+    "9": "wrote: output/changes.md"
+  },
+  "planner": {
+    "1": "when: input: notes.md; read: notes.md",
+    "2": "output: plan.md has the required sections",
+    "3": "output: every question of the reader is decided under Decisions",
+    "4": "when: stage: plan; read: code",
+    "5": "output: plan.md has the required sections",
+    "6": "when: stage: plan; ran: {test}; ran: {lint}; ran: {types}",
+    "7": "when: stage: plan; wrote: output/plan.md; wrote: progress.md",
+    "8": "when: stage: plan; ran: git diff; wrote: output/trial/trial.patch",
+    "9": "output: tasks.json is valid against tasks.schema.json",
+    "10": "output: every depends_on names an existing task",
+    "11": "trust: the traceability table is read by the human who approves the plan; no check reads it",
+    "12": "output: the dependency graph has no cycle",
+    "13": "output: no task is a placeholder"
+  },
+  "quarantine-reader": {
+    "1": "read: _inbox/*",
+    "2": "output: result.json has a digest block",
+    "3": "output: result.json has a digest block",
+    "4": "output: result.json valid against stage-result.schema.json",
+    "5": "trust: the object is the print run's result; the launcher writes result.json from it or the run fails"
+  },
+  "reader": {
+    "1": "wrote: progress.md",
+    "2": "output: notes.md has a section per source with at least one entry",
+    "3": "output: every file of the material is accounted for",
+    "4": "trust: only raw material too large to read whole needs a script; whether it was too large is not in the transcript",
+    "5": "wrote: output/notes.md",
+    "6": "output: every probe has its record under output/probes/; output: every probe record is a source section of the notes",
+    "7": "ran: python *probes/*; wrote: output/probes/*.py",
+    "8": "wrote: output/notes.md; wrote: progress.md",
+    "9": "trust: only a link that fails to open leaves a trace: its row in Coverage and its question",
+    "10": "trust: going through the brief again is thinking; its result, the Header's index, has no check",
+    "11": "output: every quote stands at its stated location"
+  },
+  "researcher": {
+    "1": "read: prompt.md",
+    "2": "output: findings.md states something",
+    "3": "read: code",
+    "4": "output: every statement has a `path:line` locator",
+    "5": "trust: what contradicts the obvious reading is found by searching; the findings report it or not",
+    "6": "trust: a probe is needed only where no file says how something behaves; its record is under output/probes/",
+    "7": "output: every cited line was read in the session"
+  },
+  "spec-writer": {
+    "1": "read: story.md; read: findings.md; read: constitution.md",
+    "2": "read: code",
+    "3": "output: every acceptance criterion has a row in the mapping table",
+    "4": "output: technical-brief.md has the required sections",
+    "5": "output: no *NEEDS CLARIFICATION* marker is left",
+    "6": "output: technical-brief.md has a Constitution row per article of specs/constitution.md",
+    "7": "output: every file of Files to change exists or is marked (new)"
+  },
+  "story-writer": {
+    "1": "read: findings.md",
+    "2": "output: story.md has the required sections",
+    "3": "output: the acceptance criteria are numbered",
+    "4": "trust: the origin of a criterion is a sentence of the brief or a finding; a script cannot tell which",
+    "5": "output: story.md has the required sections",
+    "6": "output: story.md has the required sections",
+    "7": "output: the criteria are numbered 1..n without gaps"
+  },
+  "synthesizer": {
+    "1": "read: question.md",
+    "2": "output: every statement names the input it comes from",
+    "3": "output: * has the five sections",
+    "4": "output: every item of Where they clash names two different inputs",
+    "5": "output: * has the five sections",
+    "6": "output: * has the five sections",
+    "7": "output: * has the five sections",
+    "8": "output: every input is named at least once; output: every statement names the input it comes from"
+  },
+  "test-verifier": {
+    "1": "read: story.md",
+    "2": "ran: {test} before: edit: tests/*",
+    "3": "output: every acceptance criterion has a row with its status",
+    "4": "trust: the edge cases are the story's; whether a test covers one is a reading of the words",
+    "5": "ran: {test} failed",
+    "6": "output: every acceptance criterion has a row with its status",
+    "7": "trust: only a command expected to run longer than four minutes goes to the background; the expectation is not in the transcript",
+    "8": "ran: git commit; wrote: output/acceptance.md"
+  },
+  "validator": {
+    "1": "read: story.md; read: technical-brief.md",
+    "2": "read: code",
+    "3": "output: every finding has a `path:line` locator",
+    "4": "trust: the rank of a finding is a judgement against the rules of the brief; no check reads it",
+    "5": "trust: code nobody approved is found by reading; its finding has its rank",
+    "6": "output: the coverage table has a row per acceptance criterion at least"
+  },
+  "verifier": {
+    "1": "read: plan.md; read: tasks.json",
+    "2": "output: report.md has numbered entries",
+    "3": "when: code_changed; wrote: output/checks/*",
+    "4": "when: stage: wikicheck; read: wiki/*",
+    "5": "when: code_changed; read: changes.patch",
+    "6": "when: stage: verify; ran: {test}; ran: {lint}; ran: {types}",
+    "7": "output: every entry states confirmed, refuted or could not check",
+    "8": "trust: only a command expected to run longer than four minutes goes to the background; the expectation is not in the transcript",
+    "9": "wrote: output/report.md",
+    "10": "output: result.json proposes a verdict"
+  },
+  "writer": {
+    "1": "read: plan.md; read: tasks.json",
+    "2": "read: code",
+    "3": "ran: {test} before: edit: code",
+    "4": "when: input: trial.patch; read: trial.patch",
+    "5": "output: a test was seen to fail when the behaviour is broken",
+    "6": "trust: only a command expected to run longer than four minutes goes to the background; the expectation is not in the transcript",
+    "7": "ran: {test}; ran: {lint}; ran: {types}; ran: git status",
+    "8": "wrote: report.md"
+  }
+}

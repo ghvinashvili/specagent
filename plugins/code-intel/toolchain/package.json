@@ -1,0 +1,12 @@
+{
+  "name": "code-intel-toolchain",
+  "private": true,
+  "description": "The language servers scripts/ensure.py installs into the plugin's data directory",
+  "dependencies": {
+    "intelephense": "1.18.5",
+    "pyright": "1.1.414",
+    "typescript": "6.0.3",
+    "typescript-language-server": "6.0.1",
+    "vscode-langservers-extracted": "4.10.0"
+  }
+}

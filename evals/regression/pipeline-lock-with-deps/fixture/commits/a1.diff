@@ -1,0 +1,16 @@
+commit a1
+    Add date parsing
+
+diff --git a/pyproject.toml b/pyproject.toml
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -5,3 +5,4 @@ dependencies = [
+     "pyyaml>=6",
++    "python-dateutil>=2.9",
+ ]
+diff --git a/src/dates.js b/src/dates.js
+--- /dev/null
++++ b/src/dates.js
+@@ -0,0 +1,2 @@
++const parse = require("dateutil");
++module.exports = parse;

@@ -1,0 +1,1374 @@
+{
+  "generated_at": "2026-10-31T15:31:00Z",
+  "schema": "claude-obsidian.source-ledger.v1",
+  "sources": {
+    "src-0358cc114857639395fa": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "2155736d3c782f86c9aac622435415dac02277a2223389c2aed9f1c2ad82188d",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/2155736d3c782f86c9aac622435415dac02277a2223389c2aed9f1c2ad82188d.md"
+      },
+      "pages": [
+        "wiki/decisions/collector-yes-then-standing-rule.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/collector-yes-then-standing-rule.md@c082e25"
+    },
+    "src-08a19e2f9cad969d7c58": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "c426b2e5b915895247ab6df9dae69039f77d9dd372dfeda4f160233dd68e7262",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/c426b2e5b915895247ab6df9dae69039f77d9dd372dfeda4f160233dd68e7262.md"
+      },
+      "pages": [
+        "wiki/decisions/manager-lessons-live-in-the-vault.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/manager-lessons-live-in-the-vault.md@c082e25"
+    },
+    "src-0b7d7794775212cd31a1": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "3e0294bb93277c6d6d2c6da59b4d79fadb9b6f0720311cc8e727d7aa5eecd6f4",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/3e0294bb93277c6d6d2c6da59b4d79fadb9b6f0720311cc8e727d7aa5eecd6f4.md"
+      },
+      "pages": [
+        "wiki/decisions/plan-fixer-and-translator-are-role-types.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/plan-fixer-and-translator-are-role-types.md@c082e25"
+    },
+    "src-0d8aabf09b4ebd756585": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "3660ff097e57a6703fad96dcd0166de5a688627c0e0c326c343cc38431071b41",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/3660ff097e57a6703fad96dcd0166de5a688627c0e0c326c343cc38431071b41.md"
+      },
+      "pages": [
+        "wiki/decisions/the-control-plane-is-a-later-run.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-control-plane-is-a-later-run.md@c082e25"
+    },
+    "src-164ba98435b12ec72380": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "d9347b3355ce2cea483d2e61e261344ea5b7357b314fdd27ecddb48932c49e37",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/d9347b3355ce2cea483d2e61e261344ea5b7357b314fdd27ecddb48932c49e37.md"
+      },
+      "pages": [
+        "wiki/decisions/ecc-content-is-pinned-never-its-mechanism.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/ecc-content-is-pinned-never-its-mechanism.md@c082e25"
+    },
+    "src-195e35740e80c8b1d2cd": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "d9e6f8c120b09c47196eee0b2bf26559b3e07b0b704c5b4d3f0a358e0d1e2156",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/d9e6f8c120b09c47196eee0b2bf26559b3e07b0b704c5b4d3f0a358e0d1e2156.md"
+      },
+      "pages": [
+        "wiki/decisions/planner-answers-its-findings-fixer-on-demand.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/planner-answers-its-findings-fixer-on-demand.md@c082e25"
+    },
+    "src-1fc9ad43d2c75241b59d": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "559e28af02036ed6c17844255f4bf5dbadfd22a23cdfcf44713ca4889e1582ab",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/559e28af02036ed6c17844255f4bf5dbadfd22a23cdfcf44713ca4889e1582ab.md"
+      },
+      "pages": [
+        "wiki/decisions/the-manager-profile-is-measured-at-its-first-call.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-34467aa9d9ab4d688dad",
+      "title": "decisions/the-manager-profile-is-measured-at-its-first-call.md@409401d"
+    },
+    "src-210e8bf83a32cef94367": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "d9435ba109e2631a1c433915447f249ba339e956dc63d4581c61ba725a44077b",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/d9435ba109e2631a1c433915447f249ba339e956dc63d4581c61ba725a44077b.md"
+      },
+      "pages": [
+        "wiki/decisions/critic-on-the-plan-verifier-on-the-code.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-5a3c50743638e751785d",
+      "title": "decisions/critic-on-the-plan-verifier-on-the-code.md@409401d"
+    },
+    "src-2163958963ac63292e74": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "e1e85593b35764f4952912124be3fe7f6154cfe75f6137b244e3fe8b6cfd65cf",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/e1e85593b35764f4952912124be3fe7f6154cfe75f6137b244e3fe8b6cfd65cf.md"
+      },
+      "pages": [
+        "wiki/decisions/the-sandbox-sets-itself-up-and-a-refusal-is-reported.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-sandbox-sets-itself-up-and-a-refusal-is-reported.md@c082e25"
+    },
+    "src-25ee88fad4479089e8f7": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "0fa20aaa3543c6ccc5694224548d1bca1c8af96a4d828d2b31d92aa461be434b",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/0fa20aaa3543c6ccc5694224548d1bca1c8af96a4d828d2b31d92aa461be434b.md"
+      },
+      "pages": [
+        "wiki/decisions/owner-surface-by-script.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/owner-surface-by-script.md@c082e25"
+    },
+    "src-272562c26e676c3d1b4f": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "375780e0ef04d0e32b0182492eb2f7e8c71c8088eb93465114a8886b6e47513c",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/375780e0ef04d0e32b0182492eb2f7e8c71c8088eb93465114a8886b6e47513c.md"
+      },
+      "pages": [
+        "wiki/decisions/no-fresh-session-after-a-finished-hand-off.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-990bab05a2f55528e1ae",
+      "title": "decisions/no-fresh-session-after-a-finished-hand-off.md@409401d"
+    },
+    "src-279a2f463f20a6b5f4b2": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "8d620fe626a43c9a7023cd44ea0cb53860bb305fb9f9ae34eae743fd82d81e1c",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/8d620fe626a43c9a7023cd44ea0cb53860bb305fb9f9ae34eae743fd82d81e1c.md"
+      },
+      "pages": [
+        "wiki/decisions/roles-and-sessions-keep-their-names.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-5d2639386d85db8b8b76",
+      "title": "decisions/roles-and-sessions-keep-their-names.md@409401d"
+    },
+    "src-34467aa9d9ab4d688dad": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "f2c6817ee63e259d412ea701352c2a1db0afd9951a39a68ef4fb35be289c558d",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/f2c6817ee63e259d412ea701352c2a1db0afd9951a39a68ef4fb35be289c558d.md"
+      },
+      "pages": [
+        "wiki/decisions/the-manager-profile-is-measured-at-its-first-call.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/the-manager-profile-is-measured-at-its-first-call.md@c082e25"
+    },
+    "src-34c1f39110dd526141bc": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "f7ba18feb9c0d78e8bed1e58d761b9ddd981142e14220d9c778154dfe3830b14",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/f7ba18feb9c0d78e8bed1e58d761b9ddd981142e14220d9c778154dfe3830b14.md"
+      },
+      "pages": [
+        "wiki/decisions/what-an-agent-reads-is-small-and-layered.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/what-an-agent-reads-is-small-and-layered.md@c082e25"
+    },
+    "src-36ccf52744c71bcbe4d0": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "46986ee47724fbd30aa66164c6ee6ad002687c7c89a214ab7d78903879af155c",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/46986ee47724fbd30aa66164c6ee6ad002687c7c89a214ab7d78903879af155c.md"
+      },
+      "pages": [
+        "wiki/decisions/planner-answers-its-findings-fixer-on-demand.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-195e35740e80c8b1d2cd",
+      "title": "decisions/planner-answers-its-findings-fixer-on-demand.md@409401d"
+    },
+    "src-36e5a5c9e3fe7efb6a10": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "700b5f4d0032976e7e251dab8309cef41cc4eeb0e3cc70577beca152aba8d3b6",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/700b5f4d0032976e7e251dab8309cef41cc4eeb0e3cc70577beca152aba8d3b6.md"
+      },
+      "pages": [
+        "wiki/decisions/control-plane-in-the-skill.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-559f90f3768924b466f1",
+      "title": "decisions/control-plane-in-the-skill.md@409401d"
+    },
+    "src-3b0ba3e8d5b0410a1458": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "d99f45dcaa23cabe3ed1750cb3399c6b1b17422c05c0bb9ff779e5972ef328fd",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/d99f45dcaa23cabe3ed1750cb3399c6b1b17422c05c0bb9ff779e5972ef328fd.md"
+      },
+      "pages": [
+        "wiki/decisions/collector-yes-then-standing-rule.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-0358cc114857639395fa",
+      "title": "decisions/collector-yes-then-standing-rule.md@409401d"
+    },
+    "src-3da31bd58016a8734a76": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "120045729a45d4169bcb853ab18e894a72d0f13ef13116244b9696d8f6770d26",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/120045729a45d4169bcb853ab18e894a72d0f13ef13116244b9696d8f6770d26.md"
+      },
+      "pages": [
+        "wiki/decisions/the-learning-layer-is-a-later-run.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-learning-layer-is-a-later-run.md@c082e25"
+    },
+    "src-4845bdb545817e8388b7": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "057146d1da53600ae05b1b52744eefad4302280cbaaafe415dba085c3be9c9af",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/057146d1da53600ae05b1b52744eefad4302280cbaaafe415dba085c3be9c9af.md"
+      },
+      "pages": [
+        "wiki/decisions/the-launch-table-and-one-yes.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-adf3e68ed4614a213705",
+      "title": "decisions/the-launch-table-and-one-yes.md@409401d"
+    },
+    "src-4a8fc34c5cd9b994e6f9": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "c1d567a3a0f9ca20b3f93d468dffa5c72f54d0477ce035aeb17ecb3d3e049b08",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/c1d567a3a0f9ca20b3f93d468dffa5c72f54d0477ce035aeb17ecb3d3e049b08.md"
+      },
+      "pages": [
+        "wiki/decisions/diagrams-are-mermaid-text.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-d913e696597881c2914d",
+      "title": "decisions/diagrams-are-mermaid-text.md@409401d"
+    },
+    "src-4bce529829ed7b706ee0": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "90b9f74f1dbab4338de03d862faa5dadd540e7ab607dedd643a414348ace846c",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/90b9f74f1dbab4338de03d862faa5dadd540e7ab607dedd643a414348ace846c.md"
+      },
+      "pages": [
+        "wiki/decisions/the-owners-vault-is-read-on-need.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-owners-vault-is-read-on-need.md@c082e25"
+    },
+    "src-4c866e4e37096b643225": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "6b22c8aaa15fe6e6bd092afff73feb467cd2c7d1c7239783008d072521e4e9c4",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/6b22c8aaa15fe6e6bd092afff73feb467cd2c7d1c7239783008d072521e4e9c4.md"
+      },
+      "pages": [
+        "wiki/decisions/the-cache-is-measured-in-dollars-and-set-per-role.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-cache-is-measured-in-dollars-and-set-per-role.md@e4cc190"
+    },
+    "src-54e911784cf06e284380": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "6f981866081d5851a008c579a8cab32d147faa0358fa3ee159fdd34a957e46d5",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/6f981866081d5851a008c579a8cab32d147faa0358fa3ee159fdd34a957e46d5.md"
+      },
+      "pages": [
+        "wiki/decisions/finished-plans-live-in-exec-plans-done.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/finished-plans-live-in-exec-plans-done.md@409401d"
+    },
+    "src-559f90f3768924b466f1": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "852d76b251f1e76b214bce5dad51cc0b49b323725949335b186c9f26e2b6235e",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/852d76b251f1e76b214bce5dad51cc0b49b323725949335b186c9f26e2b6235e.md"
+      },
+      "pages": [
+        "wiki/decisions/control-plane-in-the-skill.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/control-plane-in-the-skill.md@c082e25"
+    },
+    "src-573b00acceb557132137": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "14994272b64897465134be3a87bb7d70e961c326b191f47e0a2a83efcf910678",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/14994272b64897465134be3a87bb7d70e961c326b191f47e0a2a83efcf910678.md"
+      },
+      "pages": [
+        "wiki/decisions/owner-surface-by-script.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-25ee88fad4479089e8f7",
+      "title": "decisions/owner-surface-by-script.md@409401d"
+    },
+    "src-5a3c50743638e751785d": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "b110746af8013bf7b410189b70c64b9f300681e67c7a6339ebeea866dfa1e2af",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/b110746af8013bf7b410189b70c64b9f300681e67c7a6339ebeea866dfa1e2af.md"
+      },
+      "pages": [
+        "wiki/decisions/critic-on-the-plan-verifier-on-the-code.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/critic-on-the-plan-verifier-on-the-code.md@c082e25"
+    },
+    "src-5d2639386d85db8b8b76": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "fca8a85544af6936d35383265e2271f32bdba4fd930647605b914d1f2575f351",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/fca8a85544af6936d35383265e2271f32bdba4fd930647605b914d1f2575f351.md"
+      },
+      "pages": [
+        "wiki/decisions/roles-and-sessions-keep-their-names.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/roles-and-sessions-keep-their-names.md@c082e25"
+    },
+    "src-5e83a21d3905f61c00f3": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "3a3899ac16cbfa4e9a984efd490d84df3bc1d72eb9a2139fc8874af6da581557",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/3a3899ac16cbfa4e9a984efd490d84df3bc1d72eb9a2139fc8874af6da581557.md"
+      },
+      "pages": [
+        "wiki/decisions/the-manager-is-the-pipeline-skill-main-session.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/the-manager-is-the-pipeline-skill-main-session.md@c082e25"
+    },
+    "src-5f30c5dc7592f7cdf30a": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "d1a626dc56ce67dbc1eceb6a106bd9e89a4d3a6b105c7ef7d39169294d36278d",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/d1a626dc56ce67dbc1eceb6a106bd9e89a4d3a6b105c7ef7d39169294d36278d.md"
+      },
+      "pages": [
+        "wiki/decisions/a-vault-graph-is-measured-before-it-is-built.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/a-vault-graph-is-measured-before-it-is-built.md@c082e25"
+    },
+    "src-5fe6a0f092c20dabbd11": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "027c1722cab4ad16290dfbe85a1ea928b6fbc0742f55bbc8e68d59083166cde1",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/027c1722cab4ad16290dfbe85a1ea928b6fbc0742f55bbc8e68d59083166cde1.md"
+      },
+      "pages": [
+        "wiki/decisions/the-code-graph-is-generated-layered-and-refreshed-by-hooks.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-code-graph-is-generated-layered-and-refreshed-by-hooks.md@c082e25"
+    },
+    "src-63cbdfec153ba54869e1": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "0219802fbc56040a88c7693b7adf523b1ebe6f83582d50ceb3b38c46c4618cbb",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/0219802fbc56040a88c7693b7adf523b1ebe6f83582d50ceb3b38c46c4618cbb.md"
+      },
+      "pages": [
+        "wiki/decisions/collector-save-check.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/collector-save-check.md@c082e25"
+    },
+    "src-696d8b35d559bb4c7f38": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "8006a7d4264e08760e53f479142002362ec2b450560bde38c1d28a1cee2da0b6",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/8006a7d4264e08760e53f479142002362ec2b450560bde38c1d28a1cee2da0b6.md"
+      },
+      "pages": [
+        "wiki/decisions/dated-api-prices.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-f4a5f9b59d3c2c3106af",
+      "title": "decisions/dated-api-prices.md@409401d"
+    },
+    "src-69ec3417c4ad2eff9222": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "1a3f1f3abc80fef2ae1b9dda70d33b3e11b3b83834628d813f72fa7ea7ac47d6",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/1a3f1f3abc80fef2ae1b9dda70d33b3e11b3b83834628d813f72fa7ea7ac47d6.md"
+      },
+      "pages": [
+        "wiki/decisions/bootstrap-runs-eleven-steps-in-order.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-b5ee9fef51a2db8aa613",
+      "title": "decisions/bootstrap-runs-eleven-steps-in-order.md@409401d"
+    },
+    "src-6d698461a67ffd674d4d": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "ee0ba2d975e4bc0662bd35a7c55d5ab4d51bb13e70e28b5963c96fc452b9555c",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/ee0ba2d975e4bc0662bd35a7c55d5ab4d51bb13e70e28b5963c96fc452b9555c.md"
+      },
+      "pages": [
+        "wiki/decisions/skill-script-pages.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-b2a831a1fcaa2ad51572",
+      "title": "decisions/skill-script-pages.md@409401d"
+    },
+    "src-740bc47f5ee468e01e65": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "38910fdb54771346cf09ecfbd419442ca88a64f19b3a6e93597222fb3cec5f75",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/38910fdb54771346cf09ecfbd419442ca88a64f19b3a6e93597222fb3cec5f75.md"
+      },
+      "pages": [
+        "wiki/decisions/ecc-texts-live-under-claude-ecc.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/ecc-texts-live-under-claude-ecc.md@409401d"
+    },
+    "src-753a1012ba0368af7e2f": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "deb3175b69c97d49557d5be27e41b57e1f407052f492f59b8e7cb1a10a643609",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/deb3175b69c97d49557d5be27e41b57e1f407052f492f59b8e7cb1a10a643609.md"
+      },
+      "pages": [
+        "wiki/decisions/duty-list-from-the-plan.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-fd84299f2d46233d1393",
+      "title": "decisions/duty-list-from-the-plan.md@409401d"
+    },
+    "src-79c34cd48d5f6b302ff1": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "484ecf758a32a1257a3faeaa62d4b4e16083d742a1e9eb846b9f6815acbd0db9",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/484ecf758a32a1257a3faeaa62d4b4e16083d742a1e9eb846b9f6815acbd0db9.md"
+      },
+      "pages": [
+        "wiki/decisions/request-answer-lines.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-e619f36977052ea55f0b",
+      "title": "decisions/request-answer-lines.md@409401d"
+    },
+    "src-7c66c557d83cee8da1b0": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "c235a9c7a13f3994b5911ed493f9ac453b82e3cb2c6f4d4bbb281a9190b6493c",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/c235a9c7a13f3994b5911ed493f9ac453b82e3cb2c6f4d4bbb281a9190b6493c.md"
+      },
+      "pages": [
+        "wiki/decisions/the-shared-knowledge-base.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-shared-knowledge-base.md@c082e25"
+    },
+    "src-79d3349816901483a64a": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "86b2359990a1341fdf73bccc5f6b6a2153e58a0811778f6c7d128db5facbd4d4",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/86b2359990a1341fdf73bccc5f6b6a2153e58a0811778f6c7d128db5facbd4d4.md"
+      },
+      "pages": [
+        "wiki/decisions/the-checkout-is-a-claude-obsidian-vault.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-checkout-is-a-claude-obsidian-vault.md@c082e25"
+    },
+    "src-93c97b8b71c2d714a8ba": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "54a716a1b52d4f8af591bcd050f984840a36f5876fff718c4dbae89372daf6b8",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/54a716a1b52d4f8af591bcd050f984840a36f5876fff718c4dbae89372daf6b8.md"
+      },
+      "pages": [
+        "wiki/decisions/the-template-is-english-only.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/the-template-is-english-only.md@c082e25"
+    },
+    "src-98aa66b621f73f918292": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "ba87b2dee7be4bce47e22a0fc9bcaa693a8215631f52c56181e6dda9f9a2959e",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/ba87b2dee7be4bce47e22a0fc9bcaa693a8215631f52c56181e6dda9f9a2959e.md"
+      },
+      "pages": [
+        "wiki/decisions/pipeline-economy-estimate-model-classes-open-items.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/pipeline-economy-estimate-model-classes-open-items.md@e4cc190"
+    },
+    "src-990bab05a2f55528e1ae": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "0b2f5941b3b87108b8eae5b9aea1f025182251b9d9ed5d057dbca3ce4910f17a",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/0b2f5941b3b87108b8eae5b9aea1f025182251b9d9ed5d057dbca3ce4910f17a.md"
+      },
+      "pages": [
+        "wiki/decisions/no-fresh-session-after-a-finished-hand-off.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/no-fresh-session-after-a-finished-hand-off.md@c082e25"
+    },
+    "src-9e87400e054f494fbc15": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "436b53236f953e6aa5eb753ea49552485bb01faedb94e94a422b4b33afb33a2d",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/436b53236f953e6aa5eb753ea49552485bb01faedb94e94a422b4b33afb33a2d.md"
+      },
+      "pages": [
+        "wiki/decisions/pipelines-run-as-specagent-sessions-from-a-template-skill.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-afce92fbf3d34c0d200d",
+      "title": "decisions/pipelines-run-as-specagent-sessions-from-a-template-skill.md@409401d"
+    },
+    "src-9ec878cfa69c543e13b0": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "f2f87d6e19ffe2311d6995223cbb3bf8f894041d92a7fc13dcec3614c22bdb7c",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/f2f87d6e19ffe2311d6995223cbb3bf8f894041d92a7fc13dcec3614c22bdb7c.md"
+      },
+      "pages": [
+        "wiki/decisions/ecc-text-reaches-a-brief-by-line-range.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-bba07184c20fee4e055c",
+      "title": "decisions/ecc-text-reaches-a-brief-by-line-range.md@409401d"
+    },
+    "src-a0cc493b2e0bbde8b2a1": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "111d8e89784dbd9cb56968b39d40250ff868bea42472332dd5986fec5453f9e9",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/111d8e89784dbd9cb56968b39d40250ff868bea42472332dd5986fec5453f9e9.md"
+      },
+      "pages": [
+        "wiki/decisions/spec-writer-writes-the-skeleton.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/spec-writer-writes-the-skeleton.md@e4cc190"
+    },
+    "src-a294c519aaed28f15ecf": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "1fadcd610c5f37129811386e5f9fb21c6f91398b6e1761fc6cb5a71b9e0cc842",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/1fadcd610c5f37129811386e5f9fb21c6f91398b6e1761fc6cb5a71b9e0cc842.md"
+      },
+      "pages": [
+        "wiki/decisions/adrs-and-decision-pages-stay-two-stores.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/adrs-and-decision-pages-stay-two-stores.md@409401d"
+    },
+    "src-a4caaf7e386a7db16c36": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "925455f81832f2eb297ee62a12aa3f8e96fdb9f2b24d44cbfd369850a531e4b5",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/925455f81832f2eb297ee62a12aa3f8e96fdb9f2b24d44cbfd369850a531e4b5.md"
+      },
+      "pages": [
+        "wiki/decisions/monitor-answers-no-request.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-a5aca17d991267c78dc6",
+      "title": "decisions/monitor-answers-no-request.md@409401d"
+    },
+    "src-a5aca17d991267c78dc6": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "9fdb4d999baaaaf8d19e559dd5d3f971afece03c188649e3b9eac389d41a51b7",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/9fdb4d999baaaaf8d19e559dd5d3f971afece03c188649e3b9eac389d41a51b7.md"
+      },
+      "pages": [
+        "wiki/decisions/monitor-answers-no-request.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/monitor-answers-no-request.md@c082e25"
+    },
+    "src-aa576729809d35366241": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "308ee7f3d34e6d66914c7a431c0cb7acc47cd7f72df453aec622be51c74485fb",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/308ee7f3d34e6d66914c7a431c0cb7acc47cd7f72df453aec622be51c74485fb.md"
+      },
+      "pages": [
+        "wiki/decisions/roles-are-blind-to-models-and-authors.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/roles-are-blind-to-models-and-authors.md@c082e25"
+    },
+    "src-abef67df9b01d13a4a5a": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "b1cd21e33f6aa33bcea434f7bc921cae9aad189f11791ccbc48cdb2583d47d25",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/b1cd21e33f6aa33bcea434f7bc921cae9aad189f11791ccbc48cdb2583d47d25.md"
+      },
+      "pages": [
+        "wiki/decisions/code-cases-gate-every-push-sessions-run-nightly.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/code-cases-gate-every-push-sessions-run-nightly.md@c082e25"
+    },
+    "src-adf3e68ed4614a213705": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "b336ca144cc105dac72f2b45b8587d78c7de2a8e39b6d344f961c319e34eb525",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/b336ca144cc105dac72f2b45b8587d78c7de2a8e39b6d344f961c319e34eb525.md"
+      },
+      "pages": [
+        "wiki/decisions/the-launch-table-and-one-yes.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/the-launch-table-and-one-yes.md@c082e25"
+    },
+    "src-afce92fbf3d34c0d200d": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "20204afe32d001508bd2b183cff01a46fdcbe38ade00fa4db3aba276be558827",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/20204afe32d001508bd2b183cff01a46fdcbe38ade00fa4db3aba276be558827.md"
+      },
+      "pages": [
+        "wiki/decisions/pipelines-run-as-specagent-sessions-from-a-template-skill.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/pipelines-run-as-specagent-sessions-from-a-template-skill.md@c082e25"
+    },
+    "src-b2a831a1fcaa2ad51572": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "c1bebef57237c73fe0a12a06e60f6d9f16b9c3a21a1dcf10e57eeee151bcf0ce",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/c1bebef57237c73fe0a12a06e60f6d9f16b9c3a21a1dcf10e57eeee151bcf0ce.md"
+      },
+      "pages": [
+        "wiki/decisions/skill-script-pages.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/skill-script-pages.md@c082e25"
+    },
+    "src-b4311394ee5a5ac97243": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "27809455a22d224a6e0ec27502b0c048212c17a74d1d26895abc489f52ae4fb6",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/27809455a22d224a6e0ec27502b0c048212c17a74d1d26895abc489f52ae4fb6.md"
+      },
+      "pages": [
+        "wiki/decisions/one-score-per-run-by-script.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-e02a1ca3f3d1860a1653",
+      "title": "decisions/one-score-per-run-by-script.md@409401d"
+    },
+    "src-b5ee9fef51a2db8aa613": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "f74129fdfc437c864af12d9e1f66a0e8ef98c238803496c9fe516334ecc2f78e",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/f74129fdfc437c864af12d9e1f66a0e8ef98c238803496c9fe516334ecc2f78e.md"
+      },
+      "pages": [
+        "wiki/decisions/bootstrap-runs-eleven-steps-in-order.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/bootstrap-runs-eleven-steps-in-order.md@c082e25"
+    },
+    "src-bba07184c20fee4e055c": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "c789c226feb221f27431b9e8208483e171a9e5483104c80748e07280634af4ee",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/c789c226feb221f27431b9e8208483e171a9e5483104c80748e07280634af4ee.md"
+      },
+      "pages": [
+        "wiki/decisions/ecc-text-reaches-a-brief-by-line-range.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/ecc-text-reaches-a-brief-by-line-range.md@c082e25"
+    },
+    "src-c77f8adad6e6b3af8320": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "1d63dcab30674c404358de1a147cfb0391dae0a48d85925239e38bfd2a53bdd7",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/1d63dcab30674c404358de1a147cfb0391dae0a48d85925239e38bfd2a53bdd7.md"
+      },
+      "pages": [
+        "wiki/decisions/ecc-content-is-pinned-never-its-mechanism.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-164ba98435b12ec72380",
+      "title": "decisions/ecc-content-is-pinned-never-its-mechanism.md@409401d"
+    },
+    "src-c85d7b4190324b4e5feb": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "06fbb2ca3384f2629d16da9cb0ea759511d0e161cf097af5d05962f62b4f9be5",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/06fbb2ca3384f2629d16da9cb0ea759511d0e161cf097af5d05962f62b4f9be5.md"
+      },
+      "pages": [
+        "wiki/decisions/the-template-is-named-specagent.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-template-is-named-specagent.md@409401d"
+    },
+    "src-cbb67cb9ccf6072a1c93": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "96ef183967e533ccb1f3e17dffd36ca39a1a5b9576dd9086262193a8d06c4f62",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/96ef183967e533ccb1f3e17dffd36ca39a1a5b9576dd9086262193a8d06c4f62.md"
+      },
+      "pages": [
+        "wiki/decisions/the-spec-writers-model-is-a-dated-exception.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-spec-writers-model-is-a-dated-exception.md@c082e25"
+    },
+    "src-d913e696597881c2914d": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "e59a0fed82e1c1b4c54c1685e74111c2decc7ff2e76f11ec47a443055a1110fd",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/e59a0fed82e1c1b4c54c1685e74111c2decc7ff2e76f11ec47a443055a1110fd.md"
+      },
+      "pages": [
+        "wiki/decisions/diagrams-are-mermaid-text.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/diagrams-are-mermaid-text.md@c082e25"
+    },
+    "src-da4a8e4506ec101f1976": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "ee046949e35457f2b16e96ce596bc775d7ef561c3f0627d98f693333058aba83",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/ee046949e35457f2b16e96ce596bc775d7ef561c3f0627d98f693333058aba83.md"
+      },
+      "pages": [
+        "wiki/decisions/pipeline-economy-hand-over-units-checks-facts-pack.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/pipeline-economy-hand-over-units-checks-facts-pack.md@e4cc190"
+    },
+    "src-df8f227233030d5906b0": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "ee312278b0063f5d97931d99d4801deac182cbe4ff6bab43ac21fa532d9e424b",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/ee312278b0063f5d97931d99d4801deac182cbe4ff6bab43ac21fa532d9e424b.md"
+      },
+      "pages": [
+        "wiki/decisions/plan-steps-and-blocks-in-two-files.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/plan-steps-and-blocks-in-two-files.md@c082e25"
+    },
+    "src-e02a1ca3f3d1860a1653": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "e10ad4767b067d40d76783b6b8b51eb134f02f9f22c88325b56b80b458bf677e",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/e10ad4767b067d40d76783b6b8b51eb134f02f9f22c88325b56b80b458bf677e.md"
+      },
+      "pages": [
+        "wiki/decisions/one-score-per-run-by-script.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/one-score-per-run-by-script.md@c082e25"
+    },
+    "src-e0cd5e26d3ed9bf07c36": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "04776a3fee06eb5689330b2becbfd0fc777f074b2c2190fcc0e833572c402386",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/04776a3fee06eb5689330b2becbfd0fc777f074b2c2190fcc0e833572c402386.md"
+      },
+      "pages": [
+        "wiki/decisions/the-manager-runs-without-the-sandbox.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/the-manager-runs-without-the-sandbox.md@c082e25"
+    },
+    "src-e300b6c1d3ef006d955c": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "7727ef1108c49193d77a1d263f51577693ce47e00629d0260b0f14a6a233750d",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/7727ef1108c49193d77a1d263f51577693ce47e00629d0260b0f14a6a233750d.md"
+      },
+      "pages": [
+        "wiki/decisions/collector-save-check.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-63cbdfec153ba54869e1",
+      "title": "decisions/collector-save-check.md@409401d"
+    },
+    "src-e619f36977052ea55f0b": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "d3bab480e6690d3f58a4ad111f9206d2d8410b5ffc48756bac54c1b90a0d7c39",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/d3bab480e6690d3f58a4ad111f9206d2d8410b5ffc48756bac54c1b90a0d7c39.md"
+      },
+      "pages": [
+        "wiki/decisions/request-answer-lines.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/request-answer-lines.md@c082e25"
+    },
+    "src-e9658705fcd9ca040d79": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "39d887963e6ce2847426f759b76d297556f173f06cb1efd0c0b53568ee613930",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/39d887963e6ce2847426f759b76d297556f173f06cb1efd0c0b53568ee613930.md"
+      },
+      "pages": [
+        "wiki/decisions/the-manager-is-the-pipeline-skill-main-session.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-5e83a21d3905f61c00f3",
+      "title": "decisions/the-manager-is-the-pipeline-skill-main-session.md@409401d"
+    },
+    "src-efb2679b86cd0fc76dd0": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "6c9487daac05a187f354f32513e9961b4d7aecc15092e06ddd9a3643f984242f",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/6c9487daac05a187f354f32513e9961b4d7aecc15092e06ddd9a3643f984242f.md"
+      },
+      "pages": [
+        "wiki/decisions/roles-are-blind-to-models-and-authors.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-aa576729809d35366241",
+      "title": "decisions/roles-are-blind-to-models-and-authors.md@409401d"
+    },
+    "src-f4a5f9b59d3c2c3106af": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "6f38c9d2f9e87eb16b79f71c29a3ca290e2444a176f93d9caaa36b95b0f1871a",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/6f38c9d2f9e87eb16b79f71c29a3ca290e2444a176f93d9caaa36b95b0f1871a.md"
+      },
+      "pages": [
+        "wiki/decisions/dated-api-prices.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/dated-api-prices.md@c082e25"
+    },
+    "src-f92516ee1eb46c6c65ee": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "5e970b0220aa7aad53846023b4e582b44086788dc04f695a2c4705035221dcf2",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-31",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/5e970b0220aa7aad53846023b4e582b44086788dc04f695a2c4705035221dcf2.md"
+      },
+      "pages": [
+        "wiki/decisions/the-template-is-english-only.md"
+      ],
+      "refresh_due": "2027-10-31",
+      "retrieved_at": "2026-10-31",
+      "review_status": "active",
+      "supersedes": "src-93c97b8b71c2d714a8ba",
+      "title": "decisions/the-template-is-english-only.md@409401d"
+    },
+    "src-f9a029f920db7b4497f6": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "a2aa9577f781c5f30c4fbe3f59c18a9d1378b4d5ec11bd6a043153912b88beca",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/a2aa9577f781c5f30c4fbe3f59c18a9d1378b4d5ec11bd6a043153912b88beca.md"
+      },
+      "pages": [
+        "wiki/decisions/decisions-are-written-with-the-work.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "active",
+      "supersedes": null,
+      "title": "decisions/decisions-are-written-with-the-work.md@c082e25"
+    },
+    "src-fd84299f2d46233d1393": {
+      "authority": "primary",
+      "content_kind": "document",
+      "content_sha256": "6d8e7c4a5fd610118e31523f92ff751be669161fafd212af527d97531e12f5a8",
+      "independence_key": "wiki/decisions",
+      "ingested_at": "2026-10-30",
+      "origin": {
+        "kind": "file",
+        "locator": ".raw/captured/6d8e7c4a5fd610118e31523f92ff751be669161fafd212af527d97531e12f5a8.md"
+      },
+      "pages": [
+        "wiki/decisions/duty-list-from-the-plan.md"
+      ],
+      "refresh_due": "2027-10-30",
+      "retrieved_at": "2026-10-30",
+      "review_status": "superseded",
+      "supersedes": null,
+      "title": "decisions/duty-list-from-the-plan.md@c082e25"
+    }
+  }
+}

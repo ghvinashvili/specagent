@@ -1,0 +1,30 @@
+schema_version: 1
+# Everything the flow uses that this repository did not write, or that adds tools to a session.
+# form: plugin | skills | mcp | cli | agent-cli | proxy | service   (docs/roles/EXTENSIONS.md, section 2)
+# `harness extensions` compares the plugins and MCP servers with what is installed. A difference (another version,
+# a new hook event, agent, command, server, executable) fails `harness validate` until a human reviews the
+# extension again and changes this file in a pull request. The other forms are recorded here with their pinned
+# version, so that what the flow depends on can be read in one place.
+extensions:
+  code-intel@example-repo-plugins:
+    form: plugin
+    source: "./plugins/code-intel"
+    version: "0.1.0"
+    serves: "type checking, errors after every edit and code navigation for Python, JavaScript and TypeScript, PHP, C and C++, HTML and CSS; its hook installs the pinned servers into the plugin's data directory, so a fresh checkout needs no manual step (docs/decisions/0009-a-checkout-sets-itself-up.md). It replaced pyright-lsp@claude-plugins-official, which needed a server installed by hand and, without it, gave no diagnostics and no error"
+    brings:
+      hooks: [SessionStart]
+      lsp_servers: [clangd, css, html, intelephense, pyright, typescript]
+  harness-state:
+    form: mcp
+    source: ".mcp.json"
+    version: "this repository"
+    serves: "run state as tools, for the manager; no role type is given it"
+  obsidian-vault@example-repo-plugins:
+    form: plugin
+    source: "github:AgriciDaniel/claude-obsidian"
+    version: "3.0.1"
+    serves: "the checkout as a source-cited Obsidian vault: adoption, journaled writes, lint, the hot cache at session start, retrieval; the owner's second brain and the roles' navigation (wiki/decisions/the-checkout-is-a-claude-obsidian-vault.md)"
+    brings:
+      hooks: [SessionStart, Stop]
+      skills: [autoresearch, canvas, defuddle, obsidian-bases, obsidian-markdown, save, think, wiki, wiki-cli, wiki-fold, wiki-ingest, wiki-lint, wiki-mode, wiki-query, wiki-retrieve]
+      agents: [verifier, wiki-ingest, wiki-lint]

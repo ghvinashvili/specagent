@@ -1,0 +1,1 @@
+{"check": "control-files", "inputs": ["run", "plan"], "found": ["plan/task-02.md:1: the heading names Task 3", "plan/task-03.md:1: written ahead (no \"Task 3: started by\" in plan-log.md)", "run/_common.md: a control file changed after the run started"]}

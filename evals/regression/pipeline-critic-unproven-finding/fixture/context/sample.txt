@@ -1,0 +1,4 @@
+# retry settings
+max_retries = 3
+backoff_start_seconds = 1
+on_give_up = log
