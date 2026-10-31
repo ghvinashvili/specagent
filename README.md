@@ -75,7 +75,7 @@ the gate that merges the run's one branch; the run's numbers go to your private 
 in the checkout, then to yours. Roles write **records** in the **run folder**, the run's only state; **gates** (code, a
 verifier, the judge) send findings back to their author but keep a judge's major or minor for you.
 
-<img src="docs/assets/run-loop.svg" alt="The run loop: you, the manager chat, the role sessions, the run folder, the gates, the vault" width="650">
+<img src="docs/assets/run-loop.svg" alt="The run loop: you, the manager chat, the role sessions, the run folder, the gates, the vault" width="100%">
 
 ### The manager chat
 
@@ -108,7 +108,7 @@ files to the builders and an answer line to the critic or the verifier, whicheve
 closes it (`<id>: fixed` or `closed`). After three rounds a rule decides: the spec and recorded decisions win, else the
 safer option.
 
-<img src="docs/assets/roles.svg" alt="The roles and the record file each writes" width="900">
+<img src="docs/assets/roles.svg" alt="The roles and the record file each writes" width="100%">
 
 ### A session's life
 
@@ -121,7 +121,7 @@ and resumes it once to hand over. Either way it commits its work, nothing half d
 lines of facts; the watcher starts a fresh session at the note. Only files pass between sessions
 ([hand-over rule][handoff]).
 
-<img src="docs/assets/session-life.svg" alt="A session's life: one unit, then a hand-over note and a fresh session" width="640">
+<img src="docs/assets/session-life.svg" alt="A session's life: one unit, then a hand-over note and a fresh session" width="100%">
 
 ### The knowledge layer
 
@@ -140,7 +140,7 @@ a page that passes becomes a pull request (`candidate`), a rule once a second or
 source, never an authority: your vault wins ([decision][kb]; not built yet: the commons repository and its review, a
 critic session per page).
 
-<img src="docs/assets/knowledge.svg" alt="The knowledge layer, from its sources to your vault and the commons" width="700">
+<img src="docs/assets/knowledge.svg" alt="The knowledge layer, from its sources to your vault and the commons" width="100%">
 
 ## Why it is good
 
@@ -225,7 +225,7 @@ short lookup inside one turn, with nothing to record and nothing to resume, cost
 [The full table][measured] has all 15 properties with their evidence. The price ([ADR-0001][a1]): roles
 coordinate by files and polling, and the manager cannot steer a role mid-turn.
 
-<img src="docs/assets/sandbox.svg" alt="A role session's sandbox: what it writes, what it may not touch, how it asks the manager" width="870">
+<img src="docs/assets/sandbox.svg" alt="A role session's sandbox: what it writes, what it may not touch, how it asks the manager" width="100%">
 
 ## Quick start
 
@@ -284,7 +284,7 @@ or test, which the planner adds ([spec-writer]).
 | `build-summary-*.md`, `verify-summary.md` | at the end: what was built, found and deferred, what you must do once |
 | the owner's surface | a line per role and the run's risks, rendered by `scripts/manager/surface.py` ([decision](wiki/decisions/owner-surface-by-script.md)) |
 
-<img src="docs/assets/records.svg" alt="The record files of a run: who writes each, and what you read" width="860">
+<img src="docs/assets/records.svg" alt="The record files of a run: who writes each, and what you read" width="100%">
 
 <!-- screenshot: the owner's surface and `claude agents` during a run -->
 
