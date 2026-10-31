@@ -22,6 +22,7 @@ lines do; uncommitted changes count as the commit in the making). Exempt: this f
 - 2026-10-31, `docs/roles/manager-chat.md` (the queue rule with the measured rates and the per-lane release; a project copies it) and `README.md` (three properties of 1.8.0; read, not copied: a project keeps its own README). (18f7f7b, 2aa7d33)
 - 2026-10-31, `.claude/skills/running-specagent-pipelines/` (`scripts/manager/preflight.py` PAIRS, `scripts/tests/test_preflight.py`, `references/preflight-and-capacity.md`, `example/launch.md`) and `docs/roles/MANAGER.md` (the harness's manager sends a project's work to the skill): a project copies them (f3a4b9b, 34f7a43, 6c8b2c4).
 - 2026-10-31, `CLAUDE.md` shortened to its 4,000-byte limit (`test_surface_pruning`; 3bbdc6a and the commit after it), the same two map lines and the Commands line: a project copies it, its title line kept.
+- 2026-10-31, `README.md` and `docs/assets/banner.svg`: the name on GitHub is SpecAgent Pro Template, a project template, not a plugin (owner, 2026-10-31); read, not copied.
 - 2026-10-31, `docs/assets/` (the README's five pictures and their `src/` on one 1320 px canvas): read, not copied, unless the project keeps the template's README, then copy the folder (fbfbbf5, merged as 08b496b).
 
 ## 1.8.0

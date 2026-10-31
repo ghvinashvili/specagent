@@ -1,8 +1,8 @@
-![SpecAgent: special agents for hard software, every role a full session](docs/assets/banner.svg)
+![SpecAgent Pro Template: a project template, not a plugin; special agents for hard software, every role a full session](docs/assets/banner.svg)
 
-# SpecAgent
+# SpecAgent Pro Template
 
-**SpecAgent: special agents for hard software, every role a full session.** An agentic system of its own design for
+**SpecAgent Pro Template: a project template, not a plugin. Special agents for hard software, every role a full session.** An agentic system of its own design for
 hard, multi-package projects, built by its own pipeline and measured run by run. You talk to one manager chat; it runs
 every role as a full Claude Code session, never a subagent. A stage moves on only through a gate in code, a finding
 counts only with its proof, and each session does one unit of work, then hands a note of facts to a fresh one. Every
