@@ -36,8 +36,8 @@ task and collect the result. SpecAgent adds the whole loop around full sessions,
   obsidian-ingest run built 5 units and fixed its 5 findings inside the run (private measurement pages
   `2026-10-30-pipeline-economy`, `2026-10-30-obsidian-ingest`). Both ended with the full gate (1,874 and 1,840 tests
   passed); neither launched a judge.
-- **Small contexts:** a session compacts near 197k instead of handing over (2026-11-01); before the cap without the cap calls grew to 500-740k tokens, three
-  times the cost of a fresh session (2026-10-15, [cost]). *The usual way:* one long context, re-read on every call.
+- **Small contexts:** a session compacts near 197k instead of handing over (2026-11-01); with no limit at all, calls
+  grew to 500-740k tokens, three times the cost of a fresh session (2026-10-15, [cost]). *The usual way:* one long context, re-read on every call.
 - **The run lives in files a human reads:** a fresh session goes on from them, and the watcher revives a stopped one
   ([scripts]).
 - **Every role is measured:** `usage_report.py` prints, per role, its sessions, calls, average context per call and
