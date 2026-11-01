@@ -270,18 +270,6 @@ What this gives a run:
 - The rule is checked, not remembered: the pre-flight's `cache` check fails a lane that misses the window, the flags,
   its own pack, the 5-minute TTL or its one model, and the watcher stops on a changed pack.
 
-### Two measured runs of 2026-10-30
-
-What a real run of this system costs and takes, from the measurement pages `2026-10-30-template-surface` and
-`2026-10-30-obsidian-ingest` (in a private vault). Both ran before the cache and compaction rules of 2026-11-01 (one
-unit per session, a hand-over at 200k, the 1-hour TTL for waiting roles); the first run under the new rules replaces
-this table with its own numbers:
-
-| Run | Roles | Units | Sessions | Findings, all fixed | Cost | Wall clock |
-| --- | --- | --- | --- | --- | --- | --- |
-| fold-task6: the template's own build | builder, verifier, the plan fixer on demand | 8 tasks | 15 | 14 V | $35.57 | 15:09-17:31Z |
-| obsidian-ingest: 40 decision pages through the plugin | builder (mechanical class), verifier | 5 | 23 | 5 V | $43.01 | 18:44-20:59Z |
-
 ## How it keeps quality, and at what cost
 
 A harness stage moves on only when its gate passes (the write gate: `packages/harness/src/harness/gates/write.py`).

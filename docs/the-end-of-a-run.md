@@ -36,7 +36,7 @@ which reads the records and `_watch.log` and writes one score for the run
 ([decision](../wiki/decisions/one-score-per-run-by-script.md)): the last row of its output is the economy row (units;
 cost, sessions, copies and findings per unit; escaped). Every number, the score and the cost among them, with the
 command that produced it, goes into your private vault's `context/measurements/<date>-<run>.md`, committed before
-your summary or any page cites it; the README's two measured runs come from two such pages
+your summary or any page cites it; the measured runs in `docs/economy.md` come from such pages
 ([the measurements](economy.md#the-measurements)).
 
 ## The decisions and the vault
