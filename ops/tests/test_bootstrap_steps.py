@@ -6,7 +6,6 @@ packages/harness/tests/test_setup.py loads it; the order is then tested offline.
 import ast
 import importlib.util
 import io
-import json
 import os
 import re
 import sys
@@ -48,7 +47,6 @@ def boot(tmp_path, monkeypatch):
     monkeypatch.setattr(module, "hooks_path", lambda: rec.hooks, raising=False)
     monkeypatch.setattr(module, "git_top", lambda: rec.top, raising=False)
     monkeypatch.setattr(module, "PLATFORM", "linux", raising=False)
-    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path / "home" / ".claude"))  # the launch file is written there
     return module, rec
 
 
@@ -233,74 +231,3 @@ def test_the_projects_page_and_new_project_name_every_step_of_the_bootstrap() ->
     spans = {name: text.split("ops/bootstrap.py:", 1)[1].split("--no-setup", 1)[0] for name, text in flat.items()}
     missing = {name: [s for s in steps if not re.search(rf"\b{re.escape(s)}\b", span)] for name, span in spans.items()}
     assert missing == {"PROJECTS": [], "new-project": []}
-
-
-def _installed(module, tmp_path, name, version):
-    (module.ROOT / "plugins" / ".claude-plugin").mkdir(parents=True, exist_ok=True)
-    (module.ROOT / "plugins" / ".claude-plugin" / "marketplace.json").write_text(
-        '{"name": "t-plugins"}', encoding="utf-8"
-    )
-    d = tmp_path / "home" / ".claude" / "plugins" / "cache" / "t-plugins" / name / version
-    (d / ".claude-plugin").mkdir(parents=True)
-    (d / ".claude-plugin" / "plugin.json").write_text(json.dumps({"name": name}), encoding="utf-8")
-    return d
-
-
-def test_the_launch_file_names_the_newest_installed_role_plugin_and_keeps_other_entries(boot, tmp_path):
-    module, _ = boot
-    old = _installed(module, tmp_path, "token-optimizer", "5.9.2")
-    new = _installed(module, tmp_path, "token-optimizer", "5.13.61")
-    other = _installed(module, tmp_path, "other-plugin", "1.0.0")
-    launch = tmp_path / "home" / ".claude" / "specagent-launch.json"
-    launch.write_text(json.dumps({"plugin_dirs": [str(other), str(old)], "env": {"X": "1"}}), encoding="utf-8")
-    log = io.StringIO()
-    assert module.machine_launch_file(log) is True
-    data = json.loads(launch.read_text(encoding="utf-8"))
-    assert data == {"plugin_dirs": [str(other), str(new)], "env": {"X": "1"}}
-    assert "plugin_dirs" in log.getvalue()
-    log = io.StringIO()
-    assert (
-        module.machine_launch_file(log) is True and log.getvalue() == ""
-    )  # done already: nothing written, nothing logged
-
-
-def test_a_missing_role_plugin_is_logged_and_the_launch_file_is_written_without_it(boot, tmp_path):
-    module, _ = boot
-    (module.ROOT / "plugins" / ".claude-plugin").mkdir(parents=True)
-    (module.ROOT / "plugins" / ".claude-plugin" / "marketplace.json").write_text(
-        '{"name": "t-plugins"}', encoding="utf-8"
-    )
-    log = io.StringIO()
-    assert module.machine_launch_file(log) is True
-    assert "token-optimizer is not installed" in log.getvalue()
-    launch = tmp_path / "home" / ".claude" / "specagent-launch.json"
-    assert not launch.exists()
-
-
-def test_setup_writes_the_launch_file_after_the_plugins(boot, tmp_path):
-    module, _ = boot
-    new = _installed(module, tmp_path, "token-optimizer", "5.13.61")
-    module.setup(io.StringIO())
-    launch = tmp_path / "home" / ".claude" / "specagent-launch.json"
-    assert json.loads(launch.read_text(encoding="utf-8"))["plugin_dirs"] == [str(new)]
-
-
-def test_the_launch_file_prefers_the_accepted_version_and_carries_the_policys_agent_env_dirs(boot, tmp_path):
-    module, _ = boot
-    accepted = _installed(module, tmp_path, "token-optimizer", "5.13.61")
-    _installed(module, tmp_path, "token-optimizer", "5.14.0")
-    (module.ROOT / "docs" / "roles").mkdir(parents=True)
-    (module.ROOT / "docs" / "roles" / "extensions.yaml").write_text(
-        'extensions:\n  token-optimizer@t-plugins:\n    form: plugin\n    version: "5.13.61"\n', encoding="utf-8"
-    )
-    (module.ROOT / "docs" / "roles" / "need-to-know.yaml").write_text(
-        "agent_env_dirs:\n  TOKEN_OPTIMIZER_PLUGIN_DATA:\n    files:\n      config/config.json: '{}'\n",
-        encoding="utf-8",
-    )
-    log = io.StringIO()
-    assert module.machine_launch_file(log) is True
-    data = json.loads((tmp_path / "home" / ".claude" / "specagent-launch.json").read_text(encoding="utf-8"))
-    assert data == {
-        "plugin_dirs": [str(accepted)],
-        "agent_dirs": {"TOKEN_OPTIMIZER_PLUGIN_DATA": {"files": {"config/config.json": "{}"}}},
-    }

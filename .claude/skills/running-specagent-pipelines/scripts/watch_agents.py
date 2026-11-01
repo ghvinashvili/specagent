@@ -104,17 +104,8 @@ a bool, `permission_wait` may be null, `handoff_at` lies below `cap`.
                                              session and for a resume of a session whose transcript carries the mark
    "agents": {"<name>": {"cwd", "add_dirs", "settings": "<file in run_dir>", "status": "<file in run_dir>",
                          "final": "STATUS: done", "budget": {…}, "work_check": ["python3", "{skill}/…", "{run}"]}}}
-A launch is `claude [--resume <sessionId>] --name <name> --add-dir <dirs> <common> [--plugin-dir <dir>…] --settings
-<the settings file's path> [--append-system-prompt-file <file>] --bg <prompt>`, run in the agent's cwd. The plugin
-directories are the machine's, not the run's: `plugin_dirs` of `specagent-launch.json` in Claude Code's config directory (absent: none), each
-an absolute directory holding `.claude-plugin/plugin.json`, read with the config; a role launched under
-`--setting-sources local` loads no plugin the user settings enable, so a plugin meant for every role is named there.
-Its `env` (names to strings) goes into every agent's settings file `env` at start, before the files are hashed, a
-name the file sets itself kept (`machine env: <file> +<names>`; nothing is written with --check): a role's process
-gets no variable of the user settings either. Its `agent_dirs` ({VAR: {files: {<relative path>: <text>}}}) gives
-every agent a directory of its own per variable, `<run_dir>/_plugin-data/<agent>/<VAR>` (the files seeded once),
-names it in the agent's `env`, and denies every other agent's `_plugin-data` directory in its permissions and its
-sandbox: plugin state one role must not read from another; it needs a settings file per agent. The settings, status, extra_prompt
+A launch is `claude [--resume <sessionId>] --name <name> --add-dir <dirs> <common> --settings <the settings file's
+path> [--append-system-prompt-file <file>] --bg <prompt>`, run in the agent's cwd. The settings, status, extra_prompt
 and registry files must lie inside run_dir (a config error otherwise), and the agents must not be able to write the
 control files (the briefs' `_*` denies and the sandbox's denyWrite): the watcher hashes every control file at start
 and again right before each launch, and exits 4 when a settings file or the extra prompt file changed or a brief is
@@ -569,95 +560,11 @@ class Transcripts:
             return False
 
 
-LAUNCH_FILE = "specagent-launch.json"  # in Claude Code's config directory (CLAUDE_CONFIG_DIR, else ~/.claude)
-
-
-def launch_path():
-    return pathlib.Path(os.environ.get("CLAUDE_CONFIG_DIR") or os.path.expanduser("~/.claude")) / LAUNCH_FILE
-
-
-def machine_launch():
-    """The machine's launch file as a dict (absent: {}); its `env` checked here, its `plugin_dirs` by machine_plugins."""
-    path = launch_path()
-    if not path.exists():
-        return {}
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError) as e:
-        raise ConfigError(f"{path}: {e}") from e
-    if not isinstance(data, dict):
-        raise ConfigError(f"{path}: not a JSON object")
-    env = data.get("env", {})
-    if not isinstance(env, dict) or not all(
-        isinstance(k, str) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", k) and isinstance(v, str) for k, v in env.items()
-    ):
-        raise ConfigError(f"{path}: env must map variable names to strings")
-    dirs = data.get("agent_dirs", {})
-    if not isinstance(dirs, dict) or not all(
-        isinstance(k, str)
-        and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", k)
-        and isinstance(v, dict)
-        and isinstance(v.get("files", {}), dict)
-        and all(
-            isinstance(f, str) and f and not f.startswith("/") and ".." not in f.split("/") and isinstance(c, str)
-            for f, c in v.get("files", {}).items()
-        )
-        for k, v in dirs.items()
-    ):
-        raise ConfigError(f"{path}: agent_dirs must map variable names to {{files: {{<relative path>: <text>}}}}")
-    return data
-
-
-def safe_name(agent):
-    """An agent's name as a directory name."""
-    return re.sub(r"[^A-Za-z0-9._-]", "-", agent)
-
-
-def machine_plugins(data):
-    """`--plugin-dir <dir>` for every directory in `plugin_dirs` of the machine's launch file (absent: none)."""
-    path = launch_path()
-    dirs = data.get("plugin_dirs", [])
-    if not isinstance(dirs, list) or not all(isinstance(d, str) for d in dirs):
-        raise ConfigError(f"{path}: plugin_dirs must be a list of paths")
-    for d in dirs:
-        if not os.path.isabs(d) or not (pathlib.Path(d) / ".claude-plugin" / "plugin.json").is_file():
-            raise ConfigError(
-                f"{path}: {d} is no plugin directory (an absolute path holding .claude-plugin/plugin.json)"
-            )
-    return [arg for d in dirs for arg in ("--plugin-dir", d)]
-
-
-def deny_dirs(data, dirs):
-    """The directories closed to a session in its settings: a Read, Edit and Write rule each (an absolute path is
-    written `//<path>`), and the sandbox's denyRead and denyWrite when the file has a sandbox block (its filesystem
-    block is made when it is missing); a file with no sandbox gets the rules alone."""
-    perms = data.setdefault("permissions", {})
-    deny = list(perms.get("deny") or [])
-    rules = [f"{tool}(//{str(d).lstrip('/')}/**)" for d in dirs for tool in ("Read", "Edit", "Write")]
-    perms["deny"] = deny + [r for r in rules if r not in deny]
-    if isinstance(data.get("sandbox"), dict):
-        fs = data["sandbox"].setdefault("filesystem", {})
-        for key in ("denyRead", "denyWrite"):
-            have = list(fs.get(key) or [])
-            fs[key] = have + [str(d) for d in dirs if str(d) not in have]
-
-
-def seed_dirs(dirs, seeds):
-    """The agent's own directories, made owner-only, and their seed files, written once each."""
-    for d in dirs:
-        d.mkdir(mode=0o700, parents=True, exist_ok=True)
-    for seed, text in seeds.items():
-        seed.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-        if not seed.exists():
-            seed.write_text(text, encoding="utf-8")
-
-
 class Watcher:
     def __init__(self, config_path, check=False):
         self.check = check
         self.config_path = pathlib.Path(config_path).resolve()
         self.configure(read_config(self.config_path, config_path))
-        self.add_machine_env()
         self.transcripts = Transcripts(self.order[:50])
         self.hashes = {path: sha256(path) for path in self.control_files()}
         self.table, self.unwatched = self.launch_table()
@@ -669,58 +576,12 @@ class Watcher:
         self.left_busy, self.waiting_final = [], None
         self.round_no, self.started_at, self.usage_cache = 0, time.time(), {}
 
-    def add_machine_env(self):
-        """The machine file into every agent's settings file, before the hashes, a name the file sets kept: its `env`,
-        and per variable of its `agent_dirs` the agent's own directory `<run>/_plugin-data/<agent>/<VAR>` (its files
-        seeded once), every other agent's `_plugin-data` directory denied to it (permissions, and the sandbox when the
-        file has one). Nothing is written with --check."""
-        wanted, dirs_spec = self.machine.get("env", {}), self.machine.get("agent_dirs", {})
-        if not wanted and not dirs_spec:
-            return
-        by_file = {}
-        for name, a in self.agents.items():
-            by_file.setdefault(a["settings"], []).append(name)
-        shared = sorted(f for f, names in by_file.items() if len(names) > 1)
-        if dirs_spec and shared:
-            raise ConfigError(f"agent_dirs needs a settings file per agent; shared: {', '.join(shared)}")
-        for file, names in sorted(by_file.items()):
-            path = self.run / file
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, ValueError):
-                continue  # a missing or broken settings file is the launch's own error
-            if not isinstance(data, dict):
-                continue
-            env = dict(data.get("env") or {})
-            added = {k: v for k, v in wanted.items() if k not in env}
-            own = self.run / "_plugin-data" / safe_name(names[0])
-            seeds = {}
-            for var, spec in dirs_spec.items():
-                if var not in env:
-                    added[var] = str(own / var)
-                    seeds.update({own / var / rel: text for rel, text in spec.get("files", {}).items()})
-            if not added:
-                continue
-            if self.check:
-                log(f"machine env: {file} would get +{','.join(sorted(added))}")
-                continue
-            data["env"] = {**env, **added}
-            if dirs_spec:
-                deny_dirs(data, [self.run / "_plugin-data" / safe_name(o) for o in self.agents if o != names[0]])
-                seed_dirs([pathlib.Path(added[v]) for v in dirs_spec if v in added], seeds)
-            tmp = path.with_name(path.name + ".machine-env")
-            tmp.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-            os.replace(tmp, path)
-            log(f"machine env: {file} +{','.join(sorted(added))}")
-
     def configure(self, config):
         """The config's values, and the checks that need the run folder."""
         get = lambda key: config[key] if key in config else DEFAULTS[key]
         self.config = config
         self.run, self.agents = pathlib.Path(config["run_dir"]).resolve(), config["agents"]
-        self.machine = machine_launch()
-        self.common = [*get("common"), *machine_plugins(self.machine)]
-        self.blocked_files = list(get("blocked_files"))
+        self.common, self.blocked_files = list(get("common")), list(get("blocked_files"))
         self.cap, self.handoff_wait, self.nudges = get("cap"), get("handoff_wait"), get("nudges")
         self.permission_wait, self.interval = get("permission_wait"), get("interval")
         self.final_stop_minutes = get("final_stop_minutes")

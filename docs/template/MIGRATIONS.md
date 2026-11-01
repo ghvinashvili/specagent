@@ -24,29 +24,12 @@ lines do; uncommitted changes count as the commit in the making). Exempt: this f
 - 2026-10-31, `CLAUDE.md` shortened to its 4,000-byte limit (`test_surface_pruning`; 3bbdc6a and the commit after it), the same two map lines and the Commands line: a project copies it, its title line kept.
 - 2026-10-31, `README.md` and `docs/assets/banner.svg`: the name on GitHub is SpecAgent Pro Template, a project template, not a plugin (owner, 2026-10-31); read, not copied.
 - 2026-10-31, `docs/assets/` (the README's five pictures and their `src/` on one 1320 px canvas): read, not copied, unless the project keeps the template's README, then copy the folder (fbfbbf5, merged as 08b496b).
-- 2026-11-01, `.claude/skills/running-specagent-pipelines/` (`scripts/watch_agents.py`, `scripts/tests/test_watch_agents.py`,
-  `references/launch.md`): the watcher adds `--plugin-dir <dir>` for every directory in `plugin_dirs` of the machine's
-  `~/.claude/specagent-launch.json` to every launch and resume (absent: nothing changes); a project copies the three files.
-- 2026-11-01, the same three files: the machine file's `env` goes into every agent's settings file `env` at the watcher's
-  start, before the hashes, a name the file sets kept (`machine env: <file> +<names>`); a project copies them.
-- 2026-11-01, token-optimizer in every session, the roles included (owner): `plugins/.claude-plugin/marketplace.json` (the
-  entry, a github source), `.claude/settings.json` (`enabledPlugins`), `docs/roles/extensions.yaml` and
-  `docs/roles/need-to-know.yaml` (accepted at 5.13.61): a project merges the entries into its own files; `ops/bootstrap.py`
-  (the machine's launch file for the roles) and `ops/tests/test_bootstrap_steps.py`, the skill's `scripts/watch_agents.py`
-  and tests (the launch file under `CLAUDE_CONFIG_DIR`), `packages/harness/tests/test_access.py` (a blind type's settings
-  enable the plugin), `wiki/decisions/token-optimizer-runs-in-every-session.md` and
-  `wiki/decisions/token-optimizer-runs-in-every-session.summary.md` (one `wiki/index.md` line, one `wiki/log.md` entry):
-  copied.
-- 2026-11-01, the plugin's state per role session, never shared, and its source pinned (owner): `docs/roles/need-to-know.yaml`
-  (`agent_env_dirs`; a project merges the block), `packages/harness/src/harness/access.py` and
-  `packages/harness/tests/test_access.py` (`env_extra` gives every stage its own directory per variable; a variable
-  name, a seed path and a symbolic link in it are checked),
-  `ops/bootstrap.py` and `ops/tests/test_bootstrap_steps.py` (the launch file's `agent_dirs`, the accepted version's
-  directory), the skill's `scripts/watch_agents.py`, `scripts/tests/test_watch_agents.py`,
-  `scripts/tests/test_migrate_agents_json.py` and `references/launch.md` (`agent_dirs`: a directory per agent, the others
-  closed to Read, Edit and Write and to the sandbox), `plugins/.claude-plugin/marketplace.json` (`ref` v5.13.61; a project
-  merges it),
-  `wiki/decisions/token-optimizer-runs-in-every-session.md` and its summary: copied.
+- 2026-11-01, token-optimizer removed (owner: it gave no result and is not needed): ce4ff80, a055324, 067071c and
+  90058f2 reverted in this commit, every path they changed back as at 9836e31: `plugins/.claude-plugin/marketplace.json`
+  and `.claude/settings.json` (the plugin's entry), `docs/roles/extensions.yaml` and `docs/roles/need-to-know.yaml`,
+  `ops/bootstrap.py` and its tests, `packages/harness/` (`access.py`, `test_access.py`), the skill's
+  `scripts/watch_agents.py`, its tests and `references/launch.md` (no machine launch file is read), the token-optimizer
+  decision pages with their `wiki/index.md` and `wiki/log.md` lines. A project that took those changes reverts its copies.
 
 ## 1.8.0
 - Changed template-owned paths: nothing is renamed or deleted; new: `ops/sync-vault-globals.py` (copies the vault's proven, neutral global pages into the vault form), `ops/tests/test_sync_vault_globals.py`, `ops/tests/test_check_pages.py`, `ops/tests/test_migrations_entry.py` (a path changed since the last release is named in the newest entry of this file, and a commit that changes a template-owned path adds its line there), `templates/vault/decisions/global/` (30 pages: 3 lessons, each with its proof page, and 27 orders; each says `template: yes` and its `kind:`), `templates/vault/context/measurements/` (the 4 measurement pages they cite: `2026-10-25-checks-once.md`, `2026-10-30-pipeline-fold.md`, `2026-10-31-consolidation.md`, `2026-10-31-spec005.md`); changed: `templates/vault/INDEX.md` (the 30 lines under `## Decisions (global)`), `templates/vault/README.md`, `templates/vault/rules.md` (a global page is a lesson, with a proof page, or an order, with a `review:` date; every refusal of `ops/check_pages.py` is listed; it points to the ladder), `templates/vault/ops/check_pages.py` (refuses a global page without `kind:`, a lesson without an existing proof page under `context/`, an order without `review:`, a quoted text of the owner, a Georgian letter in a global page, a global page or a candidate over 4,000 bytes (the manager's lessons page: under 8,000) and a candidate past its `review:` date), `templates/vault/forms/learning-record.md`, `templates/vault/forms/manager-lessons.md`, `ops/tests/test_new_vault.py` (a fresh vault holds every carried page and its INDEX line), `.claude/skills/running-specagent-pipelines/SKILL.md` ("Briefs" holds the ladder: a finding, a run lesson, a vault or skill rule, a check in code), `.claude/skills/running-specagent-pipelines/example/README.md`, `.claude/skills/running-specagent-pipelines/example/first-pass-rules.md`, `.claude/skills/running-specagent-pipelines/example/lessons.md`, `.claude/skills/running-specagent-pipelines/references/measuring.md`, `.claude/ecc/sources.md`, `docs/roles/manager-chat.md` ("## After a run" gains the way in and out of a global page), `docs/the-end-of-a-run.md`, `docs/files-of-a-run.md`, `docs/loops/README.md`, `docs/design-docs/pipeline-fold.md`, `docs/roles/VERSION` and `docs/roles/CHANGELOG.md` (roles 1.17.0), `docs/template/MIGRATIONS.md` (the rule of the `## Unreleased` entry stands in its head), `docs/template/VERSION`; read, not copied (a project keeps its own, or it is the template's own record): `CHANGELOG.md`, `README.md`, `docs/llms.txt` (its Vault form line), `specs/004-consolidation/spec.md`, `specs/005-spec-writer-rule/spec.md`, `specs/006-global-decisions/spec.md`, `wiki/decisions/the-cache-is-measured-in-dollars-and-set-per-role.md`, `wiki/decisions/the-cache-is-measured-in-dollars-and-set-per-role.summary.md`, `wiki/decisions/the-checkout-is-a-claude-obsidian-vault.md`, `wiki/hot.md`, `wiki/log.md`, `wiki/meta/ledgers/` and `.raw/` (the project's own record); commits made after 1.7.0 before their line existed, named by their short sha as the head of this file asks: `03a7f09`, `4bc1c48`, `58d98a2`, `7a3d5cf`, `834b9c3`, `8b5885a`, `aa4520f`, `b949520`, `c78959f`, `daa0ec8`, `edc04b8`, `ef0e847`

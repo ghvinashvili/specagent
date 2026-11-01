@@ -17,7 +17,6 @@ The numbered ADRs, cited as ADR-00nn, are in [docs/decisions/](../docs/decisions
 
 ## Decisions
 - [The checkout is a claude-obsidian vault](decisions/the-checkout-is-a-claude-obsidian-vault.md): the root is the plugin's vault, wiki/ its pages, adopted with the plugin's own commands; the plugin comes from git at project scope
-- [token-optimizer runs in every session](decisions/token-optimizer-runs-in-every-session.md): every feature on, the roles too
 - [Decisions and pages are written with the work](decisions/decisions-are-written-with-the-work.md): a code task's commit carries its pages, or its task says docs: none with a reason
 - [The code graph is generated, layered and refreshed by git hooks](decisions/the-code-graph-is-generated-layered-and-refreshed-by-hooks.md): bash ops/graph.sh builds it and exports one index line per top folder and package under wiki/graph/
 - [Pipelines run as SpecAgent sessions from a template skill](decisions/pipelines-run-as-specagent-sessions-from-a-template-skill.md): its example briefs and settings are copied into a run folder; its waiters and watcher keep each session to one unit of work
@@ -58,7 +57,7 @@ The numbered ADRs, cited as ADR-00nn, are in [docs/decisions/](../docs/decisions
 - [The planner answers its own findings; the fixer is launched on demand](decisions/planner-answers-its-findings-fixer-on-demand.md): the watcher launches the plan fixer only when open ids reach `demand.queue` or `demand.wait_minutes`
 - [The critic reviews the plan only; the verifier reads the code](decisions/critic-on-the-plan-verifier-on-the-code.md): the critic keeps one coverage round per task and opens no code; the verifier reads each built commit's diff and files V ids with a `(code)`, `(plan)` or `(spec)` cause
 - [Pipeline economy: hand over by itself, size the units, check in pairs, write a facts pack](decisions/pipeline-economy-hand-over-units-checks-facts-pack.md): hand-over at a unit's end; units sized and checked in pairs; the manager's facts pack `_inputs/<topic>.md`; an economy row in `score_run.py`
-- [Pipeline economy: a measured estimate, three model classes, and the open items closed](decisions/pipeline-economy-estimate-model-classes-open-items.md): a launch's `Estimate:` names the last measurement
+- [Pipeline economy: a measured estimate, three model classes, and the open items closed](decisions/pipeline-economy-estimate-model-classes-open-items.md): a launch's `Estimate:` names the last measurement; `preflight.py` fails on a busy foreign session; every role's settings carry `"includeCoAuthoredBy": false`
 - [The template is named SpecAgent](decisions/the-template-is-named-specagent.md): one word, read as "special agent"; its text, repository and own names use it
 - [ECC texts live under .claude/ecc](decisions/ecc-texts-live-under-claude-ecc.md): the agent texts and the pages about the pin sit with a catalogue the manager reads before a brief for a role with a domain
 - [Finished plans live in docs/exec-plans/done](decisions/finished-plans-live-in-exec-plans-done.md): merged runs' plans move out of active/ into done/, with their own README

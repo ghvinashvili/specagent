@@ -12,11 +12,7 @@ In this order, each step skipped when it is done already:
 4. The git hooks: `core.hooksPath` set to the versioned .githooks/, which refresh the code graph after each commit,
    merge and checkout, unless the checkout names a hooks folder of its own or is not the top of a git repository yet;
    optional.
-5. The project plugins of docs/roles/extensions.yaml, installed for this project; then the machine's launch file
-   `<config dir>/specagent-launch.json` of the pipeline skill's watcher, whose `plugin_dirs` names the installed directory
-   of every plugin of ROLE_PLUGINS (the version docs/roles/extensions.yaml accepted), so that every role session loads
-   it (a role under --setting-sources local loads no project plugin by itself), and whose `agent_dirs` is the
-   `agent_env_dirs` block of docs/roles/need-to-know.yaml (plugin state a role must not share); optional.
+5. The project plugins of docs/roles/extensions.yaml, installed for this project.
 6. The language servers of plugins/code-intel (its own installer, plugins/code-intel/scripts/ensure.py).
 7. The sandbox of role sessions, when `.claude/settings.json` enables it: on Linux and WSL2
    `ops/machine-setup.py --auto`, as the SessionStart hook runs it; on macOS the built-in seatbelt (`sandbox-exec`) is
@@ -38,7 +34,6 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -124,99 +119,6 @@ def install_plugins(log) -> list[str]:
     if json.loads(settings.read_text(encoding="utf-8")) == json.loads(before):
         settings.write_text(before, encoding="utf-8")
     return failed
-
-
-LAUNCH_FILE = "specagent-launch.json"  # the pipeline skill's watcher reads it: plugin directories for every role
-ROLE_PLUGINS = ("token-optimizer",)  # project plugins every role session loads (the watcher adds --plugin-dir)
-
-
-def config_dir() -> Path:
-    return Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
-
-
-def plugin_name(directory: Path) -> str | None:
-    try:
-        return json.loads((directory / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")).get("name")
-    except (OSError, ValueError, AttributeError):
-        return None
-
-
-def accepted_version(name: str, market: str) -> str | None:
-    """The version docs/roles/extensions.yaml accepted for the plugin, or None."""
-    try:
-        text = (ROOT / "docs" / "roles" / "extensions.yaml").read_text(encoding="utf-8")
-    except OSError:
-        return None
-    block = re.search(rf"^  {re.escape(name)}@{re.escape(market)}:\n((?:    .*\n|\s*\n)*)", text, re.MULTILINE)
-    found = re.search(r'^    version:\s*"?([^"\n]+?)"?\s*$', block.group(1), re.MULTILINE) if block else None
-    return found.group(1) if found else None
-
-
-def installed_dir(name: str) -> Path | None:
-    """The installed directory of a project plugin in Claude Code's cache of the internal marketplace: the version
-    docs/roles/extensions.yaml accepted when it is installed, else the newest."""
-    try:
-        market = json.loads((ROOT / "plugins" / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8"))[
-            "name"
-        ]
-    except (OSError, ValueError, KeyError):
-        return None
-    base = config_dir() / "plugins" / "cache" / market / name
-    versions = [p for p in base.iterdir() if plugin_name(p) == name] if base.is_dir() else []
-    versions.sort(key=lambda p: [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", p.name)])
-    accepted = accepted_version(name, market)
-    wanted = [p for p in versions if p.name == accepted]
-    return wanted[0] if wanted else versions[-1] if versions else None
-
-
-def policy_agent_env_dirs() -> dict:
-    """`agent_env_dirs` of docs/roles/need-to-know.yaml (the plugin state a role must not share), read with this
-    interpreter's PyYAML or the workspace's; {} when the file or the key is missing."""
-    path = ROOT / "docs" / "roles" / "need-to-know.yaml"
-    if not path.is_file():
-        return {}
-    try:
-        import yaml
-
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except ImportError:
-        py = ROOT / ".venv" / "bin" / "python"
-        code = "import json, sys, yaml; print(json.dumps(yaml.safe_load(open(sys.argv[1], encoding='utf-8'))))"
-        out = subprocess.run([str(py), "-c", code, str(path)], capture_output=True, text=True, check=False)
-        data = json.loads(out.stdout) if out.returncode == 0 and out.stdout.strip() else {}
-    except (OSError, ValueError):
-        return {}
-    dirs = data.get("agent_env_dirs") if isinstance(data, dict) else None
-    return dirs if isinstance(dirs, dict) else {}
-
-
-def machine_launch_file(log) -> bool:
-    """The watcher's launch file: `plugin_dirs` holds the installed directory of every plugin of ROLE_PLUGINS (another
-    version's directory of the same plugin is replaced, every other entry and key is kept; a plugin that is not
-    installed is named in the log) and `agent_dirs` is the policy's `agent_env_dirs` block. Optional: nothing here
-    fails the setup."""
-    path = config_dir() / LAUNCH_FILE
-    try:
-        data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-    except (OSError, ValueError) as exc:
-        log.write(f"launch file: {path} unreadable ({exc}); left alone\n")
-        return False
-    data = data if isinstance(data, dict) else {}
-    dirs = [d for d in data.get("plugin_dirs", []) if isinstance(d, str)]
-    found = {name: installed_dir(name) for name in ROLE_PLUGINS}
-    for name, directory in found.items():
-        if directory is None:
-            log.write(f"launch file: {name} is not installed; not added\n")
-    wanted = [d for d in dirs if plugin_name(Path(d)) not in ROLE_PLUGINS] + [str(d) for d in found.values() if d]
-    agent_dirs = policy_agent_env_dirs()
-    new = {**data, **({"plugin_dirs": wanted} if wanted or "plugin_dirs" in data else {})}
-    new.update({"agent_dirs": agent_dirs} if agent_dirs else {})
-    if new == data:
-        return True
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(new, indent=2) + "\n", encoding="utf-8")
-    log.write(f"launch file: {path} plugin_dirs {wanted} agent_dirs {sorted(agent_dirs)}\n")
-    return True
 
 
 def just_path() -> Path | None:
@@ -350,7 +252,6 @@ def setup(log) -> list[str]:
     git_hooks(log)
     if shutil.which("claude"):
         failed += install_plugins(log)
-        machine_launch_file(log)
     else:
         failed.append("claude")
     data = ensure.data_dir()
