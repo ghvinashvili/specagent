@@ -53,7 +53,7 @@ def test_the_rerun_keeps_the_interpreter_the_script_and_its_arguments():
         "/py/python3",
         "--with",
         "pyyaml",
-        "/py/python3",
+        "python",
         "ops/new-project.py",
         "d",
         "repo_name=a",

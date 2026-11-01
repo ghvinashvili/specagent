@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: "22"
       - run: npm install -g @anthropic-ai/claude-code@2.1.281
+      - run: git config --global user.name ci && git config --global user.email ci@example.invalid
       - run: pip install uv
       - run: uv sync
       - name: Tests (11 of 2,049 failed on the first macOS run; the steps below run anyway)

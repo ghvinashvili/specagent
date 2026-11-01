@@ -44,7 +44,9 @@ def find_uv() -> Path | None:
 
 def rerun_argv(uv: Path, python: str, script: str, args: list[str]) -> list[str]:
     """The command that runs `script` again with PyYAML, on the same interpreter."""
-    return [str(uv), "run", "--no-project", "--python", python, "--with", "pyyaml", python, script, *args]
+    # `python`, not the path: uv runs it from the environment it made, where PyYAML is; the path would be the bare
+    # interpreter again (the macOS workflow found that)
+    return [str(uv), "run", "--no-project", "--python", python, "--with", "pyyaml", "python", script, *args]
 
 
 def ensure_pyyaml() -> None:

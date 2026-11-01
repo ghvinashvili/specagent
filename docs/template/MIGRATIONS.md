@@ -14,6 +14,7 @@ lines do; uncommitted changes count as the commit in the making). Exempt: this f
 `docs/template/README.md`) the test skips.
 
 ## Unreleased (after 1.8.0; written with each change; the release moves it under its number)
+- 2026-11-01, `ops/pyyaml_or_uv.py`: the rerun runs `python` from uv's environment, not the bare interpreter's path, which had no PyYAML again (macOS workflow); `.github/workflows/ci.yml`, `macos.yml` and `windows.yml` set a git identity, which a fresh runner lacks and `harness` commits need. A project copies `ops/pyyaml_or_uv.py`. (this commit)
 - 2026-11-01, `packages/harness/tests/test_machine_setup.py` and `packages/harness/tests/test_trust.py`: the two tests of a folder the file system refuses are skipped for root, who writes every folder (the Windows workflow runs as root in WSL); `.github/workflows/windows.yml` runs the new-project steps after a failed test. A project copies the two tests. (this commit)
 - 2026-11-01, `NOTICE` (new: the author's attribution, kept by every copy under Apache-2.0): a project keeps the template's `NOTICE` beside its own. (45f232f)
 - 2026-11-01, `.github/workflows/macos.yml` and `.github/workflows/windows.yml` (new: the tests, `harness validate` and a new project made by the Quick start, on macOS and in Ubuntu under WSL; they run only in `ghvinashvili/specagent`): a project takes nothing, the `if:` keeps them off its runners. (2f4d456, 3d1df7d, be85722)
