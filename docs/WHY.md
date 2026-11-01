@@ -125,7 +125,8 @@ and 17.7 GB of scratch), and `uv run harness abort` saves a run's uncommitted wo
 
 Every answer is a line in a file: `STATUS:` on line 1, `Task N: done — <sha>`, findings with ids answered by id; a
 message only wakes the other side ([SKILL.md](../.claude/skills/running-specagent-pipelines/SKILL.md)). A session can
-stop at any point and a fresh one goes on from the files and a note of facts, which keeps the hand-over at 200k cheap;
+stop at any point and a fresh one goes on from the files and a note of facts, which keeps a hand-over cheap when the
+watcher orders one (a compaction near 197k is the rule since 2026-11-01);
 the eval case `pipeline-handoff-carries-facts` checks that a note carries facts, not pointers to files
 ([evals](../evals/README.md)).
 

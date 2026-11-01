@@ -2,8 +2,9 @@
 
 - Roles are full chats: on one task (2026-10-02) they cost a twelfth of subagents and passed more hidden checks
   (ADR-0006). Roles run sandboxed and blind to models and authors; the manager stays outside to launch and supply them.
-- One unit per session and a hand-over at 200k: a read costs its size times the calls that follow; no cap costs twice
-  as much, a 300k cap 15-25% more per task
+- Small contexts: since 2026-11-01 a compaction near 197k with the lane's pack in the system prompt, a hand-over only
+  on the watcher's order; a read costs its size times the calls that follow; no cap costs twice as much, a 300k cap
+  15-25% more per task
   (`.claude/skills/running-specagent-pipelines/references/context-and-cost.md`,
   `.claude/skills/running-specagent-pipelines/example/handoff-rule.md`).
 - Proof for every finding, three rounds, then a rule; nothing waits for the owner after the one yes before the run.
