@@ -685,29 +685,48 @@ def env_extra(policy: dict, row: dict, stage_dir: Path) -> dict[str, str]:
 def _agent_env_dir(stage_dir: Path, var: str, spec: dict | None) -> Path:
     """The session's own directory for one `agent_env_dirs` variable, `<stage dir>/plugin-data/<VAR>`, its seed files
     written once each: the variable is an identifier outside the harness's own names, a seed path is relative and
-    stays inside the directory, and no part of it is a symbolic link (the directory is the session's to write)."""
+    stays inside the directory, and every part of it is opened by file descriptor with O_NOFOLLOW, so no symbolic link
+    is followed, not one planted between a check and the write (the directory is the session's to write)."""
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", var) or var.startswith("HARNESS_"):
         raise AccessError(f"{POLICY_PATH}: agent_env_dirs: {var!r} is no variable name of a plugin")
     base, own = stage_dir / "plugin-data", stage_dir / "plugin-data" / var
     if base.is_symlink() or own.is_symlink() or stage_dir.resolve() not in own.resolve().parents:
         raise AccessError(f"{POLICY_PATH}: agent_env_dirs: {var}: the directory leaves the stage or is a symbolic link")
-    own = own.resolve()
     own.mkdir(parents=True, exist_ok=True)
     for rel, text in ((spec or {}).get("files") or {}).items():
         parts = str(rel).split("/")
         if not rel or str(rel).startswith("/") or ".." in parts or "" in parts:
             raise AccessError(f"{POLICY_PATH}: agent_env_dirs: {var}: {rel!r} is no relative path")
-        seed = own.joinpath(*parts)
-        if any(p.is_symlink() for p in [seed, *seed.parents] if own in p.parents or p == seed):
-            raise AccessError(f"{POLICY_PATH}: agent_env_dirs: {var}: {rel!r} crosses a symbolic link")
-        seed.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            fd = os.open(seed, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-        except FileExistsError:
-            continue  # written once: a file the session changed is kept
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            f.write(str(text))
+        _seed(own, parts, str(text), f"{POLICY_PATH}: agent_env_dirs: {var}: {rel!r}")
     return own
+
+
+def _seed(own: Path, parts: list[str], text: str, what: str) -> None:
+    """One seed file, written once, every directory on its path opened by descriptor without following a link."""
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    try:
+        fd = os.open(own, flags)
+    except OSError as exc:
+        raise AccessError(f"{what}: {own} is no directory ({exc.strerror})") from exc
+    try:
+        for part in parts[:-1]:
+            try:
+                nxt = os.open(part, flags, dir_fd=fd)
+            except FileNotFoundError:
+                os.mkdir(part, 0o700, dir_fd=fd)
+                nxt = os.open(part, flags, dir_fd=fd)
+            except OSError as exc:  # a link or a file where a directory should be
+                raise AccessError(f"{what}: {part} crosses a symbolic link or a file ({exc.strerror})") from exc
+            os.close(fd)
+            fd = nxt
+        try:
+            out = os.open(parts[-1], os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=fd)
+        except FileExistsError:
+            return  # written once: a file the session changed is kept
+        with os.fdopen(out, "w", encoding="utf-8") as f:
+            f.write(text)
+    finally:
+        os.close(fd)
 
 
 def pack_files(policy: dict, role_type: str) -> list[str]:

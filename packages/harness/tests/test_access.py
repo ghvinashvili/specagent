@@ -917,7 +917,7 @@ def test_a_seed_path_through_a_symbolic_link_is_refused(env, tmp_path):
     own = sd / "plugin-data" / "TOOL_DATA"
     own.mkdir(parents=True)
     (own / "config").symlink_to(tmp_path)
-    with pytest.raises(access.AccessError, match="crosses a symbolic link"):
+    with pytest.raises(access.AccessError, match="crosses a symbolic link or a file"):
         access.env_extra(
             {**policy, "agent_env_dirs": {"TOOL_DATA": {"files": {"config/c.json": "{}"}}}}, STAGES["critique"], sd
         )
