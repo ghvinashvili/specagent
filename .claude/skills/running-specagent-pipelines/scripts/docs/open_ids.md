@@ -20,3 +20,6 @@ Exit 0 when it printed an id (work waits), 3 when none (nothing to take), 2 on a
 is not one or two capital letters: `C, A`, `c,a`) or a run folder that does not exist, so a broken check never reads
 as "nothing waits"; the watcher takes any code but 0 and 3 as a failed check and launches. The plan fixer's
 `work_check` in `example/agents.json` is `open_ids.py {run} --kind C,A,B,V,R --cause plan`.
+
+`--cause code` keeps only the V and R ids whose heading names (code), and `--tasks N,M` the ids of those tasks, no
+shared one: a builder's lane, the `final_check` of `watch_agents.py` (2026-11-01).

@@ -117,3 +117,7 @@ the `ACK <msg_id>` line and resends by stop and resume.
 | 2 | a config error at start; nothing is run (a config changed later is reloaded or kept out, above) |
 | 3 | a budget line (above); decide whether the session may go on, then restart the watcher |
 | 4 | a settings file or an `extra_prompt` file (the run's, or a lane's own pack) changed, or a brief was removed (a changed brief is reloaded, above); check the change, then restart the watcher: the registry keeps the orders, the revivals and the session ids |
+
+An agent's `final_check` (a command like `work_check`, run at most once a round while its line 1 is final) keeps it
+from counting as final while it exits 0: a builder whose lane got (code) findings after its `STATUS: done` is revived;
+exit 3 keeps it final; any other exit is told and keeps it final (2026-11-01).

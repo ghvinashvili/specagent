@@ -29,6 +29,9 @@ cd <repo> && claude --name <role> --add-dir <run-dir> <more dirs> --strict-mcp-c
   at 150k). A role whose input may be more than about an hour away gets a `work_check` in its agent entry; it then
   writes a hand-over note for the wait and the watcher relaunches it when the check finds work (`watch_agents.py`,
   hand-over and idle). A role without one keeps waiting in its session.
+- A builder's lane after its `STATUS: done`: its agent entry carries a `final_check` (`open_ids.py <run> --kind V,R
+  --cause code --tasks <the lane's tasks>`), so the verifier's later (code) findings revive it instead of waiting for
+  the manager (a project's run of 2026-11-01: ten hours twice).
 - One frozen pack per lane in the system prompt: `_pack-<role>.md` holds `_common.md`, the role's assignment,
   `_first-pass-rules.md`, `_handoff-rule.md` and the "Read first" section of lessons.md, is built by
   `scripts/make_pack.py --no-note` before the lane's first launch, and the agent's own `extra_prompt` passes it with

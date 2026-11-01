@@ -104,7 +104,11 @@ a bool, `permission_wait` may be null, `handoff_at` lies below `cap`.
                                              session and for a resume of a session whose transcript carries the mark
    "agents": {"<name>": {"cwd", "add_dirs", "settings": "<file in run_dir>", "status": "<file in run_dir>",
                          "final": "STATUS: done", "budget": {…}, "work_check": ["python3", "{skill}/…", "{run}"],
-                         "extra_prompt": {"file": "_pack-<role>.md", "mark": "<its first line>"}}}}
+                         "extra_prompt": {"file": "_pack-<role>.md", "mark": "<its first line>"},
+                         "final_check": ["python3", "-I", "{skill}/open_ids.py", "{run}", "--kind", "V,R",
+                                         "--cause", "code", "--tasks", "<the lane's tasks>"]}}}
+An agent's `final_check` keeps it from counting as final while its exit is 0: a builder whose line 1 says done is
+revived when the verifier files (code) findings for its lane (a project's run of 2026-11-01: they waited ten hours).
 An agent's own `extra_prompt` replaces the run's for that agent: one frozen pack per lane in the system prompt, so it
 survives a compaction and every session of the lane reads it from the cache (owner, 2026-11-01). The pack holds the
 lane's standing orders (`_common.md`, the role's assignment, `_first-pass-rules.md`, `_handoff-rule.md` and the "Read
@@ -339,6 +343,7 @@ AGENT_TYPES = {
     "final": STRING,
     "budget": NUMBERS_BY_NAME,
     "work_check": STRINGS,
+    "final_check": STRINGS,
     "on_demand": ("a boolean", lambda v: isinstance(v, bool)),
     "demand": ("an object", lambda v: isinstance(v, dict)),
     "extra_prompt": EXTRA_PROMPT,
@@ -787,6 +792,7 @@ class Watcher:
         self.reload()
         self.round_no += 1
         self.said, events, budget, self.left_busy = {}, [], [], []
+        self.final_checks = {}  # an agent's `final_check`, run at most once a round
         for name in self.blocked_files:
             line = first_line(self.run / name)
             if "blocked" in line.lower():
@@ -847,6 +853,8 @@ class Watcher:
         With no `launched_at` (a session this watcher did not launch) line 1 alone decides."""
         a, path = self.agents[name], self.run / self.agents[name]["status"]
         if not first_line(path).startswith(a["final"]):
+            return False
+        if a.get("final_check") and self.lane_has_work(name):
             return False
         launched = self.roles[name]["launched_at"]
         if not a.get("on_demand") or launched is None:
@@ -1007,6 +1015,30 @@ class Watcher:
             return True
         self.tell(name, f"note not from {name}: {path.name}")
         return False
+
+    def lane_has_work(self, name):
+        """The agent's `final_check` (a command, {run} and {skill} filled, run in the run folder, 60 s at most), at most
+        once a round: exit 0 means work of its lane waits although its line 1 is final (a verifier's (code) findings
+        after a builder's `STATUS: done`), so it is not final and is revived like any stopped session; exit 3 means
+        final; any other exit or a check that cannot run is told and keeps it final, as before the check."""
+        checks = getattr(self, "final_checks", {})
+        if name not in checks:
+            skill = os.path.dirname(os.path.abspath(__file__))
+            argv = [self.fill(x, skill=skill) for x in self.agents[name]["final_check"]]
+            try:
+                r = subprocess.run(argv, capture_output=True, text=True, timeout=60, cwd=self.run, check=False)
+                lines = [x.strip() for x in f"{r.stdout}\n{r.stderr}".splitlines() if x.strip()]
+                last = " ".join(lines[-3:]) if lines else "no output"
+                if r.returncode not in (0, 3):
+                    self.tell(name, f"final_check failed (exit {r.returncode}): {last}")
+                elif r.returncode == 0:
+                    self.tell(name, f"final, but its lane has work: {last}")
+                checks[name] = r.returncode == 0
+            except (OSError, ValueError, subprocess.SubprocessError) as e:
+                self.tell(name, f"final_check failed to run: {e}")
+                checks[name] = False
+            self.final_checks = checks
+        return checks[name]
 
     def work_check(self, name):
         """The agent's `work_check`, run in the run folder with {run} and {skill} (this script's folder) filled:

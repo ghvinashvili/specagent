@@ -1,13 +1,14 @@
 """The open finding ids of a run folder, one per line: the work_check of a role that answers findings.
 
-  python3 -I open_ids.py <run-dir> [--kind C,A,B,V,R] [--cause plan] [--parity odd|even] [--no-shared] [--task N]
+  python3 -I open_ids.py <run-dir> [--kind C,A,B,V,R] [--cause plan|code] [--parity odd|even] [--no-shared] [--task N] [--tasks N,M]
 
 An id is open as check_formats.ids() reads the run folder: it has no answer line yet (a B only when it was sent to the
 planner or the plan fixer). The kinds print in the order of --kind, each kind's ids in reading order. An id's task is
 the `##` or `###` heading above its `#### <id>` line when that heading starts `Task <n>` (`## Task 2 (diff)`,
 `## Task 2 — abc1234`); any other heading, or none (a build log's B line), makes the id shared; an id's first heading
 wins. --parity keeps the ids of the tasks of that parity and every shared id; --no-shared drops the shared ids (the
-second fixer's collection, judge J3 of the pipeline-fold run); --task keeps task n's ids only, no shared one; --cause plan drops a V or R whose heading names the cause (code). Exit 0 when it printed an id, 3 when
+second fixer's collection, judge J3 of the pipeline-fold run); --task keeps task n's ids only, no shared one; --cause plan drops a V or R whose heading names the cause (code); --cause code keeps only those, and --tasks keeps
+the ids of the tasks it lists, no shared one: a builder's lane, the `final_check` of `watch_agents.py`. Exit 0 when it printed an id, 3 when
 none, 2 on a usage error (a --kind entry that is not one or two capital letters: `C, A`, `c,a`) or a run folder that
 does not exist, so a broken check never reads as "nothing waits". Read-only.
 """
@@ -46,6 +47,7 @@ def open_ids(
     task: int | None = None,
     cause: str | None = None,
     shared: bool = True,
+    tasks: set[int] | None = None,
 ) -> list[str]:
     """The open ids of `kinds`, kind by kind in that order and each kind's in reading order, kept by the filters."""
     waiting, where = cf.ids(run)["open"], headings(run)
@@ -62,6 +64,10 @@ def open_ids(
             found = cf.CAUSE.search(line)
             if cause == "plan" and kind in ("V", "R") and found and found.group(1) == "code":
                 continue
+            if cause == "code" and not (kind in ("V", "R") and found and found.group(1) == "code"):
+                continue
+            if tasks is not None and n not in tasks:
+                continue
             out.append(ident)
     return out
 
@@ -70,7 +76,12 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Print the open finding ids of a run folder, one per line.")
     ap.add_argument("run_dir")
     ap.add_argument("--kind", default="C,A,B,V,R", help="comma-separated kinds, printed in this order")
-    ap.add_argument("--cause", choices=["plan"], help="drop the V and R ids whose heading names (code)")
+    ap.add_argument(
+        "--cause",
+        choices=["plan", "code"],
+        help="plan: drop the V and R ids whose heading names (code); code: keep only those (a builder's lane)",
+    )
+    ap.add_argument("--tasks", help="comma-separated task numbers: their ids only, no shared one (a builder's lane)")
     ap.add_argument("--parity", choices=["odd", "even"], help="the ids of the tasks of this parity and every shared id")
     ap.add_argument("--task", type=int, help="task N's ids only, no shared one")
     ap.add_argument(
@@ -87,7 +98,8 @@ def main(argv: list[str] | None = None) -> int:
     if not run.is_dir():
         print(f"open_ids.py: no such folder: {run}", file=sys.stderr)
         return 2
-    found = open_ids(run, kinds, args.parity, args.task, args.cause, args.shared)
+    tasks = {int(x) for x in args.tasks.split(",") if x.strip()} if args.tasks else None
+    found = open_ids(run, kinds, args.parity, args.task, args.cause, args.shared, tasks)
     for ident in found:
         print(ident)
     return 0 if found else 3

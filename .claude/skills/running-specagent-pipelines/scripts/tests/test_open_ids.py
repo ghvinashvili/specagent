@@ -102,3 +102,20 @@ def test_open_ids_cause_plan_drops_the_code_findings(tmp_path):  # C6, A5
     write(run, "verify.md", verify + "#### V2 — (plan) major: y\n")
     assert listed(run, "--kind", "C,A,B,V,R", "--cause", "plan") == (0, ["V2"])
     assert listed(run, "--kind", "V,R") == (0, ["V1", "V2", "R1"])
+
+
+def test_open_ids_cause_code_and_tasks_give_a_builders_lane(tmp_path):
+    """A builder's final_check (a project's run of 2026-11-01): the open (code) findings of its own tasks, nothing else."""
+    run = tmp_path / "run"
+    run.mkdir()
+    write(
+        run,
+        "verify.md",
+        "STATUS: verifying Task 3\n## Task 2 — abc1234\n#### V1 — (code) major: x\n#### V2 — (plan) major: y\n"
+        "## Task 3 — def5678\n#### V3 — (code) minor: z\n",
+    )
+    write(run, "critique.md", "STATUS: reviewed through Task 3\n")
+    write(run, "critique-response.md", "STATUS: writing Task 4\n")
+    assert listed(run, "--kind", "V,R", "--cause", "code") == (0, ["V1", "V3"])
+    assert listed(run, "--kind", "V,R", "--cause", "code", "--tasks", "2,4") == (0, ["V1"])
+    assert listed(run, "--kind", "V,R", "--cause", "code", "--tasks", "4") == (3, [])

@@ -153,7 +153,19 @@
       "extra_prompt": {
         "file": "_pack-builder-a.md",
         "mark": "Your standing orders (startup pack of <run-name>/builder-a)"
-      }
+      },
+      "final_check": [
+        "python3",
+        "-I",
+        "{skill}/open_ids.py",
+        "{run}",
+        "--kind",
+        "V,R",
+        "--cause",
+        "code",
+        "--tasks",
+        "<lane a's task numbers>"
+      ]
     },
     "<project>/builder-b": {
       "cwd": "<worktree-b>",
@@ -171,7 +183,19 @@
       "extra_prompt": {
         "file": "_pack-builder-b.md",
         "mark": "Your standing orders (startup pack of <run-name>/builder-b)"
-      }
+      },
+      "final_check": [
+        "python3",
+        "-I",
+        "{skill}/open_ids.py",
+        "{run}",
+        "--kind",
+        "V,R",
+        "--cause",
+        "code",
+        "--tasks",
+        "<lane b's task numbers>"
+      ]
     },
     "<project>/verifier": {
       "cwd": "<verify-worktree>",

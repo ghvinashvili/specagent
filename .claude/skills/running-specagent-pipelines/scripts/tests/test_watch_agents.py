@@ -1778,3 +1778,21 @@ def test_a_second_fixer_without_shared_ids_is_not_launched_over_a_build_logs_b_l
     assert "demand t/plan-fixer-b" not in r.stdout
     names = [c["argv"][c["argv"].index("--name") + 1] for c in p.launches()]
     assert names == ["t/plan-fixer"]
+
+
+@pytest.mark.parametrize("code, final", [(0, False), (3, True)])
+def test_a_final_builder_whose_lane_has_work_is_revived_not_left_final(p, code, final):
+    """A project's run of 2026-11-01: a builder's `STATUS: done` came before the verifier's (code) findings for its lane, and
+    nothing took them for ten hours. Its `final_check` exits 0 while its lane has work: then it is not final and its
+    stopped session is resumed; exit 3 keeps it final."""
+    p.write("build-log.md", "STATUS: done\n")
+    p.config["agents"]["t/builder"]["final_check"] = [sys.executable, "-c", f"print('V12'); raise SystemExit({code})"]
+    p.transcript()
+    p.rounds([row(state="stopped", status=None, pid=None)])
+    r = p.watch(rounds=1)
+    if final:
+        assert r.returncode == 0 and "every STATUS line is final" in r.stdout, r.stdout + r.stderr
+        assert p.launches() == []
+    else:
+        assert "final, but its lane has work: V12" in r.stdout, r.stdout + r.stderr
+        assert [c["argv"][c["argv"].index("--resume") + 1] for c in p.launches()] == [SID]
