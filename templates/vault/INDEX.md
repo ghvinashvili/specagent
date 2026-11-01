@@ -25,11 +25,13 @@ The clone of the public commons named above is a source, not an authority (`READ
 - [layered-indexes-small-parts](decisions/global/layered-indexes-small-parts.md): Big files are split by topic into titled parts; indexes are layered by category, so no agent reads a whole file or a whole index
 - [manager-owns-structure](decisions/global/manager-owns-structure.md): The managing session owns the structure; mechanical steps are scripts; the owner reads outputs and decides
 - [no-conversation-copies](decisions/global/no-conversation-copies.md): No copies of conversations anywhere; a hand-off keeps the main points; hand-off files reach subagents
+- [no-one-agent-mode](decisions/global/no-one-agent-mode.md): No one-agent mode; a project's work runs as the multi-role pipeline
 - [no-pointless-tests](decisions/global/no-pointless-tests.md): No tests that settle no decision; think from the evidence, fix everything known, launch once
 - [owner-questions-and-status](decisions/global/owner-questions-and-status.md): Status in two or three lines; decisions asked once, in the coordinating chat, no popups
 - [plan-whole-research-first-one-document](decisions/global/plan-whole-research-first-one-document.md): Plan the whole thing first, from researched sources, in one plan document
 - [platform-native-manageable](decisions/global/platform-native-manageable.md): Builds on a platform use the platform's own tools and stay manageable by the owner without AI
 - [plugins-load-per-session](decisions/global/plugins-load-per-session.md): What loads in a session is the manager's decision, never a global install
+- [project-work-runs-through-the-pipeline-skill](decisions/global/project-work-runs-through-the-pipeline-skill.md): A project's work runs through the pipeline skill, never harness stages by default
 - [reporting-cadence](decisions/global/reporting-cadence.md): Reporting cadence by kind of work - a batch is finished before the reply, a long run reports each minute, a search reports at the end
 - [retry-loops-max-3](decisions/global/retry-loops-max-3.md): Every automatic retry or revise loop stops after 3 rounds; then decide by rule or escalate
 - [sessions-close-by-the-watcher](decisions/global/sessions-close-by-the-watcher.md): Sessions close by the watcher, never by the owner
