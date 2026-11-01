@@ -38,7 +38,7 @@ def gate(path, env=None, active=False):
     (HELLO, ENGLISH, True),
     (HELLO, GEORGIAN, False),
     ("How are things going?", ENGLISH, False),
-    ("How are things going?", GEORGIAN, True),
+    ("How are things going?", GEORGIAN, False),  # Latin may be a transliteration: only the setting decides
 ])  # fmt: skip
 def test_a_reply_in_another_script_than_the_user_s_is_sent_back_once(tmp_path, user, reply, blocked):
     r = gate(transcript(tmp_path, ("user", user), ("assistant", [{"type": "text", "text": reply}])))
@@ -61,6 +61,8 @@ def test_a_transliterated_language_is_answered_in_the_script_the_chat_names(tmp_
     path = transcript(tmp_path, ("user", "kargi, gaaswore"), ("assistant", [{"type": "text", "text": ENGLISH}]))
     assert gate(path).stdout == ""
     assert json.loads(gate(path, {"LANGUAGE_GATE_SCRIPT": "Georgian"}).stdout)["decision"] == "block"
+    fine = transcript(tmp_path, ("user", "kargi, gaaswore"), ("assistant", [{"type": "text", "text": GEORGIAN}]))
+    assert gate(fine, {"LANGUAGE_GATE_SCRIPT": "Georgian"}).stdout == ""
 
 
 def test_code_a_short_reply_and_a_second_stop_pass(tmp_path):

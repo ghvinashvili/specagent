@@ -6,7 +6,7 @@ messages, whatever language its tools, logs and agents use; agents stay English.
 reply's letters (outside code blocks, inline code and links) with the script of the user's last message of their own
 (not a tool result, a command, a notification or another session's message). A transliterated language is answered in
 its own script: set `LANGUAGE_GATE_SCRIPT` (e.g. `Georgian`) in the environment of the chat, which then wins over the
-detected script. A reply of under 60 letters, a user message with no letters and a second stop in a row
+detected script; without it a user message in Latin letters sends nothing back, since it may be a transliteration. A reply of under 60 letters, a user message with no letters and a second stop in a row
 (`stop_hook_active`) pass, so the gate asks once and never loops.
 """
 
@@ -83,6 +83,8 @@ def main() -> int:
         if not any(counts.values()):
             return 0
         wanted = max(counts, key=counts.get)
+        if wanted == "Latin":
+            return 0  # a Latin message may be a transliteration, answered in its own script: only the setting decides
     found = letters(reply)
     total = sum(found.values())
     if total < 60 or found[wanted] * 2 >= total:
