@@ -81,7 +81,10 @@ sequenceDiagram
 
 The pipeline skill runs the roles as chat sessions under a manager chat with a loop of its own: waiters, the watcher
 and record files in place of `harness launch`, `poll` and `handoff`
-([decision](wiki/decisions/pipelines-run-as-specagent-sessions-from-a-template-skill.md));
+([decision](wiki/decisions/pipelines-run-as-specagent-sessions-from-a-template-skill.md)). Before a launch,
+`catalogue.py fill` pastes each brief's ECC ranges and the pre-flight refuses an unfilled brief, a role on another
+model class than its role's, or one without the warm-cache hooks; during the run, the watcher delivers an order to a
+role with no process or a final record, and moves a session without its lane's pack to one with it;
 [How it works, step by step](docs/how-it-works.md) follows one such run file by file.
 
 ## A role session's sandbox
@@ -90,7 +93,10 @@ in the sandbox (bubblewrap on Linux), with no unsandboxed retry: Bash writes onl
 its branch, the run folder, the temp dir, the package caches and the main repository's `.git`, and reaches only the
 package hosts; the worktree's eight protected paths are closed to its shell, open to Write and Edit, and the
 transcripts, the run's `_control/`, `docs/handoff/` and `/proc` are denied. Two guards run before a Read, Write or Edit
-call: one refuses a whole read of a file over 20,000 bytes, the other keeps a record in the run folder appended to. A
+call: one refuses a whole read of a file over 20,000 bytes, the other keeps a record in the run folder appended to;
+`keep-cache-warm.py` refuses a foreground Bash call that may hold the turn past 210 s and, at a turn's end while the
+record is not final, continues the session with a keep-alive after 200 s for up to an hour, so its prompt cache stays
+warm. A
 refused step, a copy into the protected paths, a checkout or a fast-forward is one line in its record (`SANDBOX:`,
 `COPY-REQUEST:`, `CHECKOUT-REQUEST:`, `FF-REQUEST:`); the records monitor wakes the manager, outside the sandbox with
 four guards, which answers below it (`SUPPLIED:`, `COPIED:`, `CHECKED-OUT:`, `FF-DONE:` or `REFUSED:`) and never

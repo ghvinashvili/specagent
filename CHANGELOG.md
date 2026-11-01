@@ -5,6 +5,15 @@ All notable changes are recorded here, grouped by release, generated from Conven
 ## [Unreleased]
 
 ### Added
+- The run's own gaps of 2026-11-01, closed at the template so a new project starts right: the watcher delivers an
+  order to a role with no process or a final record (once, no hand resume, no second copy); `catalogue.py fill`
+  pastes each brief's ECC ranges and the pre-flight refuses an unfilled brief; `.claude/hooks/keep-cache-warm.py`
+  keeps every role's prompt cache warm by rule (no foreground call past 210 s, a keep-alive at a turn's end for up to
+  an hour); a session without its lane's pack hands over at its unit end and a finished one wakes fresh with it;
+  the pre-flight checks each role's model class (large for judgment roles, mid-size for the builder, top for the
+  spec writer); `.claude/hooks/language-gate.py` holds the manager chat to the user's language; the vault form gains
+  cache-and-compaction, manager-replies-in-the-users-language and no-one-agent-mode. The README's cache and
+  manager-chat sections and ARCHITECTURE.md say so.
 - The README rewritten for a reader on GitHub under the name SpecAgent: a banner (`docs/assets/banner.svg`), what the
   system does and how it differs from subagents (11 properties side by side), each strength with its evidence, the run
   loop (the spec-writer first when no spec exists), the roles, the knowledge layer and a session's life, each a picture

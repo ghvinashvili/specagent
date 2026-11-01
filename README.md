@@ -102,7 +102,10 @@ guards: the permission rules, the auto-mode classifier, your launch rule, and no
 answers a role's refusal by supplying the path, host or material into the run folder, never by weakening a sandbox.
 Before a run come the size rule (a pipeline only when one context cannot hold the work), the pre-flight, the launch
 table and your one yes; during it, the records monitor, the surface (`surface.py`), whose figures its status answers
-copy as printed, never computed, and orders a role acknowledges with `ACK <msg_id>`. It asks you only about agent
+copy as printed, never computed, and orders a role acknowledges with `ACK <msg_id>`; an order to a role that has
+stopped or finished is delivered by the watcher itself, which wakes the role once, so no session is resumed by hand
+into a second copy. It answers in the language you write in, held by a Stop hook (`.claude/hooks/language-gate.py`;
+set `LANGUAGE_GATE_SCRIPT` when you write a language in Latin letters). It asks you only about agent
 launches, destructive or irreversible actions, merges into `main` and spending, and decides the rest with its assumption
 stated. It measures every run (`score_run.py`, [decision][score]) and itself (`measure_manager.py`) and appends each of
 its mistakes, with its measured cost, to a lessons page in your vault that every main session reads in its first calls.
@@ -260,6 +263,15 @@ rewrite pays for 19 touches, about 1.1 hours of waiting at one touch every 3.5 m
 hour stays in the session and keeps the cache warm; a wait known to be longer ends the session with a note, and the
 watcher starts the role again when its work check finds work, which costs one cold write of the pack.
 
+**Kept warm by the system, not by the role.** On 2026-11-01 a verifier wrapped the 3.5-minute waiter in a loop of its
+own and sat 8 and 14 minutes, rewriting about 60k tokens each time, and a plan fixer held one command for 10 minutes. So
+every role's settings carry two hooks of `.claude/hooks/keep-cache-warm.py`: before a Bash call it refuses a foreground
+command that may hold the turn past 210 seconds (a long timeout, `timeout N`, `sleep N` or a loop around a waiter) and
+says to run it in the background; at a turn's end, while the role's record is not final, it waits 200 seconds and
+continues the session with a short keep-alive, for up to an hour, the break-even above. A session that started before
+its lane's pack existed, so that a resume never gets the pack, hands over at its next unit end, and a finished one that
+the watcher revives starts fresh with the pack.
+
 Before this rule the waiters slept up to 8 hours inside one call, so every wait longer than 5 minutes ended cold: on
 the two runs, 29 calls after such a gap wrote 2,630,529 tokens again, 8.6% of all cache writes, up to $21. The 1-hour
 cache was measured too, on the critic, plan fixer, verifier and judge sessions of one run, which ran with it: they wrote
@@ -274,7 +286,8 @@ What this gives a run:
 - A session keeps its memory of the run through each compaction, at about half the price of a hand-over.
 - The standing orders are never lost and never read again with tools: they sit in the system prompt and the cache.
 - The rule is checked, not remembered: the pre-flight's `cache` check fails a lane that misses the window, the flags,
-  its own pack, the 5-minute TTL or its one model, and the watcher stops on a changed pack.
+  its own pack, the 5-minute TTL, its one model of its role's class or the two warm-cache hooks, and the watcher stops
+  on a changed pack.
 
 ## How it keeps quality, and at what cost
 
