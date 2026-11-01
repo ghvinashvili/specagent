@@ -39,6 +39,12 @@ cd <repo> && claude --name <role> --add-dir <run-dir> <more dirs> --strict-mcp-c
 - The same file's `env` (variable names to strings) is what every role's process needs from this machine (a role gets
   no variable of the user settings): the watcher adds each name to every agent's settings file `env` at its start,
   before it hashes the control files, and keeps a name the file sets itself.
+- Plugin state one role must not read from another (a blind type, the quarantine reader): the same file's `agent_dirs`
+  (`ops/bootstrap.py` copies it from `agent_env_dirs` of `docs/roles/need-to-know.yaml`) gives every agent a directory of
+  its own per variable, `<run-dir>/_plugin-data/<agent>/<VAR>`, seeded with the files it names, sets the variable in the
+  agent's settings `env`, and closes every other agent's `_plugin-data` directory to it (Read, Edit and Write rules;
+  the sandbox's denyRead and denyWrite when the file has a sandbox block);
+  so every agent has a settings file of its own.
 - Messages are best-effort: a session in another permission mode holds them, and they can expire. Every hand-off must
   also be in a file the recipient reads before each task; a message only wakes it sooner.
 - A role that edits a checkout served by a local dev server or containers needs `"worktree": {"bgIsolation": "none"}` and

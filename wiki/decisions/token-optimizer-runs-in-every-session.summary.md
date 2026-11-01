@@ -5,4 +5,6 @@ source, enabled in the project settings and installed at project scope by `ops/b
 directory into the watcher's launch file so every role session loads it; `docs/roles/need-to-know.yaml` gives it to
 every role type. Every feature stays on; one is switched off only on the owner's word. The licence is PolyForm
 Noncommercial with a small-business permission, so the code is never vendored and a project that does not qualify
-removes the entries.
+removes the entries. Its state is per role session: `agent_env_dirs` of `docs/roles/need-to-know.yaml` gives every stage or
+agent its own `TOKEN_OPTIMIZER_PLUGIN_DATA` directory and denies the others'; the marketplace entry pins the tag of
+the accepted version.

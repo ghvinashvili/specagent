@@ -676,6 +676,15 @@ def env_extra(policy: dict, row: dict, stage_dir: Path) -> dict[str, str]:
         env["HARNESS_BLIND"] = "1"
     if t["changes_repository"] or t["trial_checkout"]:  # the checkout HARNESS_WORKTREE names is its own work, not
         env["HARNESS_OWN_CHECKOUT"] = "1"  # work it reviews (permission-request.py, ADR-0015)
+    for var, spec in (policy.get("agent_env_dirs") or {}).items():  # plugin state the session must not share
+        own = stage_dir / "plugin-data" / var  # another stage's directory is closed to the session already
+        own.mkdir(parents=True, exist_ok=True)
+        for rel, text in ((spec or {}).get("files") or {}).items():
+            seed = own / rel
+            if not seed.exists():
+                seed.parent.mkdir(parents=True, exist_ok=True)
+                seed.write_text(str(text), encoding="utf-8")
+        env[var] = str(own)
     return env
 
 

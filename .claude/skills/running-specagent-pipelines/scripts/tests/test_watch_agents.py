@@ -1760,3 +1760,57 @@ def test_a_bad_machine_env_is_a_config_error_before_any_claude_command(p, env):
     assert r.returncode == 2, r.stdout + r.stderr
     assert "env must map variable names to strings" in r.stdout
     assert p.calls() == []
+
+
+def test_agent_dirs_give_every_agent_its_own_seeded_directory_and_deny_the_others(p):
+    other = p.agent("critic", "critique.md")
+    p.write(
+        "_critic-settings.json",
+        json.dumps({"permissions": {"deny": ["Edit(x)"]}, "sandbox": {"filesystem": {"denyRead": ["~/.ssh"]}}}) + "\n",
+    )
+    p.config["agents"]["t/critic"] = {**other, "settings": "_critic-settings.json"}
+    launch_file(p, {"agent_dirs": {"TOOL_DATA": {"files": {"config/config.json": '{"ok": true}'}}}})
+    p.transcript()
+    note(p)
+    r = p.watch(rounds=2)
+    assert r.returncode == 1, r.stdout + r.stderr
+    builder = json.loads((p.run / "_builder-settings.json").read_text(encoding="utf-8"))
+    critic = json.loads((p.run / "_critic-settings.json").read_text(encoding="utf-8"))
+    own = p.run / "_plugin-data" / "t-builder" / "TOOL_DATA"
+    assert builder["env"]["TOOL_DATA"] == str(own) and (own / "config" / "config.json").read_text() == '{"ok": true}'
+    assert critic["env"]["TOOL_DATA"] == str(p.run / "_plugin-data" / "t-critic" / "TOOL_DATA")
+    other = "//" + str(p.run / "_plugin-data" / "t-critic").lstrip("/")
+    assert all(f"{tool}({other}/**)" in builder["permissions"]["deny"] for tool in ("Read", "Edit", "Write"))
+    assert "sandbox" not in builder  # a file with no sandbox block gets the rules alone
+    mine = "//" + str(p.run / "_plugin-data" / "t-builder").lstrip("/")
+    assert critic["permissions"]["deny"] == ["Edit(x)", f"Read({mine}/**)", f"Edit({mine}/**)", f"Write({mine}/**)"]
+    assert critic["sandbox"]["filesystem"]["denyRead"] == ["~/.ssh", str(p.run / "_plugin-data" / "t-builder")]
+    assert critic["sandbox"]["filesystem"]["denyWrite"] == [str(p.run / "_plugin-data" / "t-builder")]
+    assert "machine env: _builder-settings.json +TOOL_DATA" in r.stdout
+    [launch] = p.launches()  # the settings were written before the hashes: the launch went ahead
+    assert launch["argv"][-2] == "--bg"
+
+
+def test_agent_dirs_need_a_settings_file_per_agent(p):
+    p.config["agents"]["t/critic"] = {**p.agent("critic", "critique.md"), "settings": "_builder-settings.json"}
+    launch_file(p, {"agent_dirs": {"TOOL_DATA": {"files": {}}}})
+    r = p.watch(rounds=1)
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert "agent_dirs needs a settings file per agent; shared: _builder-settings.json" in r.stdout
+
+
+@pytest.mark.parametrize(
+    "dirs",
+    [
+        {"bad-name": {"files": {}}},
+        {"TOOL_DATA": {"files": {"../x": "1"}}},
+        {"TOOL_DATA": {"files": {"/abs": "1"}}},
+        ["TOOL_DATA"],
+    ],
+)
+def test_bad_agent_dirs_are_a_config_error_before_any_claude_command(p, dirs):
+    launch_file(p, {"agent_dirs": dirs})
+    r = p.watch(rounds=1)
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert "agent_dirs must map variable names" in r.stdout
+    assert p.calls() == []

@@ -36,6 +36,16 @@ turned the lossy parts off on its own reading of "maximum accuracy" and was corr
   it to every role type through `plugins` of `docs/roles/need-to-know.yaml`.
 - `docs/roles/extensions.yaml` accepts version 5.13.61 and what it brings (11 hook events, 5 skills, 2 commands);
   `harness validate` fails on another version or a new component until a human accepts it again.
+- Its state is per role session, never shared (the owner, 2026-11-01: usable, but one role cannot read another's):
+  `agent_env_dirs` of `docs/roles/need-to-know.yaml` names `TOKEN_OPTIMIZER_PLUGIN_DATA`, the variable the plugin
+  prefers over Claude Code's shared `CLAUDE_PLUGIN_DATA` for its archives, read cache, checkpoints and session
+  database; the harness gives every stage `<stage dir>/plugin-data/<VAR>`, the pipeline skill's watcher gives every
+  agent `<run dir>/_plugin-data/<agent>/<VAR>` and denies the other agents' directories (permissions and sandbox);
+  the consent flags are seeded so the hooks work from the first call. The session's own chat loads the plugin
+  with Claude Code's shared data directory, as before.
+- The marketplace entry pins the git tag `v5.13.61`, the version `docs/roles/extensions.yaml` accepts; bootstrap
+  installs that version's directory into the launch file. A newer release is taken by changing both and accepting
+  what it brings.
 
 ## What was measured
 Replayed on the spec 006 run's 55 sessions (the owner's vault, measurement 2026-11-01-token-optimizer-replay), the

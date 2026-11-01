@@ -80,6 +80,17 @@ defaults:
     - "obsidian-vault@example-repo-plugins"
     - "token-optimizer@example-repo-plugins"
 
+# Plugin state a role session must not share with another role (a blind type reviews work and must not read what
+# another role archived; the quarantine reader's archives are untrusted text). For each variable, a session gets a
+# directory of its own and the variable names it: the harness gives `<stage dir>/plugin-data/<VAR>` (another stage's
+# directory is closed already); the pipeline skill's watcher gives `<run dir>/_plugin-data/<agent>/<VAR>` and denies
+# every other agent's `_plugin-data` directory, by permissions and the sandbox; ops/bootstrap.py copies this block into
+# the machine's launch file as `agent_dirs`. `files` are written into the directory first (text per relative path).
+agent_env_dirs:
+  TOKEN_OPTIMIZER_PLUGIN_DATA:   # token-optimizer's archives, read cache, checkpoints and session database
+    files:
+      config/config.json: '{"enterprise_consent_shown": true, "v5_welcome_shown": true}'
+
 types:
   reader:
     may_receive: [brief, context, spec]

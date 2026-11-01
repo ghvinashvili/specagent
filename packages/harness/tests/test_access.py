@@ -878,3 +878,19 @@ def test_a_linked_escalation_json_is_not_filed(env, tmp_path):
     (tmp_path / "secret.json").write_text('{"id": "000", "stage": "critique", "question": "SECRET"}', encoding="utf-8")
     (run / "stages/critique/escalation.json").symlink_to(tmp_path / "secret.json")
     assert access.file_escalations(run) == [] and not list((run / "escalations").glob("*.json"))
+
+
+def test_a_role_session_gets_its_own_directory_for_every_agent_env_dir_variable_seeded_with_its_files(env):
+    run, policy = env
+    sd = run / "stages/critique"
+    extra = access.env_extra(policy, STAGES["critique"], sd)
+    own = sd / "plugin-data" / "TOKEN_OPTIMIZER_PLUGIN_DATA"
+    assert extra["TOKEN_OPTIMIZER_PLUGIN_DATA"] == str(own)
+    assert (own / "config" / "config.json").read_text(
+        encoding="utf-8"
+    ) == '{"enterprise_consent_shown": true, "v5_welcome_shown": true}'
+    (own / "config" / "config.json").write_text("{}", encoding="utf-8")
+    access.env_extra(policy, STAGES["critique"], sd)
+    assert (own / "config" / "config.json").read_text(encoding="utf-8") == "{}"  # a file the session changed is kept
+    bare = {**policy, "agent_env_dirs": {}}
+    assert "TOKEN_OPTIMIZER_PLUGIN_DATA" not in access.env_extra(bare, STAGES["critique"], sd)

@@ -5,6 +5,7 @@ its config become `_agents-v2.json`, and the behaviour that differs from watch_a
 """
 
 import json
+import os
 import pathlib
 import subprocess
 import sys
@@ -194,6 +195,7 @@ def test_the_written_config_is_one_the_watcher_accepts(run):
         capture_output=True,
         text=True,
         check=False,
+        env={**os.environ, "CLAUDE_CONFIG_DIR": str(run / "home")},  # no launch file of this machine
     )
     assert (r.returncode, r.stdout) == (0, "None '' x\n"), r.stderr
 

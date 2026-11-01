@@ -283,3 +283,24 @@ def test_setup_writes_the_launch_file_after_the_plugins(boot, tmp_path):
     module.setup(io.StringIO())
     launch = tmp_path / "home" / ".claude" / "specagent-launch.json"
     assert json.loads(launch.read_text(encoding="utf-8"))["plugin_dirs"] == [str(new)]
+
+
+def test_the_launch_file_prefers_the_accepted_version_and_carries_the_policys_agent_env_dirs(boot, tmp_path):
+    module, _ = boot
+    accepted = _installed(module, tmp_path, "token-optimizer", "5.13.61")
+    _installed(module, tmp_path, "token-optimizer", "5.14.0")
+    (module.ROOT / "docs" / "roles").mkdir(parents=True)
+    (module.ROOT / "docs" / "roles" / "extensions.yaml").write_text(
+        'extensions:\n  token-optimizer@t-plugins:\n    form: plugin\n    version: "5.13.61"\n', encoding="utf-8"
+    )
+    (module.ROOT / "docs" / "roles" / "need-to-know.yaml").write_text(
+        "agent_env_dirs:\n  TOKEN_OPTIMIZER_PLUGIN_DATA:\n    files:\n      config/config.json: '{}'\n",
+        encoding="utf-8",
+    )
+    log = io.StringIO()
+    assert module.machine_launch_file(log) is True
+    data = json.loads((tmp_path / "home" / ".claude" / "specagent-launch.json").read_text(encoding="utf-8"))
+    assert data == {
+        "plugin_dirs": [str(accepted)],
+        "agent_dirs": {"TOKEN_OPTIMIZER_PLUGIN_DATA": {"files": {"config/config.json": "{}"}}},
+    }
