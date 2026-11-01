@@ -104,8 +104,14 @@ a bool, `permission_wait` may be null, `handoff_at` lies below `cap`.
                                              session and for a resume of a session whose transcript carries the mark
    "agents": {"<name>": {"cwd", "add_dirs", "settings": "<file in run_dir>", "status": "<file in run_dir>",
                          "final": "STATUS: done", "budget": {…}, "work_check": ["python3", "{skill}/…", "{run}"]}}}
-A launch is `claude [--resume <sessionId>] --name <name> --add-dir <dirs> <common> --settings <the settings file's
-path> [--append-system-prompt-file <file>] --bg <prompt>`, run in the agent's cwd. The settings, status, extra_prompt
+A launch is `claude [--resume <sessionId>] --name <name> --add-dir <dirs> <common> [--plugin-dir <dir>…] --settings
+<the settings file's path> [--append-system-prompt-file <file>] --bg <prompt>`, run in the agent's cwd. The plugin
+directories are the machine's, not the run's: `plugin_dirs` of `specagent-launch.json` in Claude Code's config directory (absent: none), each
+an absolute directory holding `.claude-plugin/plugin.json`, read with the config; a role launched under
+`--setting-sources local` loads no plugin the user settings enable, so a plugin meant for every role is named there.
+Its `env` (names to strings) goes into every agent's settings file `env` at start, before the files are hashed, a
+name the file sets itself kept (`machine env: <file> +<names>`; nothing is written with --check): a role's process
+gets no variable of the user settings either. The settings, status, extra_prompt
 and registry files must lie inside run_dir (a config error otherwise), and the agents must not be able to write the
 control files (the briefs' `_*` denies and the sandbox's denyWrite): the watcher hashes every control file at start
 and again right before each launch, and exits 4 when a settings file or the extra prompt file changed or a brief is
@@ -560,11 +566,52 @@ class Transcripts:
             return False
 
 
+LAUNCH_FILE = "specagent-launch.json"  # in Claude Code's config directory (CLAUDE_CONFIG_DIR, else ~/.claude)
+
+
+def launch_path():
+    return pathlib.Path(os.environ.get("CLAUDE_CONFIG_DIR") or os.path.expanduser("~/.claude")) / LAUNCH_FILE
+
+
+def machine_launch():
+    """The machine's launch file as a dict (absent: {}); its `env` checked here, its `plugin_dirs` by machine_plugins."""
+    path = launch_path()
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        raise ConfigError(f"{path}: {e}") from e
+    if not isinstance(data, dict):
+        raise ConfigError(f"{path}: not a JSON object")
+    env = data.get("env", {})
+    if not isinstance(env, dict) or not all(
+        isinstance(k, str) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", k) and isinstance(v, str) for k, v in env.items()
+    ):
+        raise ConfigError(f"{path}: env must map variable names to strings")
+    return data
+
+
+def machine_plugins(data):
+    """`--plugin-dir <dir>` for every directory in `plugin_dirs` of the machine's launch file (absent: none)."""
+    path = launch_path()
+    dirs = data.get("plugin_dirs", [])
+    if not isinstance(dirs, list) or not all(isinstance(d, str) for d in dirs):
+        raise ConfigError(f"{path}: plugin_dirs must be a list of paths")
+    for d in dirs:
+        if not os.path.isabs(d) or not (pathlib.Path(d) / ".claude-plugin" / "plugin.json").is_file():
+            raise ConfigError(
+                f"{path}: {d} is no plugin directory (an absolute path holding .claude-plugin/plugin.json)"
+            )
+    return [arg for d in dirs for arg in ("--plugin-dir", d)]
+
+
 class Watcher:
     def __init__(self, config_path, check=False):
         self.check = check
         self.config_path = pathlib.Path(config_path).resolve()
         self.configure(read_config(self.config_path, config_path))
+        self.add_machine_env()
         self.transcripts = Transcripts(self.order[:50])
         self.hashes = {path: sha256(path) for path in self.control_files()}
         self.table, self.unwatched = self.launch_table()
@@ -576,12 +623,36 @@ class Watcher:
         self.left_busy, self.waiting_final = [], None
         self.round_no, self.started_at, self.usage_cache = 0, time.time(), {}
 
+    def add_machine_env(self):
+        """The machine file's `env` into every agent's settings file, before the hashes; a name the file sets is kept."""
+        wanted = self.machine.get("env", {})
+        for name in sorted({a["settings"] for a in self.agents.values()}) if wanted else []:
+            path = self.run / name
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue  # a missing or broken settings file is the launch's own error
+            env = data.get("env") if isinstance(data, dict) and isinstance(data.get("env"), dict) else {}
+            missing = {k: v for k, v in wanted.items() if k not in env}
+            if not missing or not isinstance(data, dict):
+                continue
+            if self.check:
+                log(f"machine env: {name} would get +{','.join(sorted(missing))}")
+                continue
+            data["env"] = {**env, **missing}
+            tmp = path.with_name(path.name + ".machine-env")
+            tmp.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+            os.replace(tmp, path)
+            log(f"machine env: {name} +{','.join(sorted(missing))}")
+
     def configure(self, config):
         """The config's values, and the checks that need the run folder."""
         get = lambda key: config[key] if key in config else DEFAULTS[key]
         self.config = config
         self.run, self.agents = pathlib.Path(config["run_dir"]).resolve(), config["agents"]
-        self.common, self.blocked_files = list(get("common")), list(get("blocked_files"))
+        self.machine = machine_launch()
+        self.common = [*get("common"), *machine_plugins(self.machine)]
+        self.blocked_files = list(get("blocked_files"))
         self.cap, self.handoff_wait, self.nudges = get("cap"), get("handoff_wait"), get("nudges")
         self.permission_wait, self.interval = get("permission_wait"), get("interval")
         self.final_stop_minutes = get("final_stop_minutes")

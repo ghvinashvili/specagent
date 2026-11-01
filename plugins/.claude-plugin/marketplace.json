@@ -30,6 +30,20 @@
         "wiki",
         "knowledge-base"
       ]
+    },
+    {
+      "name": "token-optimizer",
+      "source": {
+        "source": "github",
+        "repo": "alexgreensh/token-optimizer"
+      },
+      "description": "Token Optimizer: compressed tool output, checkpoints around compaction, a quality score and a savings ledger per session; PolyForm Noncommercial, installed from the author's repository, never vendored",
+      "category": "productivity",
+      "tags": [
+        "tokens",
+        "context",
+        "measurement"
+      ]
     }
   ]
 }

@@ -392,3 +392,7 @@ Append-only; plugin operation entries newest first at the top; hand-written entr
 ## 2026-10-30 page updated with Task 3 of the pipeline-economy run
 - commit: Task 3 of the pipeline-economy run
 - updated: decisions/pipeline-economy-estimate-model-classes-open-items.md, index.md
+## 2026-11-01 page added by the main session
+- commit: token-optimizer in every session (owner)
+- added: decisions/token-optimizer-runs-in-every-session.md, decisions/token-optimizer-runs-in-every-session.summary.md
+- updated: index.md

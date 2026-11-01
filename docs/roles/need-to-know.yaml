@@ -78,23 +78,26 @@ defaults:
   project_plugins:
     - "code-intel@example-repo-plugins"
     - "obsidian-vault@example-repo-plugins"
+    - "token-optimizer@example-repo-plugins"
 
 types:
   reader:
     may_receive: [brief, context, spec]
     outputs_of: []
-    plugins: ["obsidian-vault@example-repo-plugins"]
+    plugins: ["obsidian-vault@example-repo-plugins", "token-optimizer@example-repo-plugins"]
     plugin_skills: ["obsidian-vault:wiki-query"]   # the vault answers before a directory is read
   researcher:
     may_receive: [brief, context]
     outputs_of: [planner]
-    plugins: ["code-intel@example-repo-plugins"]
+    plugins: ["code-intel@example-repo-plugins", "token-optimizer@example-repo-plugins"]
   story-writer:
+    plugins: ["token-optimizer@example-repo-plugins"]
     may_receive: [brief]
     outputs_of: [researcher]
   # The spec writer writes the skeleton: intent, requirements, limits, done, out of scope, about one page. It is given
   # the brief and what the researcher and the story writer found; the plan's content is the planner's.
   spec-writer:
+    plugins: ["token-optimizer@example-repo-plugins"]
     may_receive: [brief]
     outputs_of: [researcher, story-writer]
     pack_files: ["CLAUDE.md", "AGENTS.md", "specs/constitution.md"]
@@ -103,7 +106,7 @@ types:
     may_receive: [brief, context, spec]
     outputs_of: [reader, story-writer, spec-writer]
     pack_files: ["CLAUDE.md", "AGENTS.md", "specs/constitution.md"]
-    plugins: ["code-intel@example-repo-plugins", "obsidian-vault@example-repo-plugins"]
+    plugins: ["code-intel@example-repo-plugins", "obsidian-vault@example-repo-plugins", "token-optimizer@example-repo-plugins"]
     plugin_skills: ["obsidian-vault:wiki-query"]   # the vault answers before a directory is read
     trial_checkout: true       # a plan is written after its design was built and run once
   writer:
@@ -111,21 +114,23 @@ types:
     outputs_of: [planner, spec-writer, reader, critic]    # the reader's notes are where it looks a fact up; the
     # critic's findings and attack tests on the plan are part of the work (specs/002-run-loop)
     repo_deny_extra: ["evals/cases/**", "evals/baseline/**", "evals/results/**"]   # hidden cases stay hidden
-    plugins: ["code-intel@example-repo-plugins", "obsidian-vault@example-repo-plugins"]
+    plugins: ["code-intel@example-repo-plugins", "obsidian-vault@example-repo-plugins", "token-optimizer@example-repo-plugins"]
     changes_repository: true
     plugin_skills: ["obsidian-vault:wiki-query", "obsidian-vault:save"]   # the type writes pages; its commit skill is the agent file's
     skills: [python-patterns, python-testing]   # ECC skills for the template's own language (.claude/ecc/README.md)
   librarian:
     may_receive: [brief, context]
     outputs_of: []
-    plugins: ["obsidian-vault@example-repo-plugins"]
+    plugins: ["obsidian-vault@example-repo-plugins", "token-optimizer@example-repo-plugins"]
     changes_repository: true
     plugin_skills: ["obsidian-vault:wiki-query", "obsidian-vault:save", "obsidian-vault:wiki-lint"]   # the type keeps the pages; its commit skill is the agent file's
   advisor:
+    plugins: ["token-optimizer@example-repo-plugins"]
     may_receive: [brief]
     outputs_of: [planner]
     dirs: [stage]              # an advisor sees neither another advisor nor another stage's question
   synthesizer:
+    plugins: ["token-optimizer@example-repo-plugins"]
     may_receive: []
     outputs_of: [planner, advisor, comparator, researcher, critic]
 
@@ -140,7 +145,7 @@ types:
     may_receive: [brief, spec]
     outputs_of: [planner, writer, librarian, critic]      # never validator, test-verifier or judge
     alias: { writer: work, librarian: work, planner: plan }
-    plugins: ["code-intel@example-repo-plugins"]
+    plugins: ["code-intel@example-repo-plugins", "token-optimizer@example-repo-plugins"]
   test-verifier:
     blind: true
     dirs: [stage]
@@ -148,7 +153,7 @@ types:
     may_receive: [brief]
     outputs_of: [story-writer, writer]
     alias: { writer: work, story-writer: story }
-    plugins: ["code-intel@example-repo-plugins", "obsidian-vault@example-repo-plugins"]
+    plugins: ["code-intel@example-repo-plugins", "obsidian-vault@example-repo-plugins", "token-optimizer@example-repo-plugins"]
     changes_repository: true
     plugin_skills: ["obsidian-vault:wiki-query", "obsidian-vault:save"]   # the type writes pages; its commit skill is the agent file's
     skills: [python-patterns, python-testing]   # ECC skills for the template's own language (.claude/ecc/README.md)
@@ -159,7 +164,7 @@ types:
     may_receive: [brief]
     outputs_of: [story-writer, spec-writer, writer]
     alias: { writer: work, story-writer: story, spec-writer: spec }
-    plugins: ["code-intel@example-repo-plugins"]
+    plugins: ["code-intel@example-repo-plugins", "token-optimizer@example-repo-plugins"]
   critic:
     blind: true
     dirs: [stage]
@@ -168,8 +173,9 @@ types:
     outputs_of: [writer, researcher, analyst, planner, reader]     # a plan, its trial and the reader's notes before
     # any work (specs/002-run-loop); never verifier, validator, test-verifier, judge or another critic
     alias: { writer: work, researcher: work, analyst: work }
-    plugins: ["code-intel@example-repo-plugins"]
+    plugins: ["code-intel@example-repo-plugins", "token-optimizer@example-repo-plugins"]
   comparator:
+    plugins: ["token-optimizer@example-repo-plugins"]
     blind: true
     dirs: [stage]
     brief_drop: ['^\s*- Budget:.*$']
@@ -177,6 +183,7 @@ types:
     outputs_of: [planner, advisor]
     alias: { advisor: candidates, planner: question }
   judge:
+    plugins: ["token-optimizer@example-repo-plugins"]
     blind: true
     dirs: [stage]
     brief_drop: ['^\s*- Budget:.*$']               # no budget and no approvals; the attempt number is in no input
@@ -186,6 +193,7 @@ types:
 
   # Untrusted input and routing.
   quarantine-reader:
+    plugins: ["token-optimizer@example-repo-plugins"]
     dirs: [stage, inbox]       # the only type that may open untrusted text
     may_receive: [brief, context]
     outputs_of: []
@@ -193,6 +201,7 @@ types:
     pack_files: []             # and is told nothing about it
     cache_ttl: 5m              # it keeps sonnet at medium effort: its responses never outlive five minutes
   classifier:
+    plugins: ["token-optimizer@example-repo-plugins"]
     dirs: [stage]
     may_receive: [brief]
     outputs_of: [quarantine-reader]
@@ -202,14 +211,17 @@ types:
 
   # Learning.
   analyst:
+    plugins: ["token-optimizer@example-repo-plugins"]
     dirs: [stage, escalations, runs]   # past runs are its material
     may_receive: [brief, context]
     outputs_of: []
 
   # Plan fixing and rendering.
   plan-fixer:
+    plugins: ["token-optimizer@example-repo-plugins"]
     may_receive: [brief, spec]
     outputs_of: [planner, critic, verifier]
   translator:
+    plugins: ["token-optimizer@example-repo-plugins"]
     may_receive: [brief]
     outputs_of: [writer, synthesizer]

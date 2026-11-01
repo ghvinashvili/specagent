@@ -179,6 +179,7 @@ def test_blind_type_sees_only_its_stage_directory(env):
     assert s["enabledPlugins"] == {
         "code-intel@example-repo-plugins": True,
         "obsidian-vault@example-repo-plugins": False,
+        "token-optimizer@example-repo-plugins": True,
     }
     assert access.env_extra(policy, STAGES["critique"], sd)["HARNESS_BLIND"] == "1"
 

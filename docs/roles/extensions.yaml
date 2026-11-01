@@ -28,3 +28,12 @@ extensions:
       hooks: [SessionStart, Stop]
       skills: [autoresearch, canvas, defuddle, obsidian-bases, obsidian-markdown, save, think, wiki, wiki-cli, wiki-fold, wiki-ingest, wiki-lint, wiki-mode, wiki-query, wiki-retrieve]
       agents: [verifier, wiki-ingest, wiki-lint]
+  token-optimizer@example-repo-plugins:
+    form: plugin
+    source: "github:alexgreensh/token-optimizer"
+    version: "5.13.61"
+    serves: "the measurement and economy of every session, the roles included: Bash, search and MCP output compressed after the call, a repeated Read of an unchanged file served as a diff or a structure map, a checkpoint before compaction and a restore after it, a quality score per session in a local SQLite database, a savings ledger and a dashboard; every feature on (wiki/decisions/token-optimizer-runs-in-every-session.md). Licence PolyForm Noncommercial 1.0.0 with a small-business permission: installed from the author's repository at project scope, never vendored; the roles load it through the machine's launch file ops/bootstrap.py writes"
+    brings:
+      hooks: [CwdChanged, PostCompact, PostToolUse, PostToolUseFailure, PreCompact, PreToolUse, SessionEnd, SessionStart, Stop, StopFailure, UserPromptSubmit]
+      skills: [fleet-auditor, resume-checkpoint, token-coach, token-dashboard, token-optimizer]
+      commands: [health, quick]

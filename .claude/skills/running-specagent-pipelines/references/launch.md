@@ -32,6 +32,13 @@ cd <repo> && claude --name <role> --add-dir <run-dir> <more dirs> --strict-mcp-c
 - A role that reads or writes the wiki loads the claude-obsidian plugin: `--plugin-dir "$(python3 ops/adopt-obsidian.py cli --dir)"`
   (a worktree is not the checkout the plugin was installed for) and `"CLAUDE_OBSIDIAN_SESSION_CONTEXT": "1"` in its
   settings `env`, so it starts with `wiki/hot.md`.
+- A plugin every role loads on this machine: a role under `--setting-sources local` loads no plugin the user settings
+  enable, so the plugin's directory goes into `plugin_dirs` of `~/.claude/specagent-launch.json` (the machine's file,
+  outside every run); the watcher adds `--plugin-dir <dir>` to every launch and resume, and a path that holds no
+  `.claude-plugin/plugin.json` is a config error at its start.
+- The same file's `env` (variable names to strings) is what every role's process needs from this machine (a role gets
+  no variable of the user settings): the watcher adds each name to every agent's settings file `env` at its start,
+  before it hashes the control files, and keeps a name the file sets itself.
 - Messages are best-effort: a session in another permission mode holds them, and they can expire. Every hand-off must
   also be in a file the recipient reads before each task; a message only wakes it sooner.
 - A role that edits a checkout served by a local dev server or containers needs `"worktree": {"bgIsolation": "none"}` and

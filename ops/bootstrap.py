@@ -12,7 +12,10 @@ In this order, each step skipped when it is done already:
 4. The git hooks: `core.hooksPath` set to the versioned .githooks/, which refresh the code graph after each commit,
    merge and checkout, unless the checkout names a hooks folder of its own or is not the top of a git repository yet;
    optional.
-5. The project plugins of docs/roles/extensions.yaml, installed for this project.
+5. The project plugins of docs/roles/extensions.yaml, installed for this project; then the machine's launch file
+   `<config dir>/specagent-launch.json` of the pipeline skill's watcher, whose `plugin_dirs` names the installed directory
+   of every plugin of ROLE_PLUGINS, so that every role session loads it (a role under --setting-sources local loads no
+   project plugin by itself); optional.
 6. The language servers of plugins/code-intel (its own installer, plugins/code-intel/scripts/ensure.py).
 7. The sandbox of role sessions, when `.claude/settings.json` enables it: on Linux and WSL2
    `ops/machine-setup.py --auto`, as the SessionStart hook runs it; on macOS the built-in seatbelt (`sandbox-exec`) is
@@ -34,6 +37,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -119,6 +123,60 @@ def install_plugins(log) -> list[str]:
     if json.loads(settings.read_text(encoding="utf-8")) == json.loads(before):
         settings.write_text(before, encoding="utf-8")
     return failed
+
+
+LAUNCH_FILE = "specagent-launch.json"  # the pipeline skill's watcher reads it: plugin directories for every role
+ROLE_PLUGINS = ("token-optimizer",)  # project plugins every role session loads (the watcher adds --plugin-dir)
+
+
+def config_dir() -> Path:
+    return Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
+
+
+def plugin_name(directory: Path) -> str | None:
+    try:
+        return json.loads((directory / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")).get("name")
+    except (OSError, ValueError, AttributeError):
+        return None
+
+
+def installed_dir(name: str) -> Path | None:
+    """The newest installed version of a project plugin in Claude Code's cache of the internal marketplace."""
+    try:
+        market = json.loads((ROOT / "plugins" / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8"))[
+            "name"
+        ]
+    except (OSError, ValueError, KeyError):
+        return None
+    base = config_dir() / "plugins" / "cache" / market / name
+    versions = [p for p in base.iterdir() if plugin_name(p) == name] if base.is_dir() else []
+    versions.sort(key=lambda p: [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", p.name)])
+    return versions[-1] if versions else None
+
+
+def machine_launch_file(log) -> bool:
+    """The watcher's launch file: `plugin_dirs` holds the installed directory of every plugin of ROLE_PLUGINS. Another
+    version's directory of the same plugin is replaced, every other entry and key is kept; a plugin that is not
+    installed is named in the log. Optional: nothing here fails the setup."""
+    path = config_dir() / LAUNCH_FILE
+    try:
+        data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except (OSError, ValueError) as exc:
+        log.write(f"launch file: {path} unreadable ({exc}); left alone\n")
+        return False
+    data = data if isinstance(data, dict) else {}
+    dirs = [d for d in data.get("plugin_dirs", []) if isinstance(d, str)]
+    found = {name: installed_dir(name) for name in ROLE_PLUGINS}
+    for name, directory in found.items():
+        if directory is None:
+            log.write(f"launch file: {name} is not installed; not added\n")
+    wanted = [d for d in dirs if plugin_name(Path(d)) not in ROLE_PLUGINS] + [str(d) for d in found.values() if d]
+    if wanted == dirs:
+        return True
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({**data, "plugin_dirs": wanted}, indent=2) + "\n", encoding="utf-8")
+    log.write(f"launch file: {path} plugin_dirs {wanted}\n")
+    return True
 
 
 def just_path() -> Path | None:
@@ -252,6 +310,7 @@ def setup(log) -> list[str]:
     git_hooks(log)
     if shutil.which("claude"):
         failed += install_plugins(log)
+        machine_launch_file(log)
     else:
         failed.append("claude")
     data = ensure.data_dir()

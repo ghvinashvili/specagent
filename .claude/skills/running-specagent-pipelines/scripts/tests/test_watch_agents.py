@@ -196,6 +196,7 @@ class Pipeline:
             "HOME": str(self.root / "home"),
             "STUB_DIR": str(self.stub),
         }
+        env.pop("CLAUDE_CONFIG_DIR", None)  # the launch file is the test home's
         tail = [] if "--check" in args or "--order" in args else [str(rounds)]
         return subprocess.run(
             [sys.executable, "-I", str(SCRIPT), *args, str(config), *tail],
@@ -1687,3 +1688,75 @@ def test_a_second_fixer_without_shared_ids_is_not_launched_over_a_build_logs_b_l
     assert "demand t/plan-fixer-b" not in r.stdout
     names = [c["argv"][c["argv"].index("--name") + 1] for c in p.launches()]
     assert names == ["t/plan-fixer"]
+
+
+def launch_file(p: Pipeline, data) -> pathlib.Path:
+    path = p.root / "home" / ".claude" / "specagent-launch.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data), encoding="utf-8")
+    return path
+
+
+def test_the_machine_launch_file_adds_its_plugin_dirs_to_every_launch(p):
+    plugin = p.root / "plugins" / "tool"
+    (plugin / ".claude-plugin").mkdir(parents=True)
+    (plugin / ".claude-plugin" / "plugin.json").write_text('{"name": "tool"}', encoding="utf-8")
+    launch_file(p, {"plugin_dirs": [str(plugin)]})
+    p.transcript()
+    note(p)
+    r = p.watch(rounds=2)
+    assert r.returncode == 1, r.stdout + r.stderr
+    [launch] = p.launches()
+    argv = launch["argv"]
+    assert argv[argv.index("--plugin-dir") + 1] == str(plugin)
+    assert argv.index("--plugin-dir") < argv.index("--settings") and argv[-2] == "--bg"
+
+
+@pytest.mark.parametrize(
+    "data, message",
+    [
+        ({"plugin_dirs": ["relative/tool"]}, "relative/tool is no plugin directory"),
+        ({"plugin_dirs": ["/nonexistent/tool"]}, "/nonexistent/tool is no plugin directory"),
+        ({"plugin_dirs": "/one/path"}, "plugin_dirs must be a list of paths"),
+    ],
+)
+def test_a_bad_machine_launch_file_is_a_config_error_before_any_claude_command(p, data, message):
+    launch_file(p, data)
+    r = p.watch(rounds=1)
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert message in r.stdout
+    assert p.calls() == []
+
+
+def test_the_machine_env_goes_into_every_settings_file_before_the_hashes_and_keeps_the_files_own(p):
+    settings = p.run / "_builder-settings.json"
+    data = json.loads(settings.read_text(encoding="utf-8"))
+    data["env"] = {**data.get("env", {}), "OWN": "run"}
+    settings.write_text(json.dumps(data), encoding="utf-8")
+    launch_file(p, {"env": {"TOOL_FLAG": "1", "OWN": "machine"}})
+    p.transcript()
+    note(p)
+    r = p.watch(rounds=2)
+    assert r.returncode == 1, r.stdout + r.stderr  # the write came before the hashes: no exit 4
+    assert "machine env: _builder-settings.json +TOOL_FLAG" in r.stdout
+    env = json.loads(settings.read_text(encoding="utf-8"))["env"]
+    assert env["TOOL_FLAG"] == "1" and env["OWN"] == "run"
+    assert len(p.launches()) == 1
+
+
+def test_check_mode_writes_no_machine_env(p):
+    settings = p.run / "_builder-settings.json"
+    before = settings.read_text(encoding="utf-8")
+    launch_file(p, {"env": {"TOOL_FLAG": "1"}})
+    r = p.watch("--check")
+    assert "machine env: _builder-settings.json would get +TOOL_FLAG" in r.stdout, r.stdout + r.stderr
+    assert settings.read_text(encoding="utf-8") == before
+
+
+@pytest.mark.parametrize("env", [{"BAD-NAME": "1"}, {"TOOL_FLAG": 1}, ["TOOL_FLAG"]])
+def test_a_bad_machine_env_is_a_config_error_before_any_claude_command(p, env):
+    launch_file(p, {"env": env})
+    r = p.watch(rounds=1)
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert "env must map variable names to strings" in r.stdout
+    assert p.calls() == []

@@ -114,7 +114,8 @@
   },
   "enabledPlugins": {
     "code-intel@example-repo-plugins": true,
-    "obsidian-vault@example-repo-plugins": true
+    "obsidian-vault@example-repo-plugins": true,
+    "token-optimizer@example-repo-plugins": true
   },
   "enabledMcpjsonServers": [
     "harness-state"
