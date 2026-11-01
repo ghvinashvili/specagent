@@ -14,6 +14,7 @@ lines do; uncommitted changes count as the commit in the making). Exempt: this f
 `docs/template/README.md`) the test skips.
 
 ## Unreleased (after 1.8.0; written with each change; the release moves it under its number)
+- 2026-11-01, `README.md` (Why this is different: a project keeps the template's updates without losing its own work, the owner split of `docs/template/PROJECTS.md`): read, not copied. (dcdb14e)
 - 2026-11-01, `.github/workflows/macos.yml` and `windows.yml`: the new-project step goes on when the setup names what the runner lacks (the sandbox in WSL 1, no Claude Code); the new project's `harness validate` still decides. A project takes nothing. (this commit)
 - 2026-11-01, `ops/pyyaml_or_uv.py`: the rerun runs `python` from uv's environment, not the bare interpreter's path, which had no PyYAML again (macOS workflow); `.github/workflows/ci.yml`, `macos.yml` and `windows.yml` set a git identity, which a fresh runner lacks and `harness` commits need. A project copies `ops/pyyaml_or_uv.py`. (this commit)
 - 2026-11-01, `packages/harness/tests/test_machine_setup.py` and `packages/harness/tests/test_trust.py`: the two tests of a folder the file system refuses are skipped for root, who writes every folder (the Windows workflow runs as root in WSL); `.github/workflows/windows.yml` runs the new-project steps after a failed test. A project copies the two tests. (this commit)
