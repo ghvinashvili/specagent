@@ -28,3 +28,4 @@ omit:   # never copied into a project: the template's own records; they left the
   - docs/exec-plans/done/template-core/   # the same plan once docs/exec-plans/active/README.md moves it
   - docs/exec-plans/active/manager-build/      # the plan of the template's own manager-build run
   - docs/exec-plans/done/manager-build/   # the same plan once docs/exec-plans/active/README.md moves it
+  - LICENSE   # the template's own license (Apache-2.0, 2026-11-01); a project chooses its own, none is inherited
