@@ -61,7 +61,10 @@ slash):
   and stops the original once more.
 - unit end: a new line 1 in the agent's record while its last call is over `handoff_at` tokens gives a `unit-end`
   order (the `unit_end_order` text): hand over now, once the line is `unit_end_grace` seconds old; a note before then
-  starts the fresh session as usual. In the middle of a unit nothing is ordered.
+  starts the fresh session as usual. In the middle of a unit nothing is ordered. A session that started without its lane's pack (an `extra_prompt` whose mark its transcript lacks) gets the same
+  hand-over order at its next unit end at any context (`unit end <agent>: its session lacks the pack`), and a final
+  one revived by its `final_check` or woken by an order starts fresh with the pack instead of a resume (owner,
+  2026-11-01: a resume never gets the pack).
 - orders: the watcher's (`handoff`, `unit-end`, `reload`) and the manager's (`--order`) reach a session by a stop
   (when it has a process) and a resume whose prompt is each order's text and its line `Order <msg_id>: append the line
   `ACK <msg_id>` to <record> before anything else.`; a line `ACK <msg_id>` at the start of a line of the record closes
@@ -171,6 +174,11 @@ RELOAD_ORDER = (
     "where you were."
 )
 ORDER_LINE = "Order {msg_id}: append the line `ACK {msg_id}` to {record} before anything else."
+PACK_ORDER = (  # a session without its lane's pack hands over at a unit end, so the next one starts with it (2026-11-01)
+    "Orders from the owner: this session started without your lane's pack in its system prompt, so it reads its "
+    "standing orders at full price on every call. Your unit has ended: hand over now, writing the note as your "
+    "hand-over rule says; the next session starts with the pack."
+)
 WAKE_LINE = (  # a manager order to an agent whose line 1 is final: the order wakes it (owner, 2026-11-01)
     "Your record {record} is final on line 1. After the ACK, set line 1 to `STATUS: working on order {msg_id}`; when "
     "this order's work is done, set it back to your final line."
@@ -1002,6 +1010,11 @@ class Watcher:
             return ordered  # False: the order waits for send_due() in this round, before waiting() may supersede it
         if name in self.pending:
             return self.waiting(name, row, role, events)
+        if self.wake_orders(name, row) and self.line_final(name) and self.packless(name, sid):
+            self.launch_fresh(
+                name, row, self.fresh_text(role), f"fresh {name}: woken by an order, with its pack", events
+            )
+            return True
         if not row.get("pid") and self.wake_orders(name, row):
             return False  # send_due() resumes the session with the order, an on-demand agent's too
         if not row.get("pid") and state in ("stopped", "done") and "blocked" not in status.lower():
@@ -1136,6 +1149,11 @@ class Watcher:
                 self.not_revived[name] = sid
                 self.tell(name, f"demand {name}: done, not revived")
             return True
+        if self.line_final(name) and self.packless(name, sid):  # a final_check revival: its unit is done, so fresh
+            self.launch_fresh(
+                name, row, self.fresh_text(name.split("/")[-1]), f"fresh {name}: revived with its pack", events
+            )
+            return True
         count = self.revived.get(name, 0) + 1
         if count > self.nudges:
             self.revived[name] = count
@@ -1179,9 +1197,10 @@ class Watcher:
             return
         stats = self.transcripts.stats(row.get("sessionId", ""))
         context = (stats or {}).get("context") or 0
+        packless = self.packless(name, row.get("sessionId", ""))
         if line != entry["unit"]:
             self.unit_wait.pop(name, None)
-            if context > self.handoff_at:
+            if context > self.handoff_at or packless:
                 self.unit_wait[name] = written(path)
                 left = self.unit_end_grace - (time.time() - self.unit_wait[name])
                 if left > 0:
@@ -1198,6 +1217,10 @@ class Watcher:
             self.pending[name] = time.time()
             why = f"unit end {name} {context:,} tokens; ordered to hand over"
             self.add_order(name, "unit-end", self.unit_order, why)
+        elif packless:
+            self.pending[name] = time.time()
+            why = f"unit end {name}: its session lacks the pack; ordered to hand over"
+            self.add_order(name, "unit-end", PACK_ORDER + self.lang, why)
 
     def track_unit(self, name):
         """K1's unit: line 1 of the agent's record (None while there is none), and since when the watcher sees it."""
@@ -1222,6 +1245,12 @@ class Watcher:
         if row is not None and row.get("pid") and not self.line_final(name):
             return []
         return [o for o in self.open_manager_orders(name) if not o.get("woken")]
+
+    def packless(self, name, sid):
+        """The agent has a pack of its own (`extra_prompt`) and its session `sid` started without its mark: a resume
+        would go on without the pack for the rest of the session's life (owner, 2026-11-01)."""
+        own = self.extras.get(name)
+        return bool(own and sid and not self.transcripts.head_has(sid, own["mark"]))
 
     def line_final(self, name):
         """Line 1 of the agent's record starts with its `final`, whatever the open orders say."""

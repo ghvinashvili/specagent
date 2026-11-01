@@ -1838,3 +1838,51 @@ def test_a_final_builder_whose_lane_has_work_is_revived_not_left_final(p, code, 
     else:
         assert "final, but its lane has work: V12" in r.stdout, r.stdout + r.stderr
         assert [c["argv"][c["argv"].index("--resume") + 1] for c in p.launches()] == [SID]
+
+
+def own_pack(p):
+    """t/builder has a pack of its own whose mark its session's transcript does not carry."""
+    p.write("_pack-builder.md", "Your standing orders: the builder lane's pack\n")
+    p.config["agents"]["t/builder"]["extra_prompt"] = {
+        "file": "_pack-builder.md",
+        "mark": "Your standing orders: the builder lane's pack",
+    }
+
+
+def test_a_session_without_its_pack_hands_over_at_a_unit_end_at_any_context(p):  # owner, 2026-11-01
+    p.config["unit_end_grace"] = 0
+    own_pack(p)
+    seed_registry(p)
+    p.write("build-log.md", "Task 3: done — abc1234\n")
+    p.transcript(context=40_000)
+    r = p.watch(rounds=2)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "unit end t/builder: its session lacks the pack; ordered to hand over" in r.stdout
+    [launch] = p.launches()
+    assert launch["argv"][:2] == ["--resume", SID] and "without your lane's pack" in launch["argv"][-1]
+
+
+def test_a_final_builder_without_its_pack_is_revived_fresh_with_the_pack(p):
+    own_pack(p)
+    p.write("build-log.md", "STATUS: done\n")
+    p.config["agents"]["t/builder"]["final_check"] = [sys.executable, "-c", "print('V12')"]
+    p.transcript()
+    p.rounds([row(state="stopped", status=None, pid=None)])
+    r = p.watch(rounds=1)
+    assert "fresh t/builder: revived with its pack" in r.stdout, r.stdout + r.stderr
+    [launch] = p.launches()
+    assert "--resume" not in launch["argv"]
+    assert launch["argv"][launch["argv"].index("--append-system-prompt-file") + 1].endswith("_pack-builder.md")
+
+
+def test_an_order_to_a_final_agent_without_its_pack_starts_it_fresh_with_the_pack_and_the_order(p):
+    own_pack(p)
+    p.write("build-log.md", "STATUS: done\n")
+    p.watch("--order", "t/builder", "Fix V12 in Task 3.")
+    p.transcript()
+    p.rounds([row(state="stopped", status=None, pid=None)])
+    r = p.watch(rounds=1)
+    assert "fresh t/builder: woken by an order, with its pack" in r.stdout, r.stdout + r.stderr
+    [launch] = p.launches()
+    assert "--resume" not in launch["argv"] and "Fix V12 in Task 3." in launch["argv"][-1]
+    assert "--append-system-prompt-file" in launch["argv"]
