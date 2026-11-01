@@ -1,0 +1,35 @@
+name: Windows
+# The README's Windows path: the repository runs in WSL (native Windows has no sandbox). GitHub's Windows runners
+# offer WSL 1, not WSL 2, so this checks the scripts, the tests and a new project in Ubuntu under WSL; the sandbox
+# (bubblewrap needs WSL 2's kernel) is reported, not required. Only in the public repository, where runners are free.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  wsl:
+    if: github.repository == 'ghvinashvili/specagent'
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: wsl-bash {0}
+    steps:
+      - run: git config --global core.autocrlf false
+        shell: pwsh
+      - uses: actions/checkout@v6
+      - uses: Vampire/setup-wsl@v5
+        with:
+          distribution: Ubuntu-24.04
+          additional-packages: python3 python3-venv git curl ca-certificates
+      - run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - run: ~/.local/bin/uv python install 3.12 && ~/.local/bin/uv sync
+      - run: ~/.local/bin/uv run pytest -q
+      - run: ~/.local/bin/uv run harness validate
+      - name: Make a new project (Quick start)
+        run: PATH="$HOME/.local/bin:$PATH" python3 ops/new-project.py ~/demo repo_name=demo org=example --container
+      - name: The new project's doctor (reports what WSL 1 lacks)
+        continue-on-error: true
+        run: cd ~/demo/demo && git init -q && ~/.local/bin/uv run harness doctor
+      - name: The new project validates
+        run: cd ~/demo/demo && ~/.local/bin/uv run harness validate
