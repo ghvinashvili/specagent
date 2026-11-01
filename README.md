@@ -273,7 +273,9 @@ What this gives a run:
 ### Two measured runs of 2026-10-30
 
 What a real run of this system costs and takes, from the measurement pages `2026-10-30-template-surface` and
-`2026-10-30-obsidian-ingest` (in a private vault):
+`2026-10-30-obsidian-ingest` (in a private vault). Both ran before the cache and compaction rules of 2026-11-01 (one
+unit per session, a hand-over at 200k, the 1-hour TTL for waiting roles); the first run under the new rules replaces
+this table with its own numbers:
 
 | Run | Roles | Units | Sessions | Findings, all fixed | Cost | Wall clock |
 | --- | --- | --- | --- | --- | --- | --- |
