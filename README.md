@@ -48,9 +48,13 @@ task and collect the result. SpecAgent adds the whole loop around full sessions,
   global pages (30 at 1.8.0: 27 standing orders and 3 lessons, each lesson with its proof page; 4 measurement pages),
   carried from the owner's vault by `ops/sync-vault-globals.py`, which refuses a page with a model name, a private
   marker, a dangling link or more than 4,000 bytes (`ops/check_pages.py`; [migrations](docs/template/MIGRATIONS.md)).
-- **A project updates by copying, not by a run:** from 1.8.0 a migration entry names every template-owned path that
-  changed (a test fails when a commit leaves one out) and its steps are the copy and the checks, no hand-merge, no
-  role. The 1.7.0 carry of a project was a run of 10 sessions, $30.60 and 1 h 41 min; the 1.8.0 carry is a copy.
+- **Your projects keep receiving the template's updates without losing their own work:** every path has one owner
+  ([PROJECTS.md](docs/template/PROJECTS.md)). A project's `context/`, `wiki/`, specs, decisions, packages, README and
+  CHANGELOG are never overwritten; the template owns the machinery (agents, skills, hooks, the harness, `ops/`). From
+  1.8.0 a migration entry names every template-owned path that changed (a test fails when a commit leaves one out),
+  so an update is the copy and the checks: no hand-merge, no role. The 1.7.0 carry of a project was a run of 10
+  sessions, $30.60 and 1 h 41 min; the 1.8.0 carry is a copy. *The usual way:* a template is copied once, and the
+  project never hears from it again.
 - **The manager chat is held to rules in code and in its page:** a project's work runs through the pipeline skill, never
   through stage runs by default; the pre-flight refuses a critic with no planner to answer it; the manager does no
   role's work and writes to you only for a decision, a problem or a milestone
