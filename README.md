@@ -2,6 +2,8 @@
 
 # SpecAgent Pro Template
 
+[![Linux](https://github.com/ghvinashvili/specagent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ghvinashvili/specagent/actions/workflows/ci.yml) [![macOS](https://github.com/ghvinashvili/specagent/actions/workflows/macos.yml/badge.svg?branch=main)](https://github.com/ghvinashvili/specagent/actions/workflows/macos.yml) [![Windows (WSL)](https://github.com/ghvinashvili/specagent/actions/workflows/windows.yml/badge.svg?branch=main)](https://github.com/ghvinashvili/specagent/actions/workflows/windows.yml)
+
 **SpecAgent Pro Template: a project template, not a plugin. Special agents for hard software, every role a full session.** An agentic system of its own design for
 hard, multi-package projects, built by its own pipeline and measured run by run. You talk to one manager chat; it runs
 every role as a full Claude Code session, never a subagent. A stage moves on only through a gate in code, a finding

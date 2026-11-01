@@ -14,6 +14,7 @@ lines do; uncommitted changes count as the commit in the making). Exempt: this f
 `docs/template/README.md`) the test skips.
 
 ## Unreleased (after 1.8.0; written with each change; the release moves it under its number)
+- 2026-11-01, `README.md`: the Linux, macOS and Windows (WSL) workflow badges under the title; read, not copied. (this commit)
 - 2026-11-01, `.github/workflows/ci.yml`: the git identity is set on the `pip install uv` line, so the steps keep the lines `test_evals_suite.py` reads. A project takes nothing. (this commit)
 - 2026-11-01, `README.md` (Why this is different: a project keeps the template's updates without losing its own work, the owner split of `docs/template/PROJECTS.md`): read, not copied. (dcdb14e)
 - 2026-11-01, `.github/workflows/macos.yml` and `windows.yml`: the new-project step goes on when the setup names what the runner lacks (the sandbox in WSL 1, no Claude Code); the new project's `harness validate` still decides. A project takes nothing. (this commit)
