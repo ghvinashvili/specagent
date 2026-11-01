@@ -11,8 +11,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: git config --global user.name ci && git config --global user.email ci@example.invalid
-      - run: pip install uv
+      - run: pip install uv && git config --global user.name ci && git config --global user.email ci@example.invalid
       - run: uv sync
       - run: uv run ruff check . && uv run ruff format --check .
       - run: uv run pytest -q
