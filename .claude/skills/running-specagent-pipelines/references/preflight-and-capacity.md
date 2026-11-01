@@ -14,7 +14,8 @@ that. The checks, in their order:
 - `cache`: the config's `common` carries `--autocompact 235000`, `--exclude-dynamic-system-prompt-sections` and
   `--system-prompt-snapshot on`, and its `handoff_at` and `cap` lie above the compaction point (about 197k); the role
   has its own `extra_prompt` whose pack is a file of the run folder holding its mark; its settings keep
-  `CLAUDE_CODE_PROMPT_CACHE_TTL` at `5m`, the empty compaction override, a `model` (one model per lane; owner,
+  `CLAUDE_CODE_PROMPT_CACHE_TTL` at `5m`, the empty compaction override, a `model` of its role's class (one model per lane;
+  large for a judgment role, mid-size for the builder, top for the spec writer: vault models-per-role; owner,
   2026-11-01, `launch.md`) and the hooks of `keep-cache-warm.py`: `pretool` on Bash and `stop` on the role's record.
 - `blind`: each role's settings deny the ten rules that keep it blind to transcripts, the control files, the hand-overs
   and the processes and away from the credentials file `~/.claude/.credentials.json`; a sandboxed role also fails closed

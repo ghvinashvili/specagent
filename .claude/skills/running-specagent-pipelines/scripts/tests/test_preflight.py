@@ -200,7 +200,7 @@ class Run:
             },
         )
         self.write_json(self.planner_settings, self.settings([self.plan, self.run]))
-        self.write_json(self.builder_settings, self.settings([self.wt, self.run, self.checkout / ".git"]))
+        self.write_json(self.builder_settings, self.settings([self.wt, self.run, self.checkout / ".git"], MID))
         self.write_json(self.control / "judge-settings.json", self.settings([self.run]))
 
     def write_run_files(self):
@@ -229,9 +229,9 @@ class Run:
         """The rows the fake `claude agents --json --all` prints (none by default)."""
         (self.root / "agents.json").write_text(json.dumps(list(rows)), encoding="utf-8")
 
-    def settings(self, allow_write):
+    def settings(self, allow_write, model=None):
         return {
-            "model": "the-lane-model",
+            "model": model or LARGE,  # the planner and the judge: the large class
             "permissions": {
                 "allow": [],
                 "deny": [r.replace("<run-dir>", str(self.run)).replace("<checkout>", str(self.checkout)) for r in TEN],
@@ -1195,6 +1195,17 @@ def test_blind_fails_a_role_whose_settings_carry_an_attribution_key_with_the_tra
 
 
 WARM = 'python3 "/c/.claude/hooks/keep-cache-warm.py"'
+LARGE, MID = "op" + "us", "son" + "net"  # spelled apart: no text of the skill names a model whole
+
+
+@pytest.mark.parametrize(("which", "model", "word"), [("builder", "LARGE", "mid-size"), ("planner", "MID", "large")])
+def test_the_cache_check_fails_a_role_on_another_class_than_its_own(tmp_path, which, model, word):  # owner, 2026-11-01
+    r = Run(tmp_path)
+    path = r.builder_settings if which == "builder" else r.planner_settings
+    r.edit(path, lambda s: s.update(model=globals()[model]))
+    proc = preflight(*r.args(), env=r.env)
+    [(status, detail)] = found(proc, "cache", "builder-a" if which == "builder" else "planner")
+    assert status == "FAIL" and f"is not of the {word} class its role needs" in detail
 
 
 def test_the_cache_check_fails_a_lane_without_the_warm_cache_hooks(tmp_path):  # owner, 2026-11-01

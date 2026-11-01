@@ -272,8 +272,30 @@ def check_cache(st: State, role: str) -> Result:
         problems.append("env CLAUDE_AUTOCOMPACT_PCT_OVERRIDE is not empty")
     if not st.settings[role].get("model"):
         problems.append("no model in its settings (one model per lane)")
+    problems += class_problems(role, str(st.settings[role].get("model", "")))
     problems += warm_hook_problems(st.settings[role].get("hooks"), str(agent.get("status", "")))
     return verdict("cache", role, problems, f"compaction, its pack {pack}, 5m TTL, one model, the warm-cache hooks")
+
+
+CLASSES = (  # a role name's start and its class (vault models-per-role; the builder mid-size, owner 2026-11-01)
+    ("spec-writer", "top", MODELS[0]),
+    ("builder", "mid-size", MODELS[2]),
+    ("plan-fixer", "large", MODELS[1]),
+    ("planner", "large", MODELS[1]),
+    ("critic", "large", MODELS[1]),
+    ("verifier", "large", MODELS[1]),
+    ("judge", "large", MODELS[1]),
+)
+
+
+def class_problems(agent: str, model: str) -> list[str]:
+    """The role's settings name the model of its class (a run of 2026-11-01 launched roles on a class its notes misread
+    and nothing caught it); a role of no listed kind is not checked."""
+    role = agent.rsplit("/", 1)[-1]
+    found = next(((cls, name) for start, cls, name in CLASSES if role.startswith(start)), None)
+    if found is None or not model or found[1] in model.lower():
+        return []
+    return [f"its model is not of the {found[0]} class its role needs (models-per-role)"]
 
 
 def warm_hook_problems(hooks: object, record: str) -> list[str]:
