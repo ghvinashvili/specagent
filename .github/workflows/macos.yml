@@ -26,7 +26,8 @@ jobs:
         continue-on-error: true
         run: uv run pytest -q
       - run: uv run harness validate
-      - name: Make a new project (Quick start)
+      - name: Make a new project (Quick start; it exits 1 while it names what this runner cannot set up)
+        continue-on-error: true
         run: python3 ops/new-project.py "$RUNNER_TEMP/demo" repo_name=demo org=example --container
       - name: The new project's doctor (reports what a Mac lacks)
         continue-on-error: true
