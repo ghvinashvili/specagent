@@ -39,7 +39,8 @@ lines do; uncommitted changes count as the commit in the making). Exempt: this f
   copied.
 - 2026-11-01, the plugin's state per role session, never shared, and its source pinned (owner): `docs/roles/need-to-know.yaml`
   (`agent_env_dirs`; a project merges the block), `packages/harness/src/harness/access.py` and
-  `packages/harness/tests/test_access.py` (`env_extra` gives every stage its own directory per variable),
+  `packages/harness/tests/test_access.py` (`env_extra` gives every stage its own directory per variable; a variable
+  name, a seed path and a symbolic link in it are checked),
   `ops/bootstrap.py` and `ops/tests/test_bootstrap_steps.py` (the launch file's `agent_dirs`, the accepted version's
   directory), the skill's `scripts/watch_agents.py`, `scripts/tests/test_watch_agents.py`,
   `scripts/tests/test_migrate_agents_json.py` and `references/launch.md` (`agent_dirs`: a directory per agent, the others

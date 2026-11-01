@@ -894,3 +894,39 @@ def test_a_role_session_gets_its_own_directory_for_every_agent_env_dir_variable_
     assert (own / "config" / "config.json").read_text(encoding="utf-8") == "{}"  # a file the session changed is kept
     bare = {**policy, "agent_env_dirs": {}}
     assert "TOKEN_OPTIMIZER_PLUGIN_DATA" not in access.env_extra(bare, STAGES["critique"], sd)
+
+
+@pytest.mark.parametrize(
+    "dirs, message",
+    [
+        ({"HARNESS_STAGE_DIR": {"files": {}}}, "no variable name of a plugin"),
+        ({"bad-name": {"files": {}}}, "no variable name of a plugin"),
+        ({"TOOL_DATA": {"files": {"../x": "1"}}}, "no relative path"),
+        ({"TOOL_DATA": {"files": {"/abs": "1"}}}, "no relative path"),
+    ],
+)
+def test_a_bad_agent_env_dir_variable_or_seed_path_is_refused(env, dirs, message):
+    run, policy = env
+    with pytest.raises(access.AccessError, match=message):
+        access.env_extra({**policy, "agent_env_dirs": dirs}, STAGES["critique"], run / "stages/critique")
+
+
+def test_a_seed_path_through_a_symbolic_link_is_refused(env, tmp_path):
+    run, policy = env
+    sd = run / "stages/critique"
+    own = sd / "plugin-data" / "TOOL_DATA"
+    own.mkdir(parents=True)
+    (own / "config").symlink_to(tmp_path)
+    with pytest.raises(access.AccessError, match="crosses a symbolic link"):
+        access.env_extra(
+            {**policy, "agent_env_dirs": {"TOOL_DATA": {"files": {"config/c.json": "{}"}}}}, STAGES["critique"], sd
+        )
+
+
+def test_a_plugin_data_directory_that_is_a_symbolic_link_is_refused(env, tmp_path):
+    run, policy = env
+    sd = run / "stages/critique"
+    sd.mkdir(parents=True, exist_ok=True)
+    (sd / "plugin-data").symlink_to(tmp_path)
+    with pytest.raises(access.AccessError, match="leaves the stage or is a symbolic link"):
+        access.env_extra({**policy, "agent_env_dirs": {"TOOL_DATA": {"files": {}}}}, STAGES["critique"], sd)

@@ -24,6 +24,7 @@ from __future__ import annotations
 import fnmatch
 import hashlib
 import json
+import os
 import posixpath
 import re
 import shutil
@@ -677,15 +678,36 @@ def env_extra(policy: dict, row: dict, stage_dir: Path) -> dict[str, str]:
     if t["changes_repository"] or t["trial_checkout"]:  # the checkout HARNESS_WORKTREE names is its own work, not
         env["HARNESS_OWN_CHECKOUT"] = "1"  # work it reviews (permission-request.py, ADR-0015)
     for var, spec in (policy.get("agent_env_dirs") or {}).items():  # plugin state the session must not share
-        own = stage_dir / "plugin-data" / var  # another stage's directory is closed to the session already
-        own.mkdir(parents=True, exist_ok=True)
-        for rel, text in ((spec or {}).get("files") or {}).items():
-            seed = own / rel
-            if not seed.exists():
-                seed.parent.mkdir(parents=True, exist_ok=True)
-                seed.write_text(str(text), encoding="utf-8")
-        env[var] = str(own)
+        env[var] = str(_agent_env_dir(stage_dir, var, spec))  # another stage's directory is closed already
     return env
+
+
+def _agent_env_dir(stage_dir: Path, var: str, spec: dict | None) -> Path:
+    """The session's own directory for one `agent_env_dirs` variable, `<stage dir>/plugin-data/<VAR>`, its seed files
+    written once each: the variable is an identifier outside the harness's own names, a seed path is relative and
+    stays inside the directory, and no part of it is a symbolic link (the directory is the session's to write)."""
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", var) or var.startswith("HARNESS_"):
+        raise AccessError(f"{POLICY_PATH}: agent_env_dirs: {var!r} is no variable name of a plugin")
+    base, own = stage_dir / "plugin-data", stage_dir / "plugin-data" / var
+    if base.is_symlink() or own.is_symlink() or stage_dir.resolve() not in own.resolve().parents:
+        raise AccessError(f"{POLICY_PATH}: agent_env_dirs: {var}: the directory leaves the stage or is a symbolic link")
+    own = own.resolve()
+    own.mkdir(parents=True, exist_ok=True)
+    for rel, text in ((spec or {}).get("files") or {}).items():
+        parts = str(rel).split("/")
+        if not rel or str(rel).startswith("/") or ".." in parts or "" in parts:
+            raise AccessError(f"{POLICY_PATH}: agent_env_dirs: {var}: {rel!r} is no relative path")
+        seed = own.joinpath(*parts)
+        if any(p.is_symlink() for p in [seed, *seed.parents] if own in p.parents or p == seed):
+            raise AccessError(f"{POLICY_PATH}: agent_env_dirs: {var}: {rel!r} crosses a symbolic link")
+        seed.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            fd = os.open(seed, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+        except FileExistsError:
+            continue  # written once: a file the session changed is kept
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(str(text))
+    return own
 
 
 def pack_files(policy: dict, role_type: str) -> list[str]:
