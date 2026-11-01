@@ -4,8 +4,10 @@ Code makes to the same file meanwhile."""
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
+import pytest
 from harness import launch, state, trust
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "docs" / "roles" / "stages.yaml").is_file())
@@ -64,6 +66,7 @@ def test_two_records_at_once_never_share_a_temporary_file(tmp_path: Path):
     assert first != second and first.read_text() == "a" and second.read_text() == "b"
 
 
+@pytest.mark.skipif(os.geteuid() == 0, reason="root writes every folder")
 def test_a_record_the_file_system_refuses_is_a_note_and_the_launch_goes_on(tmp_path: Path, monkeypatch):
     home = tmp_path / "config"
     home.mkdir()

@@ -357,6 +357,7 @@ def test_undo_takes_out_only_what_was_put_in_and_remembers_the_decline(ms, home,
     assert json.loads((home / "records" / "user-space.json").read_text()).keys() == {"declined"}
 
 
+@pytest.mark.skipif(os.geteuid() == 0, reason="root writes every folder")
 def test_an_undo_the_file_system_refuses_is_reported(ms, home, monkeypatch):
     monkeypatch.setattr(ms, "nested_userns", probe(0))
     assert ms.apply_user(zorin(socat="/usr/bin/socat"), {"bwrap": "copy"})["ok"]
