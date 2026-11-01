@@ -147,13 +147,14 @@ brief that breaks the prefix (a date, a session id, a changing path at its top) 
    anything the verifier found that the original run's critic had found as R.
 3. If quality held (no new V the original run did not have, no rebuild), the fold is kept and the next real run uses
    it. If not, the pair that lost is unfolded, one at a time, and measured again.
-4. Once, after that: one plain session (no pipeline, the brief material in one prompt) on the same Task 10, scored the
-   same way: whether the pipeline beats one agent on a task of this size.
+4. Cancelled (owner, 2026-11-01): no plain one-agent session. A project measured one agent playing every role in turn
+   against the multi-role pipeline on 2026-11-01: a quarter cheaper per task, 2.5 times slower, and its own critique
+   found 2.3 plan defects per task against 5-8 by a separate critic. The template offers no one-agent mode.
 
 ## Order
 
 After D9 and D10. Within this work: item 1 first (it measures everything else), then 5 (cheapest, no brief changes),
-then 4, then 2 and 3 together (they change the same briefs and waiters), then Measurement 2-4.
+then 4, then 2 and 3 together (they change the same briefs and waiters), then Measurement 2-3.
 
 ## Left to the builder
 

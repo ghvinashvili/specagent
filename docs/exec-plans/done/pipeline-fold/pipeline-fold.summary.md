@@ -18,7 +18,7 @@ the planner and fixer, the critic and verifier, the manager-build judge's condit
 
 How it is checked: each task's own tests and `ruff` at its end; the skill's suite, the harness suite, docs-check,
 plan-lint and validate at M1 and M2; the measurement run rebuilds Task 10 of the manager-build run with the folded pipeline on a scratch branch and compares
-its score with the original; the fold is kept only when cost fell and quality held. Then one plain session on the
-same task, scored the same way.
+its score with the original; the fold is kept only when cost fell and quality held. The plain one-agent session on the
+same task is cancelled (owner, 2026-11-01): the template offers no one-agent mode.
 
-What you do: say yes to the measurement run (five sessions) and to the plain session, once each.
+What you do: say yes to the measurement run (five sessions), once.

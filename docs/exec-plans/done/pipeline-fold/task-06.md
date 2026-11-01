@@ -12,6 +12,7 @@ thrown into tests.
 - Steps 1-7 are not run: no measure run folder, no rebuilt Task 10, no plain session, no score of either.
 - The measure worktrees and branches (`measure/task-10`, `measure/task-10-plan`) are deleted by the main session.
 - The comparison table is not written; the design document's Measurement section stays as the recipe for a later run.
+- Step 6, the plain session, is cancelled for good (owner, 2026-11-01): the template offers no one-agent mode.
 
 ## Goal
 The fold is kept only if the numbers say so. Golden Task 10 of the manager-build run (the scripts README split into
