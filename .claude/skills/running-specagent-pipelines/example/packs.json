@@ -1,5 +1,6 @@
 {
- "_usage": "python3 -I <skill-dir>/scripts/make_pack.py [--no-note] <run-dir>/_packs.json [<role> ...]; packs are off (2026-10-25); this builds them to measure again; --no-note leaves a handoff-*.md note out (stable first, unique last)",
+ "sections": ["Read first"],
+ "_usage": "python3 -I <skill-dir>/scripts/make_pack.py --no-note <run-dir>/_packs.json [<role> ...] before the run's first launch: one frozen pack per lane (_pack-<role>.md), passed by the agent's own extra_prompt in agents.json with --append-system-prompt-file and never rebuilt during the run (owner, 2026-11-01); --no-note leaves a handoff-*.md note out (stable first, unique last)",
  "name": "<run-name>",
  "roles": {
   "planner": ["_common.md", "_planner-assignment.md", "_first-pass-rules.md", "_handoff-rule.md"],

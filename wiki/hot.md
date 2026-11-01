@@ -48,6 +48,7 @@ Navigation: [[index|Wiki index]] · [[overview|Vault overview]] · [[log|Operati
 - [[decisions/pipeline-economy-hand-over-units-checks-facts-pack|Pipeline economy: hand over by itself, size the units, check in pairs, write a facts pack]], decided 2026-10-30, by owner.
 - [[decisions/spec-writer-writes-the-skeleton|The spec writer writes the skeleton, the planner the flesh]], decided 2026-10-31, by owner.
 - [[decisions/the-cache-is-measured-in-dollars-and-set-per-role|The cache is measured in dollars and set per role]], decided 2026-10-31, by owner.
+- [[decisions/session-compaction-and-the-lane-pack-in-the-prompt-cache|A session compacts instead of handing over and reads its lane's frozen pack from the prompt cache]], decided 2026-11-01, by owner; supersedes the TTL per role and the hand-over by itself.
 
 ## Recent Changes
 

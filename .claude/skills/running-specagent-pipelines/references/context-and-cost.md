@@ -9,7 +9,8 @@ writes into files and commands, 1% prose; of the output tokens three quarters ar
 - The cap stays at 200k. In a replay of the same work, hand-over at 140–180k moves the cost by under 7% (noise), 120k
   costs more, 100k a third more, no cap twice as much. Do not tune the cap.
 - The lever is the startup. The note carries the facts the next session needs (shape in `example/handoff-rule.md`);
-  the fresh session reads its brief, the rule, lessons.md's "Read first" section and, last, the note, and opens a source
+  since 2026-11-01 the session has its lane's pack (brief, rule, lessons.md's "Read first") in the system prompt and
+  compacts instead of handing over; a fresh session reads the newer lessons and, last, the note, and opens a source
   only when its step needs it, by line ranges, as late as the step allows. Startup 81k → 50k saves about 15% of a run.
 - Stable first, unique last. The cache holds a prefix only as far as it is byte-identical from one session to the next,
   and writing to it costs more than reading it (`docs/economy.md`). What is the same for every session of a role comes
@@ -17,7 +18,7 @@ writes into files and commands, 1% prose; of the output tokens three quarters ar
   session comes last: the hand-over note, the last item of the launch prompt. The `fresh` texts of `example/agents.json`
   name the files in that order, and `scripts/make_pack.py --no-note` leaves a note out of a pack, which then stays the
   same from one session of the role to the next. The cache's cost is in dollars in `scripts/usage_report.py` and
-  `scripts/manager/score_run.py`; the "packs are off" line below stays until a run measures a pack in dollars.
+  `scripts/manager/score_run.py`; the pack line below records the trial before packs went into every lane (2026-11-01).
 - A facts pack replaces reading a tool's documentation. The manager writes `_inputs/<topic>.md` before the launch (a few
   KB: each tool fact the run needs, with its source line) and the briefs name it. In the ingest run the builder read
   the plugin's documents many times, printed JSON answers whole and re-read a 660-line driver in each session, about
@@ -35,10 +36,12 @@ writes into files and commands, 1% prose; of the output tokens three quarters ar
 - Terse-style prompts ("caveman") save nothing here: prose is 1% of the tokens, and an agent's prose is read by other
   agents, which pay for every ambiguity.
 - Startup packs (a role's standing orders in one file, passed with `--append-system-prompt-file` and built by
-  `scripts/make_pack.py`) are off since 2026-10-25. In an earlier run's trial, sessions without a pack (94) started
+  `scripts/make_pack.py`) were off from 2026-10-25 to 2026-11-01, when one frozen pack per lane went into the system
+  prompt for the compaction rule (`launch.md`). In an earlier run's trial, sessions without a pack (94) started
   at 30.7k tokens, reached 45.5k at call 10 and made 195 calls each, start-up 11% of the cost; with a pack (13) they
-  started at 42.4k, reached 59.4k and made 125 calls each, start-up 15%. `watch_agents.py` refuses `pack: true`;
-  `make_pack.py` stays, to measure again.
+  started at 42.4k, reached 59.4k and made 125 calls each, start-up 15%. That trial put the pack in a first message,
+  which a compaction drops; `watch_agents.py` still refuses that run-wide `pack: true`, and a lane's pack goes through
+  its own `extra_prompt`.
 Give the builder and the verifier a fresh session per milestone (the planner marks milestones in its task order); the
 new session reads its brief, lessons.md's first section and its note, not the old conversation. This is not
 compaction, so the owner's rule holds; count these sessions in the launch approval. The verifier rebuilds from scratch at the same milestones. To switch without

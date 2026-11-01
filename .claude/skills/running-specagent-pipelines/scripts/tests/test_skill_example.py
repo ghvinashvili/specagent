@@ -60,7 +60,7 @@ RULES = {
         "at most 1,500 lines",  # B5
         "1,500 lines per task file, one checkable result each",  # D10.c, the sentence of lessons.md
     ],
-    "handoff-rule.md": ["The owner's cap is **200k tokens per call**"],  # B6 (C11)
+    "handoff-rule.md": ["a hand-over only past `handoff_at` (250k tokens per call) or `cap` (260k)"],  # 2026-11-01
     "lessons.md": [
         "Where a vault page and your brief differ, the brief wins; log the difference in your log file",  # B7
         "1,500 lines per task file, one checkable result each",  # D10.c
@@ -106,7 +106,7 @@ def test_each_rule_the_spec_moves_into_a_brief_is_in_that_brief():
 def test_the_configs_name_every_role_and_only_files_the_example_has():
     agents, judge, packs = load("agents.json"), load("agents-judge.json"), load("packs.json")
     roles = [name.split("/")[-1] for name in agents["agents"]]
-    assert agents["cap"] == judge["cap"] == 200_000 and set(ROLES) - {"judge"} <= set(roles)
+    assert agents["cap"] == judge["cap"] == 260_000 and set(ROLES) - {"judge"} <= set(roles)
     assert [name.split("/")[-1] for name in judge["agents"]] == ["judge"]
     assert set(packs["roles"]) == {*roles, "judge"}
     every = {**agents["agents"], **judge["agents"]}
@@ -273,16 +273,17 @@ def test_every_settings_file_blanks_the_commit_trailer_and_carries_no_attributio
 
 
 # Spec 005, requirement 7c: the cache TTL per role sits in the role's settings `env` (Claude Code 2.1.316 reads
-# CLAUDE_CODE_PROMPT_CACHE_TTL, "5m" or "1h"): 5m for a role that waits on no other role, 1h for one that waits.
+# CLAUDE_CODE_PROMPT_CACHE_TTL, "5m" or "1h"): 5m for every role since 2026-11-01 (owner), the waiters returning within
+# 3.5 minutes; the 1-hour TTL is rejected.
 TTL_KEY = "CLAUDE_CODE_PROMPT_CACHE_TTL"
 TTL = {
     "planner": "5m",
     "builder-a": "5m",
     "builder-b": "5m",
-    "verifier": "1h",
-    "critic": "1h",
-    "plan-fixer": "1h",
-    "judge": "1h",
+    "verifier": "5m",
+    "critic": "5m",
+    "plan-fixer": "5m",
+    "judge": "5m",
 }
 
 
@@ -402,3 +403,30 @@ def test_sim_bwrap_masks_a_file_in_deny_read_with_dev_null_and_a_folder_with_a_t
     out = subprocess.run(argv, capture_output=True, text=True, env=env, timeout=30, check=False).stdout
     assert f"--ro-bind /dev/null {secret} " in out and f"--tmpfs {folder} " in out
     assert f"--tmpfs {secret} " not in out
+
+
+def test_both_example_configs_give_every_lane_its_pack_and_the_cache_flags():
+    """The cache and context rules of 2026-11-01 (owner), in the configs a run copies: every agent's own pack is the
+    file make_pack.py writes for its role and holds its mark; `common` carries the three flags; `handoff_at` and `cap`
+    lie above the compaction point; every fresh text names its assignment as held in the system prompt."""
+    import json as _json
+    import sys as _sys
+
+    _sys.path.insert(0, str(SKILL / "scripts"))
+    import make_pack
+
+    packs = _json.loads((SKILL / "example" / "packs.json").read_text(encoding="utf-8"))
+    for name in ("agents.json", "agents-judge.json"):
+        config = _json.loads((SKILL / "example" / name).read_text(encoding="utf-8"))
+        common = config["common"]
+        assert common[common.index("--autocompact") + 1] == "235000", name
+        assert "--exclude-dynamic-system-prompt-sections" in common, name
+        assert common[common.index("--system-prompt-snapshot") + 1] == "on", name
+        assert 197_000 < config["handoff_at"] < config["cap"], name
+        for agent, entry in config["agents"].items():
+            role = agent.split("/")[-1]
+            assert role in packs["roles"], agent
+            head = make_pack.HEAD.splitlines()[0].format(name=packs["name"], role=role)
+            assert entry["extra_prompt"] == {"file": f"_pack-{role}.md", "mark": head.lstrip("# ")}, agent
+        for role, text in config["fresh"].items():
+            assert f"{{run}}/_{role}-assignment.md" in text and "do not read them again" in text, role

@@ -77,22 +77,22 @@ slash):
 Every log line starts with the UTC minute (`2026-10-29T20:41Z`), and `{time}` in the texts is UTC too.
 Exit codes: 0 an event (a failed or blocked agent, `blocked` on line 1 of a `blocked_files` file, two live copies of
 one agent, an order with no ACK line after its resends, every STATUS final); 1 after the last round; 2 a config error
-at start (nothing is run); 3 a budget; 4 a settings file or the extra prompt file changed, or a brief was removed (a
+at start (nothing is run); 3 a budget; 4 a settings file or an extra prompt file (a lane's pack) changed, or a brief was removed (a
 changed brief is reloaded).
-Safety: at start the SHA-256 of every control file is recorded: the config, the settings files, the extra prompt file
+Safety: at start the SHA-256 of every control file is recorded: the config, the settings files, the extra prompt files
 and the `_*` files of the run folder that its texts name (the briefs). At the start of each round a config whose
 SHA-256 changed is read and checked again: a valid one replaces the old one and logs `config reloaded: <name>` (the
 run state stays), an invalid one is kept out and logs `config invalid, kept the previous one: <error>`; neither
 exits. A changed or new brief is re-hashed and reloaded each round (`control file reloaded: <name>`) and gives a
 `reload` order to every role with a session whose texts name it. Before each stop and launch the settings files and
-the extra prompt file are checked again and every brief must still exist, else the watcher logs
+the extra prompt files are checked again and every brief must still exist, else the watcher logs
 `control file changed: <name>` and exits with code 4.
 
 Config v3: only `run_dir` and `agents` are required; every other field defaults to DEFAULTS below. A value whose JSON
 type is not the one TYPES (AGENT_TYPES for an agent) gives its field is a config error: a number is never negative or
 a bool, `permission_wait` may be null, `handoff_at` lies below `cap`.
   {"run_dir": "...", "common": [flags for every agent], "blocked_files": ["build-log.md", ...],
-   "cap": 200000, "handoff_at": 150000, "handoff_wait": 1200, "nudges": 6, "permission_wait": 600, "interval": 120,
+   "cap": 260000, "handoff_at": 250000, "handoff_wait": 1200, "nudges": 6, "permission_wait": 600, "interval": 120,
    "unit_end_grace": 600, "ack_wait": 900, "ack_resends": 2, "registry": "_control/registry.json",
    "budget": {"calls": 150, "output_tokens": 2000000},
    "fresh": {"<role>": "text with {run}"},  merged over FRESH; milestone-builder and milestone-verifier take {n}, {next}
@@ -100,17 +100,23 @@ a bool, `permission_wait` may be null, `handoff_at` lies below `cap`.
    "nudge": "…", "handoff_order": "… {run}/_handoff-rule.md …", "unblock": "…",
    "unit_end_order": "… {at} …", "reload_order": "… {file} … {time} …",
    "milestones": [7, 13],
-   "extra_prompt": {"file": "_caveman.md", "mark": "<its first line>"},  --append-system-prompt-file for every new
+   "extra_prompt": {"file": "_pack.md", "mark": "<its first line>"},  --append-system-prompt-file for every new
                                              session and for a resume of a session whose transcript carries the mark
    "agents": {"<name>": {"cwd", "add_dirs", "settings": "<file in run_dir>", "status": "<file in run_dir>",
-                         "final": "STATUS: done", "budget": {…}, "work_check": ["python3", "{skill}/…", "{run}"]}}}
+                         "final": "STATUS: done", "budget": {…}, "work_check": ["python3", "{skill}/…", "{run}"],
+                         "extra_prompt": {"file": "_pack-<role>.md", "mark": "<its first line>"}}}}
+An agent's own `extra_prompt` replaces the run's for that agent: one frozen pack per lane in the system prompt, so it
+survives a compaction and every session of the lane reads it from the cache (owner, 2026-11-01). The pack holds the
+lane's standing orders (`_common.md`, the role's assignment, `_first-pass-rules.md`, `_handoff-rule.md` and the "Read
+first" section of lessons.md, built by `scripts/make_pack.py --no-note` before the first launch, never the live
+lessons.md); it is a control file like the settings: changed during the run, the watcher exits 4.
 A launch is `claude [--resume <sessionId>] --name <name> --add-dir <dirs> <common> --settings <the settings file's
 path> [--append-system-prompt-file <file>] --bg <prompt>`, run in the agent's cwd. The settings, status, extra_prompt
 and registry files must lie inside run_dir (a config error otherwise), and the agents must not be able to write the
 control files (the briefs' `_*` denies and the sandbox's denyWrite): the watcher hashes every control file at start
-and again right before each launch, and exits 4 when a settings file or the extra prompt file changed or a brief is
-gone. Startup packs (`pack`, built by `scripts/make_pack.py`) are not built here: `pack: true` is refused as a config
-error, and a resume of a session that started with a pack is an exit event instead of a launch.
+and again right before each launch, and exits 4 when a settings file or an extra prompt file changed or a brief is
+gone. The old run-wide `pack: true` (packs read as a first message) is refused as a config error, and a resume of a
+session that started with such a pack is an exit event; a lane's pack goes through its own `extra_prompt` instead.
 """
 
 import argparse
@@ -141,7 +147,7 @@ NUDGE = (
     "arrived meanwhile and do it, as your assignment says; if there is none, start your background waiter again."
 )
 HANDOFF_ORDER = (
-    "Orders from the owner: your context has passed the size limit (200k tokens per call). Finish the step "
+    "Orders from the owner: your context has passed the size limit ({cap} tokens per call). Finish the step "
     "you are on at a point where nothing is half done (not the whole task), save and commit what you have, "
     "then write your hand-over note exactly as {run}/_handoff-rule.md says (handoff-<role>.md, line 1 "
     "`HANDOFF <role> after Task <N> — <date time>`) and end your turn. Start no waiter and no new work; a "
@@ -165,44 +171,48 @@ UNBLOCK = (
     "way that needs no approval (reading with sed -n or python3; writing your own files with python3); if there is "
     "none, record the step as open in your log and go on with your work. Work in English only."
 )
-FRESH = {  # an earlier run's texts; plan-fixer is another run's (the first has none), milestones version 1's
+FRESH = {  # pack-aware since 2026-11-01 (owner): a lane's pack in the system prompt holds the files they name
     "planner": (
-        "You are a fresh planner session; the previous one handed over to keep the context small. Read "
-        "{run}/_planner-assignment.md, {run}/_first-pass-rules.md, {run}/lessons.md, {run}/_handoff-rule.md and "
-        "{run}/handoff-planner.md, then {run}/critique.md and {run}/critique-response.md to learn the state. Answer "
-        "open findings first, then write the next task the plan needs (read the plan by line ranges, never whole). "
-        "Hand over after that task, as the rule says."
+        "You are a fresh planner session; the previous one handed over (a model change or a stuck session). Your "
+        "standing orders are {run}/_planner-assignment.md, {run}/_first-pass-rules.md and {run}/_handoff-rule.md: when your system prompt holds them (this lane's pack), do not read them "
+        "again; else read them. Read the lessons added to {run}/lessons.md since the run began and, last, "
+        "{run}/handoff-planner.md. Answer open findings first, then write the next task the note names. Write the facts your next step needs into your record as you go; "
+        "write a HANDOFF note only on the watcher's order."
     ),
     "critic": (
-        "You are a fresh critic session; the previous one handed over to keep the context small. Read "
-        "{run}/_critic-assignment.md, {run}/_handoff-rule.md and {run}/handoff-critic.md, then the STATUS line and the "
-        "last sections of {run}/critique.md and {run}/critique-response.md to learn the state. Continue with the next "
-        "completed task of the plan (read it by line ranges), check waiting answers, and hand over after that task."
+        "You are a fresh critic session; the previous one handed over (a model change or a stuck session). Your "
+        "standing orders are {run}/_critic-assignment.md and {run}/_handoff-rule.md: when your system prompt holds them (this lane's pack), do not read them "
+        "again; else read them. Read the lessons added to {run}/lessons.md since the run began and, last, "
+        "{run}/handoff-critic.md. Continue with the next completed task of the plan and check waiting answers. Write the facts your next step needs into your record as you go; "
+        "write a HANDOFF note only on the watcher's order."
     ),
     "builder": (
-        "You are a fresh builder session; the previous one handed over to keep the context small. Read "
-        "{run}/_builder-assignment.md, {run}/_first-pass-rules.md, {run}/lessons.md, {run}/_handoff-rule.md and "
-        "{run}/handoff-builder.md, then {run}/build-log.md and {run}/verify.md to learn the state. Fix open verifier "
-        "findings first, then build the next task (read it by line ranges), and hand over after it."
+        "You are a fresh builder session; the previous one handed over (a model change or a stuck session). Your "
+        "standing orders are {run}/_builder-assignment.md, {run}/_first-pass-rules.md and {run}/_handoff-rule.md: when your system prompt holds them (this lane's pack), do not read them "
+        "again; else read them. Read the lessons added to {run}/lessons.md since the run began and, last, "
+        "{run}/handoff-builder.md. Fix open verifier findings first, then build the task the note names. Write the facts your next step needs into your record as you go; "
+        "write a HANDOFF note only on the watcher's order."
     ),
     "verifier": (
-        "You are a fresh verifier session; the previous one handed over to keep the context small. Read "
-        "{run}/_verifier-assignment.md, {run}/_handoff-rule.md and {run}/handoff-verifier.md, then {run}/verify.md and "
-        "{run}/build-log.md to learn the state. Your checkout exists; rebuild its environment from scratch only at "
-        "a milestone. Verify the next done task in the log, and hand over after it."
+        "You are a fresh verifier session; the previous one handed over (a model change or a stuck session). Your "
+        "standing orders are {run}/_verifier-assignment.md and {run}/_handoff-rule.md: when your system prompt holds them (this lane's pack), do not read them "
+        "again; else read them. Read the lessons added to {run}/lessons.md since the run began and, last, "
+        "{run}/handoff-verifier.md. Your checkout exists; rebuild its environment only at a milestone. Verify the next done task. Write the facts your next step needs into your record as you go; "
+        "write a HANDOFF note only on the watcher's order."
     ),
     "judge": (
-        "You are a fresh judge session; the previous one handed over to keep the context small. Read "
-        "{run}/_judge-assignment.md, {run}/_handoff-rule.md and {run}/handoff-judge.md, then the first lines and the "
-        "last section of {run}/judge.md to learn the state. Do the next unit (Task 1-5), and hand over after it."
+        "You are a fresh judge session; the previous one handed over (a model change or a stuck session). Your "
+        "standing orders are {run}/_judge-assignment.md and {run}/_handoff-rule.md: when your system prompt holds them (this lane's pack), do not read them "
+        "again; else read them. Read the lessons added to {run}/lessons.md since the run began and, last, "
+        "{run}/handoff-judge.md. Do the next unit (Task 1-5). Write the facts your next step needs into your record as you go; "
+        "write a HANDOFF note only on the watcher's order."
     ),
     "plan-fixer": (
-        "You are a fresh plan-fixer session; the previous one handed over to keep the context small. Read "
-        "{run}/_plan-fixer-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md, the first section of "
-        "{run}/lessons.md and, last, {run}/handoff-plan-fixer.md. The note carries the state: open "
-        "critique.md, critique-response.md, verify.md, build-log.md or the plan only when your first step needs "
-        "them, by line ranges, never whole; what you read is re-read by every later call. Answer the open points "
-        "the note names and every new one, in the assignment's order; hand over as it says."
+        "You are a fresh plan-fixer session; the previous one handed over (a model change or a stuck session). Your "
+        "standing orders are {run}/_plan-fixer-assignment.md, {run}/_first-pass-rules.md and {run}/_handoff-rule.md: when your system prompt holds them (this lane's pack), do not read them "
+        "again; else read them. Read the lessons added to {run}/lessons.md since the run began and, last, "
+        "{run}/handoff-plan-fixer.md. Answer the open points the note names and every new one, in the assignment's order. Write the facts your next step needs into your record as you go; "
+        "write a HANDOFF note only on the watcher's order."
     ),
     "milestone-builder": (
         "You are a fresh builder session; the previous one ended at a milestone to keep the context "
@@ -222,8 +232,8 @@ FRESH = {  # an earlier run's texts; plan-fixer is another run's (the first has 
 DEFAULTS = {
     "common": [],
     "blocked_files": [],
-    "cap": 200_000,
-    "handoff_at": 150_000,
+    "cap": 260_000,  # a backstop: `--autocompact 235000` in `common` compacts near 197k first (owner, 2026-11-01)
+    "handoff_at": 250_000,
     "handoff_wait": 20 * 60,
     "unit_end_grace": 600,
     "nudges": 6,
@@ -233,7 +243,7 @@ DEFAULTS = {
     "ack_wait": 15 * 60,
     "ack_resends": 2,
     "registry": "_control/registry.json",
-    "budget": {"calls": 150, "output_tokens": 2_000_000},
+    "budget": {"calls": 3000, "output_tokens": 40_000_000},  # a whole-run session: compactions and waiter calls
     "fresh": FRESH,
     "lang": LANG,
     "nudge": NUDGE,
@@ -317,6 +327,10 @@ TYPES = {
     "unblock": STRING,
     "milestones": ("a list of non-negative numbers", lambda v: isinstance(v, list) and all(map(number, v))),
 }
+EXTRA_PROMPT = (
+    "an object with file and mark, each a string",
+    lambda v: isinstance(v, dict) and all(isinstance(v.get(k), str) for k in ("file", "mark")),
+)
 AGENT_TYPES = {
     "cwd": STRING,
     "add_dirs": STRINGS,
@@ -327,6 +341,7 @@ AGENT_TYPES = {
     "work_check": STRINGS,
     "on_demand": ("a boolean", lambda v: isinstance(v, bool)),
     "demand": ("an object", lambda v: isinstance(v, dict)),
+    "extra_prompt": EXTRA_PROMPT,
 }
 # An on-demand agent's `demand` (spec Decided 2: the fixer's queue and wait, per agent); a key left out takes its
 # default.
@@ -442,7 +457,10 @@ def read_config(path, given):
         if extra:
             raise ConfigError(f"{name}: unknown demand fields {', '.join(extra)}")
         check_types(agent.get("demand", {}), DEMAND_TYPES, f"{name}: demand.")
-    handoff_at, cap = config.get("handoff_at", DEFAULTS["handoff_at"]), config.get("cap", DEFAULTS["cap"])
+    cap = config.get("cap", DEFAULTS["cap"])
+    if "handoff_at" not in config and DEFAULTS["handoff_at"] >= cap:  # an older run's own cap below the new default
+        config["handoff_at"] = cap * 3 // 4  # the earlier defaults' ratio, 150000 for 200000
+    handoff_at = config.get("handoff_at", DEFAULTS["handoff_at"])
     if handoff_at >= cap:
         raise ConfigError(f"handoff_at {handoff_at} is not below cap {cap}")
     return config
@@ -591,15 +609,21 @@ class Watcher:
         self.milestones = sorted(get("milestones"))
         self.lang, self.fresh = get("lang"), {**FRESH, **get("fresh")}
         self.nudge = self.fill(get("nudge")) + self.lang
-        self.order = self.fill(get("handoff_order")) + self.lang
+        self.order = self.fill(get("handoff_order"), cap=f"{self.cap // 1000}k") + self.lang
         self.unit_order = self.fill(get("unit_end_order"), at=f"{self.handoff_at:,}") + self.lang
         self.reload_order, self.unblock = get("reload_order"), self.fill(get("unblock"))
         self.extra = config.get("extra_prompt")
-        fields = self.extra if isinstance(self.extra, dict) else {}
-        if self.extra and not all(isinstance(fields.get(k), str) for k in ("file", "mark")):
+        if self.extra and not EXTRA_PROMPT[1](self.extra):
             raise ConfigError("extra_prompt needs file and mark, each a string")
+        # A lane's own system-prompt file (its frozen pack) replaces the run's; an agent without one takes the run's.
+        self.extras = {n: a.get("extra_prompt", self.extra) for n, a in self.agents.items()}
         inside = [(f"{n}: {k}", a[k]) for n, a in self.agents.items() for k in ("settings", "status")]
         inside += [("extra_prompt file", self.extra["file"])] if self.extra else []
+        inside += [
+            (f"{n}: extra_prompt file", a["extra_prompt"]["file"])
+            for n, a in self.agents.items()
+            if "extra_prompt" in a
+        ]
         for what, name in [*inside, ("registry", get("registry"))]:
             if not (self.run / name).resolve().is_relative_to(self.run):
                 raise ConfigError(f"{what} {name} leaves run_dir")
@@ -617,9 +641,9 @@ class Watcher:
         return self.fill(self.fresh[key], **values) + self.lang
 
     def fixed_files(self):
-        """The control files that are no brief: the config, the settings files and the extra prompt file."""
+        """The control files that are no brief: the config, the settings files and the extra prompt files."""
         files = {self.config_path, *(self.run / a["settings"] for a in self.agents.values())}
-        return files | ({self.run / self.extra["file"]} if self.extra else set())
+        return files | {self.run / e["file"] for e in [self.extra, *self.extras.values()] if e}
 
     def control_files(self):
         texts = [self.nudge, self.order, self.unit_order, self.unblock]
@@ -1249,10 +1273,10 @@ class Watcher:
                 self.stop(original.group(1))
 
     def command(self, name, prompt, resume=None):
-        a = self.agents[name]
+        a, own = self.agents[name], self.extras.get(name)
         extra = []
-        if self.extra and (resume is None or self.transcripts.head_has(resume, self.extra["mark"])):
-            extra = ["--append-system-prompt-file", str(self.run / self.extra["file"])]
+        if own and (resume is None or self.transcripts.head_has(resume, own["mark"])):
+            extra = ["--append-system-prompt-file", str(self.run / own["file"])]
         return [
             *(["--resume", resume] if resume else []),
             "--name",

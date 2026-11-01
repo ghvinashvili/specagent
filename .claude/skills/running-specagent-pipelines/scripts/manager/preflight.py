@@ -231,6 +231,50 @@ def check_blind(st: State, role: str) -> Result:
     return verdict("blind", role, problems, "the ten deny rules are set")
 
 
+def check_cache(st: State, role: str) -> Result:
+    """The cache and context rules of 2026-11-01 (owner): the config compacts at `--autocompact 235000` with `cap` and
+    `handoff_at` above that point, keeps the per-machine sections (git status, cwd, date) out of the system prompt and
+    snapshots it; the lane has its own frozen pack in the run folder that holds its mark; its settings keep the 5-minute
+    TTL, clear the 60% override and set the lane's one model."""
+    try:
+        config = json.loads(Path(st.config).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        config = {}
+    common = config.get("common", []) if isinstance(config, dict) else []
+    common = common if isinstance(common, list) else []
+    agent, env = st.agents[role], st.settings[role].get("env", {})
+    problems = []
+
+    def after(flag: str) -> str | None:
+        return common[common.index(flag) + 1] if flag in common and common.index(flag) + 1 < len(common) else None
+
+    if after("--autocompact") != "235000":
+        problems.append("common has no --autocompact 235000")
+    if "--exclude-dynamic-system-prompt-sections" not in common:  # git status, cwd and date would change the prefix
+        problems.append("common has no --exclude-dynamic-system-prompt-sections")
+    if after("--system-prompt-snapshot") != "on":
+        problems.append("common has no --system-prompt-snapshot on")
+    cap, handoff_at = config.get("cap", 260000), config.get("handoff_at", 250000)
+    if not (isinstance(cap, int) and isinstance(handoff_at, int) and 197_000 < handoff_at < cap):
+        problems.append(f"handoff_at {handoff_at} and cap {cap} must lie above the compaction point (about 197k)")
+    extra = agent.get("extra_prompt")
+    pack = extra.get("file") if isinstance(extra, dict) else None
+    path = Path(st.run, pack).resolve() if isinstance(pack, str) else None
+    if not pack:
+        problems.append("no extra_prompt of its own (the lane's pack)")
+    elif not path.is_relative_to(Path(st.run).resolve()) or not path.is_file():
+        problems.append(f"its pack {pack} is not a file of the run folder")
+    elif str(extra.get("mark", "")) not in path.read_text(encoding="utf-8", errors="replace") or not extra.get("mark"):
+        problems.append(f"its pack {pack} does not hold its mark")
+    if env.get("CLAUDE_CODE_PROMPT_CACHE_TTL") != "5m":
+        problems.append("env CLAUDE_CODE_PROMPT_CACHE_TTL is not 5m")
+    if env.get("CLAUDE_AUTOCOMPACT_PCT_OVERRIDE") != "":
+        problems.append("env CLAUDE_AUTOCOMPACT_PCT_OVERRIDE is not empty")
+    if not st.settings[role].get("model"):
+        problems.append("no model in its settings (one model per lane)")
+    return verdict("cache", role, problems, f"compaction, its pack {pack}, 5m TTL, one model")
+
+
 def check_ancestor(st: State, role: str) -> Result:
     if role in st.args.unsandboxed:
         return Result("SKIP", "ancestor", role, "an unsandboxed role")
@@ -536,7 +580,9 @@ def run_check(a: argparse.Namespace) -> int:
     if results[0].status != "FAIL":
         results.append(emit(check_model(st)))
         for role in st.roles:
-            results += [emit(f(st, role)) for f in (check_blind, check_ancestor, check_probe, check_worktree)]
+            results += [
+                emit(f(st, role)) for f in (check_blind, check_cache, check_ancestor, check_probe, check_worktree)
+            ]
         run_wide = (check_waiters, check_formats, check_monitor, check_disk, check_usage, check_live, check_launch)
         results += [emit(f(st)) for f in run_wide]
     return save(st, results)

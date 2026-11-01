@@ -58,8 +58,12 @@ HEAD=$(git -C "$CHECKOUT" rev-parse HEAD) || exit 1
 mkdir -p "$D/scratch/judge"
 ADD=()
 [ "${#DIRS[@]}" -gt 0 ] && ADD=(--add-dir "${DIRS[@]}")
-(cd "$W" && claude --name "$N" "${ADD[@]}" "${COMMON[@]}" --settings "$(cat "$SETTINGS")" \
-  --bg "Read and follow the assignment in $D/_judge-assignment.md. Start now. Work in English only (thinking, replies, tool descriptions, files).") \
+PACK=()  # the judge lane's frozen pack in its system prompt (owner, 2026-11-01), when the run built one
+TASK="Read and follow the assignment in $D/_judge-assignment.md."
+[ -f "$D/_pack-judge.md" ] && PACK=(--append-system-prompt-file "$D/_pack-judge.md") &&
+  TASK="Your system prompt holds this lane's pack, your assignment included: follow it."
+(cd "$W" && claude --name "$N" "${ADD[@]}" "${COMMON[@]}" --settings "$(cat "$SETTINGS")" "${PACK[@]}" \
+  --bg "$TASK Start now. Work in English only (thinking, replies, tool descriptions, files).") \
   >> "$D/_watch.log" 2>&1
 code=$?
 echo "$(date +%H:%M) main: $N launched at $HEAD in $W (exit $code)" >> "$D/_watch.log"

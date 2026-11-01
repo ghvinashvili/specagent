@@ -56,14 +56,15 @@ The numbered ADRs, cited as ADR-00nn, are in [docs/decisions/](../docs/decisions
 - [The plan file is split: steps in one file, blocks in another](decisions/plan-steps-and-blocks-in-two-files.md): every fenced block over 10 lines moves to `task-NN.code.md` under `## Block <id>` and its step names it; `harness plan-lint` checks the pair
 - [The planner answers its own findings; the fixer is launched on demand](decisions/planner-answers-its-findings-fixer-on-demand.md): the watcher launches the plan fixer only when open ids reach `demand.queue` or `demand.wait_minutes`
 - [The critic reviews the plan only; the verifier reads the code](decisions/critic-on-the-plan-verifier-on-the-code.md): the critic keeps one coverage round per task and opens no code; the verifier reads each built commit's diff and files V ids with a `(code)`, `(plan)` or `(spec)` cause
-- [Pipeline economy: hand over by itself, size the units, check in pairs, write a facts pack](decisions/pipeline-economy-hand-over-units-checks-facts-pack.md): hand-over at a unit's end; units sized and checked in pairs; the manager's facts pack `_inputs/<topic>.md`; an economy row in `score_run.py`
+- [Pipeline economy: hand over by itself, size the units, check in pairs, write a facts pack](decisions/pipeline-economy-hand-over-units-checks-facts-pack.md): the self hand-over superseded; the rest stands
 - [Pipeline economy: a measured estimate, three model classes, and the open items closed](decisions/pipeline-economy-estimate-model-classes-open-items.md): a launch's `Estimate:` names the last measurement; `preflight.py` fails on a busy foreign session; every role's settings carry `"includeCoAuthoredBy": false`
 - [The template is named SpecAgent](decisions/the-template-is-named-specagent.md): one word, read as "special agent"; its text, repository and own names use it
 - [ECC texts live under .claude/ecc](decisions/ecc-texts-live-under-claude-ecc.md): the agent texts and the pages about the pin sit with a catalogue the manager reads before a brief for a role with a domain
 - [Finished plans live in docs/exec-plans/done](decisions/finished-plans-live-in-exec-plans-done.md): merged runs' plans move out of active/ into done/, with their own README
 - [The ADRs and the decision pages stay two stores](decisions/adrs-and-decision-pages-stay-two-stores.md): the ADRs stay in docs/decisions/, the decision pages here
 - [The spec writer writes the skeleton, the planner the flesh](decisions/spec-writer-writes-the-skeleton.md): a one-page spec; the model map; a rule broken twice becomes code
-- [The cache is measured in dollars and set per role](decisions/the-cache-is-measured-in-dollars-and-set-per-role.md): reads, writes and output in dollars; the TTL is 5m or 1h by role
+- [The cache is measured in dollars and set per role](decisions/the-cache-is-measured-in-dollars-and-set-per-role.md): reads, writes and output in dollars; its TTL rule superseded
+- [Compaction and the lane pack](decisions/session-compaction-and-the-lane-pack-in-the-prompt-cache.md): 2026-11-01
 
 ## Concepts
 - none yet

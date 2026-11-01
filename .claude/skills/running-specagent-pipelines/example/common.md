@@ -84,7 +84,12 @@ private configuration file into anything you write.
 
 ## Waiting
 Wait with the zero-token waiters in the run folder, started with the Bash tool in the background
-(`run_in_background`); you are woken when the waiter exits. Your assignment gives the exact command. Never poll with
+(`run_in_background`); you are woken when the waiter exits. Your assignment gives the exact command. A waiter returns
+within 3.5 minutes: on exit 3 ("Run the same command again now") start the same command again at once, so your next
+call comes inside the prompt cache's 5 minutes. When your input is more than about an hour away (another lane's whole
+output, a milestone) and your agent has a `work_check`, write the facts into your record, write your hand-over note
+with "Next unit: waiting for <what>" and end your turn: the watcher stops the session and starts a fresh one when the
+check finds work. Without a `work_check` keep waiting in the session. Never poll with
 `pgrep -f` on a pattern your own shell wrapper contains. The planner and the plan fixer find open ids with `python3 -I
 <skill-dir>/scripts/open_ids.py <run-dir> --kind C,A,B,V,R --cause plan` (exit 0 and the ids when some wait, exit 3
 when none) instead of a waiter.
@@ -116,9 +121,11 @@ Request-line bound: 15 minutes. The main session answers a request line within t
 that waits longer, and you go on with what you can and never repeat the line.
 
 ## Context
-One unit of work per session, then hand over as `_handoff-rule.md` says. Keep your context small: read the plan and
-the spec by line ranges, grep the code; open a source only when a step needs it; `lessons.md` once at your start,
-the "Read first" section only. A plan's code file is read by block, never whole. Read the facts pack
+A session compacts itself near 197k and goes on (owner, 2026-11-01): write the facts your next step needs into your
+record file as you go, since a compaction keeps only the main points; write a HANDOFF note as `_handoff-rule.md` says
+only on the watcher's order. Keep your context small: read the plan and
+the spec by line ranges, grep the code; open a source only when a step needs it; `lessons.md`'s "Read first" section
+is in your system prompt, so read only its lines dated after your pack. A plan's code file is read by block, never whole. Read the facts pack
 `_inputs/<topic>.md` your brief names at your start; open a tool's documentation only for a fact it lacks, by line
 ranges, once; read a JSON answer through a filter (`python3 -c`), never whole. The hand-over note copies in the
 facts the next session needs; it does not point at files to re-read. A repeat's unit size is your brief's; when an

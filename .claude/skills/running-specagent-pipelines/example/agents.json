@@ -7,7 +7,12 @@
     "--permission-mode",
     "auto",
     "--setting-sources",
-    "local"
+    "local",
+    "--autocompact",
+    "235000",
+    "--exclude-dynamic-system-prompt-sections",
+    "--system-prompt-snapshot",
+    "on"
   ],
   "blocked_files": [
     "plan-log.md",
@@ -18,8 +23,8 @@
     "verify.md",
     "fixer-log.md"
   ],
-  "cap": 200000,
-  "handoff_at": 150000,
+  "cap": 260000,
+  "handoff_at": 250000,
   "handoff_wait": 1200,
   "unit_end_grace": 600,
   "permission_wait": 600,
@@ -27,20 +32,20 @@
   "nudges": 6,
   "ack_wait": 900,
   "ack_resends": 2,
-  "handoff_order": "Orders from the owner: your context has passed the size limit (200k tokens per call). Finish the step you are on at a point where nothing is half done (not the whole task), save and commit what you have, then write your hand-over note exactly as <run-dir>/_handoff-rule.md says (handoff-<role>.md, line 1 `HANDOFF <role> after Task <N> — <date time>`) and end your turn. Start no waiter and no new work; a fresh session continues from your note and the files. The note carries the facts the next session needs, copied in, not pointers to them.",
+  "handoff_order": "Orders from the owner: your context has passed the size limit ({cap} tokens per call). Finish the step you are on at a point where nothing is half done (not the whole task), save and commit what you have, then write your hand-over note exactly as <run-dir>/_handoff-rule.md says (handoff-<role>.md, line 1 `HANDOFF <role> after Task <N> — <date time>`) and end your turn. Start no waiter and no new work; a fresh session continues from your note and the files. The note carries the facts the next session needs, copied in, not pointers to them.",
   "fresh": {
-    "planner": "You are a fresh planner session; the previous one handed over to keep the context small. Read {run}/_planner-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md, the \"Read first\" section of {run}/lessons.md and, last, {run}/handoff-planner.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Answer open findings first, then write the next task the note names. Hand over after it, as the rule says. Work in English only.",
-    "critic": "You are a fresh critic session; the previous one handed over to keep the context small. Read {run}/_critic-assignment.md, {run}/_handoff-rule.md and {run}/handoff-critic.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Continue with the unit the note names, check waiting answers, and hand over after it. Work in English only.",
-    "builder-a": "You are a fresh builder-a session; the previous one handed over to keep the context small. Read {run}/_builder-a-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md, the \"Read first\" section of {run}/lessons.md and, last, {run}/handoff-builder-a.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Fix open V findings first, then build the task the note names, and hand over after it. Work in English only.",
-    "builder-b": "You are a fresh builder-b session; the previous one handed over to keep the context small. Read {run}/_builder-b-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md, the \"Read first\" section of {run}/lessons.md and, last, {run}/handoff-builder-b.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Fix open V findings first, then build the task the note names, and hand over after it. Work in English only.",
-    "verifier": "You are a fresh verifier session; the previous one handed over to keep the context small. Read {run}/_verifier-assignment.md, {run}/_handoff-rule.md and {run}/handoff-verifier.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Continue with the commit or milestone the note names and hand over after it. Work in English only.",
-    "plan-fixer": "You are a fresh plan-fixer session; the previous one handed over to keep the context small. Read {run}/_plan-fixer-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md, the \"Read first\" section of {run}/lessons.md and, last, {run}/handoff-plan-fixer.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Answer the ids waiting, then hand over. Work in English only."
+    "planner": "You are a fresh planner session; the previous one handed over (a model change or a stuck session). Your system prompt holds this lane's frozen pack: {run}/_common.md, {run}/_planner-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md and the \"Read first\" section of {run}/lessons.md; do not read them again. Read the lessons added to {run}/lessons.md since the run began (each carries its date) and, last, {run}/handoff-planner.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Answer open findings first, then write the next task the note names. Write the facts your next step needs into your record file as you go; write a HANDOFF note only on the watcher's order. Work in English only.",
+    "critic": "You are a fresh critic session; the previous one handed over (a model change or a stuck session). Your system prompt holds this lane's frozen pack: {run}/_common.md, {run}/_critic-assignment.md, {run}/_handoff-rule.md and the \"Read first\" section of {run}/lessons.md; do not read them again. Read the lessons added to {run}/lessons.md since the run began (each carries its date) and, last, {run}/handoff-critic.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Continue with the unit the note names and check waiting answers. Write the facts your next step needs into your record file as you go; write a HANDOFF note only on the watcher's order. Work in English only.",
+    "builder-a": "You are a fresh builder-a session; the previous one handed over (a model change or a stuck session). Your system prompt holds this lane's frozen pack: {run}/_common.md, {run}/_builder-a-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md and the \"Read first\" section of {run}/lessons.md; do not read them again. Read the lessons added to {run}/lessons.md since the run began (each carries its date) and, last, {run}/handoff-builder-a.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Fix open V findings first, then build the task the note names. Write the facts your next step needs into your record file as you go; write a HANDOFF note only on the watcher's order. Work in English only.",
+    "builder-b": "You are a fresh builder-b session; the previous one handed over (a model change or a stuck session). Your system prompt holds this lane's frozen pack: {run}/_common.md, {run}/_builder-b-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md and the \"Read first\" section of {run}/lessons.md; do not read them again. Read the lessons added to {run}/lessons.md since the run began (each carries its date) and, last, {run}/handoff-builder-b.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Fix open V findings first, then build the task the note names. Write the facts your next step needs into your record file as you go; write a HANDOFF note only on the watcher's order. Work in English only.",
+    "verifier": "You are a fresh verifier session; the previous one handed over (a model change or a stuck session). Your system prompt holds this lane's frozen pack: {run}/_common.md, {run}/_verifier-assignment.md, {run}/_handoff-rule.md and the \"Read first\" section of {run}/lessons.md; do not read them again. Read the lessons added to {run}/lessons.md since the run began (each carries its date) and, last, {run}/handoff-verifier.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Continue with the commit or milestone the note names. Write the facts your next step needs into your record file as you go; write a HANDOFF note only on the watcher's order. Work in English only.",
+    "plan-fixer": "You are a fresh plan-fixer session; the previous one handed over (a model change or a stuck session). Your system prompt holds this lane's frozen pack: {run}/_common.md, {run}/_plan-fixer-assignment.md, {run}/_first-pass-rules.md, {run}/_handoff-rule.md and the \"Read first\" section of {run}/lessons.md; do not read them again. Read the lessons added to {run}/lessons.md since the run began (each carries its date) and, last, {run}/handoff-plan-fixer.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Answer the ids waiting. Write the facts your next step needs into your record file as you go; write a HANDOFF note only on the watcher's order. Work in English only."
   },
   "pack": false,
   "milestones": [],
   "budget": {
-    "calls": 300,
-    "output_tokens": 4000000
+    "calls": 3000,
+    "output_tokens": 40000000
   },
   "agents": {
     "<project>/planner": {
@@ -54,7 +59,11 @@
       ],
       "settings": "_control/planner-settings.json",
       "status": "critique-response.md",
-      "final": "STATUS: done"
+      "final": "STATUS: done",
+      "extra_prompt": {
+        "file": "_pack-planner.md",
+        "mark": "Your standing orders (startup pack of <run-name>/planner)"
+      }
     },
     "<project>/plan-fixer": {
       "cwd": "<plan-worktree>",
@@ -92,6 +101,10 @@
         "parity": "all",
         "queue": 6,
         "wait_minutes": 45
+      },
+      "extra_prompt": {
+        "file": "_pack-plan-fixer.md",
+        "mark": "Your standing orders (startup pack of <run-name>/plan-fixer)"
       }
     },
     "<project>/critic": {
@@ -118,7 +131,11 @@
         "--response",
         "{run}/critique-response.md",
         "--once"
-      ]
+      ],
+      "extra_prompt": {
+        "file": "_pack-critic.md",
+        "mark": "Your standing orders (startup pack of <run-name>/critic)"
+      }
     },
     "<project>/builder-a": {
       "cwd": "<worktree-a>",
@@ -132,7 +149,11 @@
       ],
       "settings": "_control/builder-a-settings.json",
       "status": "build-log-a.md",
-      "final": "STATUS: done"
+      "final": "STATUS: done",
+      "extra_prompt": {
+        "file": "_pack-builder-a.md",
+        "mark": "Your standing orders (startup pack of <run-name>/builder-a)"
+      }
     },
     "<project>/builder-b": {
       "cwd": "<worktree-b>",
@@ -146,7 +167,11 @@
       ],
       "settings": "_control/builder-b-settings.json",
       "status": "build-log-b.md",
-      "final": "STATUS: done"
+      "final": "STATUS: done",
+      "extra_prompt": {
+        "file": "_pack-builder-b.md",
+        "mark": "Your standing orders (startup pack of <run-name>/builder-b)"
+      }
     },
     "<project>/verifier": {
       "cwd": "<verify-worktree>",
@@ -162,7 +187,11 @@
       ],
       "settings": "_control/verifier-settings.json",
       "status": "verify.md",
-      "final": "STATUS: done"
+      "final": "STATUS: done",
+      "extra_prompt": {
+        "file": "_pack-verifier.md",
+        "mark": "Your standing orders (startup pack of <run-name>/verifier)"
+      }
     }
   }
 }

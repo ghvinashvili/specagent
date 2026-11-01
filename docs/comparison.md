@@ -17,7 +17,7 @@ combination, each part with its evidence; [How it works, step by step](how-it-wo
 
 | Property | A subagent (the Agent tool) | A SpecAgent role session | Evidence |
 | --- | --- | --- | --- |
-| Context | a slice of the parent's window | its own window, one unit per session, a fresh session at the 200k cap | [hand-over rule][handoff] |
+| Context | a slice of the parent's window | its own window, compacted near 197k; a fresh session only on the watcher's order | [hand-over rule][handoff] |
 | Memory after the call | gone; its result is pasted into the parent | a transcript, a hand-over note and a record file | [how it works](how-it-works.md#7-a-session-hands-over) |
 | Observability | internal to the parent's session | `build-log.md`, `verify.md`, `*.summary.md`, read while it works | [the files of a run](files-of-a-run.md) |
 | Resumability | not from another session after a crash or a limit | `claude --resume <id>`; the watcher revives a stopped session from its files | [ADR-0001][a1], [scripts] |

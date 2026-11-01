@@ -36,7 +36,7 @@ task and collect the result. SpecAgent adds the whole loop around full sessions,
   obsidian-ingest run built 5 units and fixed its 5 findings inside the run (private measurement pages
   `2026-10-30-pipeline-economy`, `2026-10-30-obsidian-ingest`). Both ended with the full gate (1,874 and 1,840 tests
   passed); neither launched a judge.
-- **Small contexts:** one unit per session, a hand-over at 200k; without the cap calls grew to 500-740k tokens, three
+- **Small contexts:** a session compacts near 197k instead of handing over (2026-11-01); before the cap without the cap calls grew to 500-740k tokens, three
   times the cost of a fresh session (2026-10-15, [cost]). *The usual way:* one long context, re-read on every call.
 - **The run lives in files a human reads:** a fresh session goes on from them, and the watcher revives a stopped one
   ([scripts]).
@@ -123,16 +123,13 @@ safer option.
 
 ### A session's life
 
-A fresh session reads its brief, the hand-over rule, `lessons.md`'s "Read first", the facts pack its brief names
-(`specs/003-pipeline-economy`, R4) and, last, its note, nothing else until a step asks; a waiter wakes it when its
-input is there.
-It does one unit (a task written, reviewed, built or verified) and leaves records: a commit, `Task N: done — <sha>`, a
-`STATUS:` line, answers. It goes on until the unit is done, then hands over by itself; past 200k the watcher stops it
-and resumes it once to hand over. Either way it commits its work, nothing half done, then writes a note of at most 40
-lines of facts; the watcher starts a fresh session at the note. Only files pass between sessions
-([hand-over rule][handoff]).
+A session starts with its lane's frozen pack in the system prompt (its brief, the hand-over rule, `lessons.md`'s "Read
+first"), reads the facts pack its brief names and nothing else until a step asks; a waiter tells it when its input is
+there. It works unit after unit (a task written, reviewed, built or verified) and leaves records: a commit, `Task N:
+done — <sha>`, a `STATUS:` line, answers, and the facts its next step needs. Near 197k it compacts itself and goes on.
+A hand-over note (at most 40 lines of facts, [hand-over rule][handoff]) is written only on the watcher's order: past
+250k, for a model change or for a stuck session; the watcher then starts a fresh session at the note.
 
-<img src="docs/assets/session-life.svg" alt="A session's life: one unit, then a hand-over note and a fresh session" width="100%">
 
 ### The knowledge layer
 
@@ -178,9 +175,9 @@ units in 2 h 15 min (the table below).
 
 ## Where it saves money
 
-A session does one unit and hands over, or at 200k: no cap costs twice as much, and a 300k cap cost 15-25% more per task
-over 269 sessions ([cost], [hand-over rule][handoff]). A session reaches 81k tokens after ten calls, 84% of the growth
-tool results, so a fresh session reads a note of facts, not the history ([cost]). The manager sets one
+A session compacts near 197k instead of handing over (next section); no cap costs twice as much, and a 300k cap cost
+15-25% more per task over 269 sessions ([cost], [hand-over rule][handoff]). A session reaches 81k tokens after ten calls, 84% of the growth
+tool results, so a session keeps its standing orders in its system prompt and compacts the rest ([cost]). The manager sets one
 of three model classes per role in a settings file no role reads: for the spec, the class the owner ordered
 ([decision](wiki/decisions/the-spec-writers-model-is-a-dated-exception.md)); judgment for a role whose mistake is
 expensive (the planner, critic, verifier, judge); mechanical for work that code or a verifier checks (the builder)
@@ -188,6 +185,90 @@ expensive (the planner, critic, verifier, judge); mechanical for work that code 
 
 [Time and money](docs/economy.md): the cache, a session's start, reading on need, what quality costs, a third run,
 with sources.
+
+### The cache and the context
+
+Most of what a role's session costs is reading its own context again: every call sends the whole conversation, so a
+session at 150k tokens pays for 150k tokens on each call. The prompt cache makes that repeated read cheap, and the rules
+below keep a session inside the cache for its whole life (owner, 2026-11-01). Every number here was measured on a
+project's two runs of 2026-11-01 and is priced with the strongest model class's rates.
+
+**How the prompt cache works.** On each call the API looks for the longest exact prefix of the request that it has
+seen recently. That prefix is read from the cache at a twentieth of the input price; whatever follows it is written to
+the cache, at more than the input price. The match is byte for byte: one changed byte ends it, and everything after
+that byte is written again. A cached prefix lives 5 minutes from the last call that read it, and each such call starts
+the 5 minutes again; a 1-hour cache exists too, at a higher write price.
+
+| Per 1M tokens | Price |
+| --- | --- |
+| input, not cached | $4.00 |
+| read from the cache | $0.20 |
+| written to the 5-minute cache (1.25 × input) | $5.00 |
+| written to the 1-hour cache (2 × input) | $8.00 |
+| output | $20.00 |
+
+So a 150k context costs $0.03 to read from the cache, $0.75 to write again into the 5-minute cache, and $1.20 into the
+1-hour one. Whatever keeps the prefix the same and the cache alive is worth money on every call.
+
+**The pack: standing orders in the system prompt.** A request is sent in a fixed order: the tools, the system prompt,
+then the messages. Each lane (one role line of a run) gets one pack: `_common.md`, the role's brief, the first-pass and
+hand-over rules and the "Read first" section of `lessons.md`, built once by `make_pack.py` before the lane's first
+launch and passed with `--append-system-prompt-file`. The pack is frozen for the run: a changed pack stops the
+watcher, and a lesson or an order added later goes after it, into `lessons.md` with its date or a message. So every
+session of a lane, the first one and any later one, starts with the same bytes and reads the pack from the cache
+instead of reading the briefs with tools and writing them again. Two flags keep those bytes fixed:
+`--exclude-dynamic-system-prompt-sections` moves the parts that change (git status, the working folder, the date) out
+of the system prompt into the first message, so a commit or a new day does not break the prefix before the pack, and
+`--system-prompt-snapshot on` sends the recorded system prompt as it is on every call. One model per lane, because a
+cache is kept per model: a lane that switched models would write everything again.
+
+**Compaction instead of a hand-over.** When a session's context reaches its window, Claude Code compacts it: the
+conversation is replaced by a summary of its main points, and the system prompt stays as it was. Because the pack is
+in the system prompt, the standing orders survive every compaction and are still read from the cache; a brief that
+had been read with a tool would have been lost with the conversation. The session then goes on with its memory of the
+run, from about 65k tokens (the summary plus the files its next step reads again). Before, a session handed over after
+each unit: it wrote a note, stopped, and a fresh session started from nothing and read its briefs again.
+
+| | Cost | What the session keeps |
+| --- | --- | --- |
+| A compaction | about $0.45: the 160k read warm $0.03, a summary of about 5k output $0.10, about 39k written again $0.31 | its memory of the run, in the summary; its pack, unchanged |
+| A hand-over | about $0.70-1.00: the note's calls at about 200k, then a fresh start of 50-80k written | only what the note of at most 40 lines carries |
+
+The window, `--autocompact 235000`, compacts at about 197k. It follows a balance: compacting early means more
+compactions, at $0.45 each; compacting late means every call reads a larger context. The cost per call is lowest at
+C = c0 + √(2Kg/r), with c0 64.9k (the context right after a compaction), g 2,250 tokens a call (how fast the context
+grows), K $0.45 (one compaction) and r $0.20/M (a cached read): about 166k. The curve is flat: 150k costs 0.9% more
+per call, 197k 2.3% more, 200k 2.7% more. 235000 sits at the top of that flat band, so a session compacts as seldom as
+the band allows. One session went through seven compactions in 73 minutes, each from 157-167k down to 22-29k, in
+90-234 seconds. Because a compaction keeps only the main points, a role writes the facts its next step needs into its
+record file as it works; the watcher's hand-over stays as a backstop, past 250k or 260k, and for a model change or a
+stuck session.
+
+**5 minutes, kept warm, instead of 1 hour.** Every role runs with the 5-minute cache. A 5-minute write costs 1.25 times
+the input price, a 1-hour write twice: 60% more for every token written. The 5-minute cache only has to be kept alive:
+a session that makes no call for 5 minutes loses it, and its next call writes the whole context again. So the waiters
+return within 3.5 minutes, before the 5 minutes are up, and the role starts the same waiter again at once. Each return
+is one call that reads the cached prefix and starts its 5 minutes again: a touch. A touch of a 150k context costs
+$0.040 (the read $0.030 and about 500 output tokens $0.010); letting the cache expire costs $0.75 for the rewrite. One
+rewrite pays for 19 touches, about 1.1 hours of waiting at one touch every 3.5 minutes. So a wait shorter than about an
+hour stays in the session and keeps the cache warm; a wait known to be longer ends the session with a note, and the
+watcher starts the role again when its work check finds work, which costs one cold write of the pack.
+
+Before this rule the waiters slept up to 8 hours inside one call, so every wait longer than 5 minutes ended cold: on
+the two runs, 29 calls after such a gap wrote 2,630,529 tokens again, 8.6% of all cache writes, up to $21. The 1-hour
+cache was measured too, on the critic, plan fixer, verifier and judge sessions of one run, which ran with it: they wrote
+19,859,570 tokens, and at 2 × input instead of 1.25 × that cost **$59.51 more**. What the hour saved: 49 calls came
+after a gap of 5-60 minutes and read from the cache what a 5-minute cache would have written again, **$26.91**. Net, the
+1-hour cache cost **$32.60 more** on that one run than the 5-minute cache with the same gaps. With the waiters keeping
+the cache warm, most of those gaps no longer happen at all: a touch at $0.040 replaces a rewrite at $0.75.
+
+What this gives a run:
+- Every call of a working session reads its context from the cache at $0.20/M instead of writing it at $5.00/M.
+- No cold restarts after a wait: the 8.6% of cache writes they caused is gone, and the hour's 60% write surcharge with it.
+- A session keeps its memory of the run through each compaction, at about half the price of a hand-over.
+- The standing orders are never lost and never read again with tools: they sit in the system prompt and the cache.
+- The rule is checked, not remembered: the pre-flight's `cache` check fails a lane that misses the window, the flags,
+  its own pack, the 5-minute TTL or its one model, and the watcher stops on a changed pack.
 
 ### Two measured runs of 2026-10-30
 

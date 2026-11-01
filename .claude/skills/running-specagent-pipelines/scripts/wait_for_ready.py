@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Builder's waiter: exit 0 when Task N is ready to build. Polls once a minute for up to 8 hours.
+"""Builder's waiter: exit 0 when Task N is ready to build.
+Polls every 30 s and returns within 3.5 min (exit 3 and the line to run it again), so the caller's next call
+comes within the prompt cache's 5 minutes (owner, 2026-11-01); a wait known to be longer than about an hour ends the
+session instead, and the watcher relaunches it on work.
 
   python3 wait_for_ready.py --critique critique.md --response critique-response.md N
 Ready: the critique's first line is 'STATUS: caught up through Task M' or 'STATUS: reviewed through Task M' with M >= N
@@ -49,11 +52,14 @@ def state(n):
     return (f"Task {n} ready" if not missing else f"not ready: unanswered {', '.join(missing[:15])}"), not missing
 
 
-for _ in range(480):
+deadline = time.monotonic() + 210
+while True:
     message, ready = state(args.task)
     if ready or args.once:
         print(message)
         sys.exit(0 if ready else 3)
-    time.sleep(60)
-print("timeout after 8 hours; " + message)
-sys.exit(1)
+    if time.monotonic() + 30 > deadline:
+        break
+    time.sleep(30)
+print(f"{message}. Run the same command again now: a call within 5 min keeps the prompt cache warm")
+sys.exit(3)

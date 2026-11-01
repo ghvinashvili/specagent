@@ -1,25 +1,20 @@
-# Hand-over rule: planner, critic, builders, verifier (owner, 2026-10-09; cap 200k since 2026-10-29 01:50 UTC, 300k from 2026-10-26 to then)
+# Hand-over rule: planner, critic, builders, verifier (owner, 2026-10-09; compaction instead of hand-over since 2026-11-01)
 
-Each session does one unit of work and then hands over to a fresh session, so that its context stays small: every
-step re-reads the whole conversation. The owner's cap is **200k tokens per call** (measured 2026-10-26 on 269 sessions: 300k cost 15-25% more per task, hand-overs included). The owner's watcher reads your
-context size from the transcript; when it passes the cap it stops you and resumes you once with the order to hand
-over. The plan, `lessons.md`, the build logs, `verify.md`, `critique.md`, `critique-response.md`, `plan-log.md` and
-git are the record; your note carries only what your session knows and those files do not.
+A session works unit after unit and compacts itself near 197k (`--autocompact 235000`), keeping its system prompt (this
+lane's frozen pack) and a summary of the conversation; it does not hand over after a unit. **The owner's watcher orders
+a hand-over only past `handoff_at` (250k tokens per call) or `cap` (260k), and the manager for a model change or a
+stuck session.** Because a compaction keeps only the main points, write the facts your next step needs into your record
+file as you go (your log, `critique.md`, `verify.md`, `critique-response.md`, `plan-log.md`). The plan, `lessons.md`,
+those records and git are the record; a note carries only what your session knows and those files do not.
 
 ## When
-- Hand over yourself: at the unit's end write the note at once, in the same turn as the unit's done line; the
-  watcher's order, and the copy it starts, is the exception, not the way.
-- Planner: when a task file is written and committed, its line is in `plan-log.md`, and every finding that was
-  waiting is answered in `critique-response.md`. One task per session: do not start the next one. Line 1 of
-  `critique-response.md` keeps saying `STATUS: writing Task N` for the task the next session will write.
-- Critic: when you have finished one unit, the coverage round of one plan task (its findings are in `critique.md`, the
-  STATUS line is updated), and you have checked the answers that were waiting.
-- Builder: when a task is committed and logged (`Task N: done — <sha>`) and the findings you were fixing are
-  answered in your build log. Never in the middle of a task, and do not start the next one.
-- Verifier: when you have finished verifying one built commit (its section in `verify.md` is written and every
-  finding filed) or one milestone's full run. Re-checking a fix does not end a session; do it in the session you are in.
-- Any role, when the watcher resumes you with the order to hand over: save what you have at a point where nothing is
-  half done (finish the step, not the task), then hand over.
+- Only on an order: the watcher's (`handoff`, `unit-end`) or the manager's (`--order`), or for a long wait as
+  `_common.md` "Waiting" says (your agent has a `work_check`). Never else write a `HANDOFF` line 1: a new line 1 starts
+  the next session.
+- On the order: save what you have at a point where nothing is half done (finish the step, not the task), then write
+  the note as below.
+- Between units: write your done line and the facts the next unit needs into your record, then start the next unit in
+  the same session.
 
 ## How
 1. Overwrite `<run-dir>/handoff-<role>.md` (`<role>` is planner, critic, builder-a, builder-b or verifier), in English,
@@ -34,5 +29,5 @@ git are the record; your note carries only what your session knows and those fil
    - Read first: at most 5 files or line ranges the next session needs for its first step.
    Leave out anything the files above already say.
 2. End your turn. Start no waiter and no new work. The owner's watcher stops this session and starts a fresh one
-   with the same name, which reads your assignment, `lessons.md`'s "Read first", the logs and, last, your note, and
-   continues.
+   with the same name and the same pack in its system prompt, which reads the lines of `lessons.md` dated after the
+   pack and, last, your note, and continues.

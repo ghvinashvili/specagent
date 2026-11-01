@@ -2,8 +2,8 @@
 
 **Lanes (optional):** two planners write in parallel from the fixed index, each its builder's tasks. The claim line is the lock: before you start a task, append `Task N: started by <role>` to `plan-log.md` (within your first minute); if a `started by` line for that task already exists, skip it; when none of your tasks is left, set your STATUS line to `STATUS: done`. Contracts between lanes: the index's `files:` and `depends_on:` cells fix the paths and the order. A task file of a task yours depends on may not exist yet: `ls` the plan folder before you fix a shared name; if it exists, read only the lines you need; if not, write the name you need under a "Contracts" heading in your task file and message the planner of that task's lane (`planner: contract for Task N — <name>`), who carries it into that task; never silently. Commits in the shared worktree: always with the pathspec of your own files; if `git commit` fails on `index.lock`, wait 10 seconds and retry. `plan-log.md` lines may appear out of task order; that is expected.
 
-Read `_common.md` first, then `_first-pass-rules.md`, `_handoff-rule.md` and the "Read first" section of
-`lessons.md`, then the spec by sections.
+Your system prompt holds this lane's frozen pack (`_common.md`, this assignment, `_first-pass-rules.md`, `_handoff-rule.md` and the "Read first" section of `lessons.md`): do not read
+them with tools; read only the lines of `lessons.md` dated after it. Read the spec by sections.
 
 ## Who uses your work, and for what
 Two builder sessions (`<project>/builder-a` in `<worktree-a>`, `<project>/builder-b` in `<worktree-b>`, no memory of this conversation)
@@ -41,7 +41,8 @@ Write to `<plan-worktree>/docs/exec-plans/active/<run-name>/`:
 ## How to work
 - Task size: at most 1,500 lines per task file, one checkable result each; the task count is fixed when the index is
   written; a task that grows gets a Deferred line, never a new task number.
-- One task per session: write the task file, run `python3 -m json.tool` on nothing (no code), commit on
+- Task after task in one session (it compacts itself near 197k; write the facts the next task needs into
+  `plan-log.md` as you go; a HANDOFF note only on the watcher's order): write the task file, run `python3 -m json.tool` on nothing (no code), commit on
   `feat/<run-name>` in `<plan-worktree>` (`git -C <plan-worktree> add docs/exec-plans/active/<run-name>/task-NN.md`, with its `task-NN.code.md` when it has one, and the pathspec commit above), then append `Task N: written — <sha>` to `<run-dir>/plan-log.md` (line 1 stays the
   STATUS line) and set line 1 of `<run-dir>/critique-response.md` to `STATUS: writing Task N+1`. Write the index first
   (`Task 0: index written — <sha>` in `plan-log.md`), as its own unit.

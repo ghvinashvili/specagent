@@ -163,17 +163,24 @@ class Run:
                     "auto",
                     "--setting-sources",
                     "local",
+                    "--autocompact",
+                    "235000",
+                    "--exclude-dynamic-system-prompt-sections",
+                    "--system-prompt-snapshot",
+                    "on",
                 ],
                 "agents": {
                     "planner": {
                         "cwd": str(self.plan),
                         "add_dirs": [str(self.run)],
                         "settings": "_control/planner-settings.json",
+                        "extra_prompt": {"file": "_pack-planner.md", "mark": "startup pack of demo/planner"},
                     },
                     "builder-a": {
                         "cwd": str(self.wt),
                         "add_dirs": [str(self.run)],
                         "settings": "_control/builder-a-settings.json",
+                        "extra_prompt": {"file": "_pack-builder-a.md", "mark": "startup pack of demo/builder-a"},
                     },
                 },
                 "budget": {"calls": 300, "output_tokens": 4000000},
@@ -182,7 +189,14 @@ class Run:
         self.write_json(
             self.control / "_agents-judge.json",
             {
-                "agents": {"judge": {"cwd": str(self.run), "add_dirs": [], "settings": "_control/judge-settings.json"}},
+                "agents": {
+                    "judge": {
+                        "cwd": str(self.run),
+                        "add_dirs": [],
+                        "settings": "_control/judge-settings.json",
+                        "extra_prompt": {"file": "_pack-judge.md", "mark": "startup pack of demo/judge"},
+                    }
+                },
             },
         )
         self.write_json(self.planner_settings, self.settings([self.plan, self.run]))
@@ -192,6 +206,10 @@ class Run:
     def write_run_files(self):
         """The waiter, `_common.md` naming it, `_launch.md`, two usage readings and the three fakes."""
         (self.run / "_wait_for_log.py").write_text("# waiter\n", encoding="utf-8")
+        for role in ("planner", "builder-a", "judge"):
+            (self.run / f"_pack-{role}.md").write_text(
+                f"# Your standing orders (startup pack of demo/{role})\n", encoding="utf-8"
+            )
         (self.run / "_common.md").write_text(self.common, encoding="utf-8")
         (self.run / "_launch.md").write_text(LAUNCH, encoding="utf-8")
         self.usage(
@@ -213,6 +231,7 @@ class Run:
 
     def settings(self, allow_write):
         return {
+            "model": "the-lane-model",
             "permissions": {
                 "allow": [],
                 "deny": [r.replace("<run-dir>", str(self.run)).replace("<checkout>", str(self.checkout)) for r in TEN],
@@ -232,7 +251,7 @@ class Run:
                     ],
                 },
             },
-            "env": {"CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": ""},
+            "env": {"CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "", "CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"},
             "includeCoAuthoredBy": False,
         }
 
@@ -301,14 +320,20 @@ def found(proc, check, agent=None):
     return [(s, d) for s, c, a, d in results(proc) if c == check and a == agent]
 
 
-def test_a_ready_run_passes_seventeen_checks_writes_the_result_file_and_leaves_no_probe_mark(tmp_path):
+def test_a_ready_run_passes_nineteen_checks_writes_the_result_file_and_leaves_no_probe_mark(tmp_path):
     r = Run(tmp_path)
     proc = preflight(*r.args(), env=r.env)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     per_role = [
         (s, c, a)
         for a in ("planner", "builder-a")
-        for s, c in (("PASS", "blind"), ("PASS", "ancestor"), ("PASS", "probe"), ("PASS", "worktree"))
+        for s, c in (
+            ("PASS", "blind"),
+            ("PASS", "cache"),
+            ("PASS", "ancestor"),
+            ("PASS", "probe"),
+            ("PASS", "worktree"),
+        )
     ]
     run_wide = [("PASS", c, None) for c in ("waiters", "formats", "monitor", "disk", "usage", "live", "launch")]
     assert [(s, c, a) for s, c, a, _ in results(proc)] == [
@@ -317,10 +342,10 @@ def test_a_ready_run_passes_seventeen_checks_writes_the_result_file_and_leaves_n
         *per_role,
         *run_wide,
     ]
-    assert proc.stdout.splitlines()[-1] == f"preflight: 17 passed, 0 failed, 0 skipped — {r.control}/preflight.json"
+    assert proc.stdout.splitlines()[-1] == f"preflight: 19 passed, 0 failed, 0 skipped — {r.control}/preflight.json"
     saved = json.loads((r.control / "preflight.json").read_text(encoding="utf-8"))
     assert saved["passed"] is True and saved["written_at"] == NOW and saved["roles"] == ["planner", "builder-a"]
-    assert saved["run_dir"] == str(r.run) and len(saved["results"]) == 17
+    assert saved["run_dir"] == str(r.run) and len(saved["results"]) == 19
     assert {k: saved["results"][2][k] for k in ("check", "agent", "status")} == {
         "check": "blind",
         "agent": "planner",
@@ -477,7 +502,7 @@ def test_without_bwrap_the_probe_fails_unless_it_is_skipped_on_purpose_and_unsan
     assert found(proc, "probe", "planner") == [("FAIL", "bwrap not on PATH")] and proc.returncode == 1
     proc = preflight(*args, "--no-sim", env=env)
     assert [s for s, _ in found(proc, "probe", "planner")] == ["SKIP"] and proc.returncode == 0
-    assert proc.stdout.splitlines()[-1].startswith("preflight: 12 passed, 0 failed, 1 skipped — ")
+    assert proc.stdout.splitlines()[-1].startswith("preflight: 13 passed, 0 failed, 1 skipped — ")
     r.edit(r.planner_settings, lambda s: s["sandbox"].update(enabled=False))
     proc = preflight(*r.args("--roles", "planner", "--unsandboxed", "planner"), env=r.env)
     assert [s for s, _ in found(proc, "probe", "planner")] == ["SKIP"]
@@ -868,7 +893,7 @@ def test_with_yes_a_stamp_the_calendar_refuses_fails_the_launch_and_the_run_is_s
     assert found(proc, "launch") == [
         ("FAIL", f"a Yes: line has an impossible time: {line}; no Yes: line names planner, builder-a")
     ]
-    assert proc.stdout.splitlines()[-1] == f"preflight: 16 passed, 1 failed, 0 skipped — {r.control}/preflight.json"
+    assert proc.stdout.splitlines()[-1] == f"preflight: 18 passed, 1 failed, 0 skipped — {r.control}/preflight.json"
     saved = json.loads((r.control / "preflight.json").read_text(encoding="utf-8"))
     assert proc.returncode == 1 and saved["written_at"] == NOW and saved["passed"] is False
 
@@ -1161,3 +1186,43 @@ def test_blind_fails_a_role_whose_settings_carry_an_attribution_key_with_the_tra
         assert failed == [("FAIL", ATTRIBUTION)] * len(held)
         both_failed = blind(tmp_path, "critic", both, *unsandboxed)
         assert both_failed == ("FAIL", f"missing includeCoAuthoredBy false; {ATTRIBUTION}")
+
+
+def test_the_cache_check_fails_a_lane_without_compaction_its_own_pack_the_5m_ttl_or_its_model(tmp_path):
+    """The cache and context rules of 2026-11-01 (owner): the pre-flight names each one a lane breaks."""
+    r = Run(tmp_path)
+    r.edit(r.config, lambda c: (c["common"].remove("--autocompact"), c["common"].remove("235000")))
+    r.edit(r.config, lambda c: c["common"].remove("--exclude-dynamic-system-prompt-sections"))
+    r.edit(r.config, lambda c: c["agents"]["planner"].pop("extra_prompt"))
+    r.edit(r.planner_settings, lambda s: (s["env"].update(CLAUDE_CODE_PROMPT_CACHE_TTL="1h"), s.pop("model")))
+    (r.run / "_pack-builder-a.md").unlink()
+    r.edit(r.config, lambda c: c.update(cap=200_000, handoff_at=150_000))
+    r.edit(r.config, lambda c: (c["common"].remove("--system-prompt-snapshot"), c["common"].remove("on")))
+    proc = preflight(*r.args(), env=r.env)
+    assert proc.returncode == 1
+    [(status, planner)] = found(proc, "cache", "planner")
+    assert status == "FAIL"
+    for problem in (
+        "common has no --autocompact",
+        "common has no --exclude-dynamic-system-prompt-sections",
+        "common has no --system-prompt-snapshot on",
+        "handoff_at 150000 and cap 200000 must lie above the compaction point",
+        "no extra_prompt of its own",
+        "TTL is not 5m",
+        "no model",
+    ):
+        assert problem in planner, planner
+    [(status, builder)] = found(proc, "cache", "builder-a")
+    assert status == "FAIL" and "its pack _pack-builder-a.md is not a file of the run folder" in builder
+
+
+def test_the_cache_check_fails_a_pack_outside_the_run_folder_or_without_its_mark(tmp_path):
+    r = Run(tmp_path)
+    (r.root / "_pack-out.md").write_text("# Your standing orders (startup pack of demo/planner)\n", encoding="utf-8")
+    r.edit(r.config, lambda c: c["agents"]["planner"]["extra_prompt"].update(file="../_pack-out.md"))
+    (r.run / "_pack-builder-a.md").write_text("# another lane's head\n", encoding="utf-8")
+    proc = preflight(*r.args(), env=r.env)
+    [(_, planner)] = found(proc, "cache", "planner")
+    [(_, builder)] = found(proc, "cache", "builder-a")
+    assert "its pack ../_pack-out.md is not a file of the run folder" in planner
+    assert "its pack _pack-builder-a.md does not hold its mark" in builder

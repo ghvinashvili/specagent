@@ -17,9 +17,9 @@ The main session is the manager: it first reads `docs/roles/manager-chat.md` and
 |---|---|
 | Ask before launching any agent | The `_launch.md` table, one yes per launch, the pre-flight first (see Pre-flight and capacity). |
 | Models are set per role, unseen by every role (owner, 2026-10-15) | Three classes by the work, set in the role's settings file under `_control/`, never in a brief, a flag or this skill: specification (spec writer), judgment (planner, plan fixer, critic, verifier, judge, writer for readers), mechanical (builder checked by a verifier, extraction, conversion, data collection). The spec writer writes the skeleton, the planner the flesh, never the reverse. Effort max for every role: the cost is context re-reads, not effort. |
-| No early compaction in SpecAgent sessions | The empty compaction override in every `--settings` (see Launch). |
-| Context cap 200k per call, one unit of work per session (owner, 2026-10-15) | Every role hands over after one unit (a task written, reviewed, built or verified) per `example/handoff-rule.md`; `scripts/watch_agents.py` stops a session past the cap (the config's `cap`, 200000), resumes it once with the hand-over order and starts the fresh session at the note. |
-| The hand-over note carries facts, not pointers; sessions read late and narrow (owner, 2026-10-22) | The note copies in what the next unit needs (shape: `example/handoff-rule.md`). The fresh session reads stable first, unique last (Context and cost): its brief, the rule, lessons.md's "Read first" section, then the note; it opens a source only when a step needs it, by line ranges (`example/first-pass-rules.md` rule 4). |
+| Compaction, not hand-over; a warm cache (owner, 2026-11-01) | `--autocompact 235000`, the empty override; a frozen pack per lane in the system prompt, its dynamic parts out; 5m TTL, waiters back in 3.5 min; one model per lane; facts into the record as work goes (Launch). |
+| A hand-over only on the watcher's order | Past `handoff_at` 250000 or `cap` 260000, a model change or a stuck session; the note per `example/handoff-rule.md`. |
+| The hand-over note carries facts, not pointers; sessions read late and narrow (owner, 2026-10-22) | The note copies in what the next unit needs (shape: `example/handoff-rule.md`). A fresh session has its pack in the system prompt and reads the newer lessons, then the note. |
 | Nothing waits for the owner | No owner questions mid-run; deny `AskUserQuestion`. A dispute is decided by rule: the spec and recorded owner decisions win, otherwise the safer option. Doubtful items are held and logged. |
 | Proof for every finding | Place (path:line or plan line), command and output or quoted source, expected result, fix. Unproven goes to "To check". |
 | At most 3 rounds per finding | Then decided by rule. |
@@ -91,9 +91,9 @@ and skills` section holds a `Spec:` line and a `Skills:` line ([Choosing roles a
 - The supervisor stops an agent's process after about an hour idle and unattached; a background shell waiter is not
   listed as work that keeps it alive. Run `python3 -I scripts/watch_agents.py <agents.json> 2>&1 | tee -a <run-dir>/_watch.log` in the background from
   the main session, one watcher per pipeline (fields: `scripts/README.md`), after one round of `--check`. It starts the fresh session at a hand-over note, orders the
-  hand-over at a unit's end past `handoff_at` (150000), revives stopped agents, keeps the sessions in
+  hand-over at a unit's end past `handoff_at` (250000, a backstop), revives stopped agents, keeps the sessions in
   `_control/registry.json`, and resends each order until the record holds its `ACK <msg_id>` line. It exits 4 only
-  when a settings file or the extra prompt file changed or a brief was removed: a changed brief is reloaded. The
+  when a settings file or an extra prompt file (a lane's pack) changed or a brief was removed: a changed brief is reloaded. The
   rest: [Watcher, monitor and collector](references/watching.md).
 - The manager's commands: `python3 -I scripts/duty_list.py extract <plan-dir> --out <run-dir>/_control/duties.md`
   before the launch; `python3 -I scripts/monitor_records.py watch <run-dir>` in the background (a `WAKE` line per

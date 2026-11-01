@@ -13,13 +13,17 @@ judge, in the generic form a new run starts from (`../SKILL.md` says how the pip
    pre-flight reads them there. This README stays here.
 2. Copy the waiters in: `<skill-dir>/scripts/wait_for_*.py` into `<run-dir>/`.
 3. Fill in the placeholders below in every file, and the run's own text (what it builds, its sources, its lanes).
-4. Fill `_launch.md`: the key lines and one table row per role. Start the request-line monitor in the background
+4. Build the packs, one per lane, after the files are final: `packs.json` goes to `<run-dir>/_packs.json` (its folder
+   is the run folder), then `python3 -I <skill-dir>/scripts/make_pack.py --no-note <run-dir>/_packs.json` writes
+   `<run-dir>/_pack-<role>.md`. They are frozen for the run: a changed pack stops the watcher (exit 4); a lesson
+   added later goes into `lessons.md` with its date.
+5. Fill `_launch.md`: the key lines and one table row per role. Start the request-line monitor in the background
    (`python3 -I <skill-dir>/scripts/monitor_records.py watch <run-dir>`), append the usage reading to
    `_control/usage.json` and run the pre-flight:
    `python3 -I <skill-dir>/scripts/manager/preflight.py check <run-dir> --checkout <checkout>`. Send the owner the
    table in one message, with the models; append the answer as a `Yes:` line and run the pre-flight again with
    `--yes` (`references/preflight-and-capacity.md`).
-5. After one round of `--check`, start the watcher in the background from the main session:
+6. After one round of `--check`, start the watcher in the background from the main session:
    `python3 -I <skill-dir>/scripts/watch_agents.py <run-dir>/_control/_agents.json 2>&1 | tee -a
    <run-dir>/_watch.log` (`score_run.py` reads that log). The judge comes once, at the
    end, with the owner's approval: `bash <skill-dir>/scripts/judge_after_verify.sh
@@ -39,7 +43,7 @@ is open.
   shell commands, context).
 - `first-pass-rules.md`: facts from installed code and official pages, the check against the error classes, the rule
   for a shared cause (step 2 of the ladder in `SKILL.md`), read late and narrow.
-- `handoff-rule.md`: one unit of work per session, the cap, and the hand-over note's shape.
+- `handoff-rule.md`: compaction instead of a hand-over, the watcher's order as the only way to a note, and the note's shape.
 - `lessons.md`: "Read first", the known error classes, and an empty "Lessons from this run" that the agents fill.
 - `sim_bwrap.py`: builds a bwrap in the order Claude Code mounts a role's sandbox and runs a probe in it, so a settings
   file is checked before the rollout (`python3 example/sim_bwrap.py <run-dir>/_control/_agents.json <agent> '<probe>'`).
@@ -74,12 +78,13 @@ is open.
   line 1, the STATUS line, may change, and line 2 of `judge.md` (`VERDICT:`) and of `critique.md` (`Reviewed:`).
 - Every role's settings carry `"includeCoAuthoredBy": false`: no commit ends with a `Co-Authored-By` trailer that names
   the model, and the pre-flight's `blind` check fails a file without it (`references/sandbox-and-blindness.md`).
-- Every role's settings carry `CLAUDE_CODE_PROMPT_CACHE_TTL` under `env`: `5m` for the planner and the builders, which
-  wait on no other role, `1h` for the plan fixer, critic, verifier and judge, which do (`references/launch.md`).
+- Every role's settings carry `CLAUDE_CODE_PROMPT_CACHE_TTL` under `env`: `5m` for every role, the waiters returning
+  within 3.5 minutes; the 1-hour TTL is rejected (`references/launch.md`).
 - `agents.json`: the watcher's config for the six roles (config v2; fields in `../scripts/README.md`).
 - `agents-judge.json`: the judge's config, with its one agent, for `judge_after_verify.sh`.
-- `packs.json`: the roles' startup packs for `make_pack.py` (packs are off since 2026-10-25; it builds them to
-  measure again; `--no-note` leaves a hand-over note out, as it is unique to one session).
+- `packs.json`: one frozen pack per lane for `make_pack.py --no-note`, built before the first launch and passed by
+  each agent's own `extra_prompt` in `agents.json` (owner, 2026-11-01); `agents.json`'s `common` carries
+  `--autocompact 235000`, so a session compacts instead of handing over.
 - `launch.md`: the launch table the manager fills before every launch, with the owner's `Yes:` lines
   (`_launch.md` in the run folder; `references/preflight-and-capacity.md`).
 - `surface-phrases.en.json`: the English phrases of the owner's surface, `../scripts/manager/surface.py` (answer 11a):

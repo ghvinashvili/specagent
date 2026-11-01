@@ -33,7 +33,8 @@ below).
 
 ## Where it saves money
 
-**One unit per session, a hand-over at the cap.** A session does one unit and hands over, or at 200k tokens per call
+**Compaction, with a hand-over as the backstop.** Since 2026-11-01 a session compacts near 197k and keeps its lane's
+pack in the system prompt (README "The cache and the context"); before, it did one unit and handed over, or at 200k
 ([hand-over rule][handoff]). Every call re-reads the whole conversation, so a read costs its size times the calls that
 follow it: a session starts at 27k tokens (10k from the shared cache) and reaches 81k after ten calls, 84% of the growth
 tool results ([cost]). Without the cap, calls grew to 500-740k tokens, three times the cost of a fresh session
@@ -52,7 +53,8 @@ of 81k saves about 15% of a run ([cost]).
 **The cache carries the prefix.** `score_run.py` printed `cache-read 98%` for fold-task6 and for pipeline-fold, 98% to
 99% per role (the two runs' pages); the eval case `cache-share-reader` checks that a stage's second session finds its
 prompt cached ([evals]). An hour-long cache at max effort would have saved 14% on both measured sessions (ADR-0016),
-and a startup pack (`make_pack.py`) raised the start from 30.7k to 42.4k tokens, so packs are off ([cost]). Since
+and a startup pack (`make_pack.py`) raised the start from 30.7k to 42.4k tokens, so packs were off until 2026-11-01, when one frozen pack per lane went
+into the system prompt, where it survives a compaction ([cost]). Since
 2026-10-31 the cache is measured in dollars, not tokens, and its time to live is set per role (the last measurement
 below).
 
@@ -117,8 +119,8 @@ are on the private vault's page `context/measurements/2026-10-31-cache-ttl.md`:
 | consolidation verifier | +$2.99 | 4 | 633 |
 
 So in a SpecAgent role session launched with the skill's example settings ([launch]), the `env` sets
-`CLAUDE_CODE_PROMPT_CACHE_TTL`: `5m` for the roles that wait on no other role (builder, writer, planner), `1h` for the
-roles that wait (verifier, critic, plan fixer, judge); the harness's stage types keep the hour that
+`CLAUDE_CODE_PROMPT_CACHE_TTL`: `5m` for every role since 2026-11-01, the waiters returning within 3.5 minutes (the
+1-hour TTL cost $59.51 more in writes against $26.91 saved on one run); the harness's stage types keep the hour that
 `docs/roles/need-to-know.yaml` sets (ADR-0016). A launch prompt names what is byte-identical across a role's sessions
 first (the brief, the hand-over rule, the "Read first" section of `lessons.md`, the facts pack) and the hand-over note
 last, because a cached prefix is only as long as what is identical ([cost]); `make_pack.py --no-note` leaves the note

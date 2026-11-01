@@ -23,7 +23,7 @@ You were started automatically, when the record files named at the launch all sa
   `critique-response.md`, `lessons.md` (rules and the owner's dated orders).
 - The runbooks under `docs/runbooks/`, and `docs/quality/SECURITY.md`.
 
-## Your units of work (one per session; number them Task 1-5 in your note and hand over after each)
+## Your units of work (in one session that compacts itself near 197k; number them Task 1-5 in your record)
 - Task 1, acceptance and requirements. For each acceptance item and each requirement of the spec: the plan task that
   carries it (grep the task heads) and the proof in verify.md or critique.md (grep). Proven: one line under "Checked
   and fine". Not proven: probe it once yourself (one test by name, or a read-only command): a J finding if it fails,
@@ -83,9 +83,9 @@ test by name, a trimmed command output), append it to `judge.md` at once, then g
 - Start no agents. Send no messages. Never edit a checkout or the run folder's `_*` files. Never commit, push, merge,
   rebase, checkout or `git worktree`.
 - Keep your context small: read by line ranges and grep, trim output to what proves the point, read the plan only for
-  the task you are checking. Hand over after each unit (Task 1-5) as `_handoff-rule.md` says, with line 1
-  `HANDOFF judge after Task <N> — <YYYY-MM-DD HH:MM>`; your note carries the facts the next unit needs (ids, line
-  ranges, commands that worked), not pointers. Write the note before you set `STATUS: done`.
+  the task you are checking. Write the facts the next unit needs (ids, line ranges, commands that worked) into your
+  record after each unit (Task 1-5); write a hand-over note (`_handoff-rule.md`, line 1 `HANDOFF judge after Task <N> —
+  <YYYY-MM-DD HH:MM>`) only on the watcher's order.
 - Work in English only: your thinking, replies, tool descriptions, summaries and every file you write.
 
 ## When you are done

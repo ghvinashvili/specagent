@@ -143,12 +143,13 @@ becomes a line under "Lessons from this run" in `lessons.md` for every later tas
 
 ## 7. A session hands over
 
-A session does one unit (a task written, reviewed, built or verified) and then hands over, or earlier when its context
-passes the cap of 200k tokens per call: it writes `handoff-<role>.md`, at most 40 lines of facts, whose line 1
+Since 2026-11-01 a session works unit after unit and compacts itself near 197k (`--autocompact 235000`), its lane's
+pack kept in the system prompt; it hands over only on the watcher's order, past `handoff_at` (250k) or `cap` (260k), or
+for a model change or a stuck session: it writes `handoff-<role>.md`, at most 40 lines of facts, whose line 1
 `HANDOFF <role> after Task <N> — <time>` is the signal. The watcher stops it and starts a fresh session with the same
 name, which reads its brief, the facts pack it names (R4), the hand-over rule, the "Read first" section of
 `lessons.md` and, last, the note ([hand-over rule](../.claude/skills/running-specagent-pipelines/example/handoff-rule.md)). In a repeat
-of like items (pages to ingest), a unit is sized from the last measured run to end under `handoff_at` (150k), past
+of like items (pages to ingest), a unit is sized from the last measured run to end under `handoff_at` (250k), past
 which the watcher orders the hand-over at the unit's end; a session the order reaches inside a unit writes
 `Unit size: <k> -> <k-1>`, and later units take the smaller size (R2). The cost side of this step is on
 [Time and money](economy.md).

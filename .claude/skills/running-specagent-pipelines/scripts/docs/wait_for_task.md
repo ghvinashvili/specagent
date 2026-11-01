@@ -12,5 +12,9 @@ through Task N`; `STATUS: done` covers every task) nor listed on its line 2 (`Re
 summary is due: the response's line 1 is `STATUS: plan complete` or `STATUS: done`, every C and A id has its answer
 line and the critique's line 1 is not `STATUS: done`.
 
+Without `--once` it polls every 30 s and returns within 3.5 minutes: exit 0 with work, else exit 3 with its line and
+"Run the same command again now: a call within 5 min keeps the prompt cache warm", and the role runs it again
+(owner, 2026-11-01; until then it polled once a minute for up to 8 hours and exited 1 at the end).
+
 `--once`, in any form: one check, no polling; it prints its line and exits 0 when there is work now, 3 when not (2 is
 a usage error). The critic's `work_check` in `example/agents.json` is the third form with `--once`.

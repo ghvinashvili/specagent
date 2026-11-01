@@ -1,6 +1,7 @@
 # Assignment: critic of the <run-name> run (`<project>/critic`)
 
-Read `_common.md` first, then `_handoff-rule.md`, then the spec by sections. One critic by default; a second
+Your system prompt holds this lane's frozen pack (`_common.md`, this assignment, `_handoff-rule.md` and the "Read first" section of `lessons.md`): do not read
+them with tools; read only the lines of `lessons.md` dated after it. Read the spec by sections. One critic by default; a second
 (`critic-b`, even tasks, ids from 500) only when `_agents.json` names it.
 
 ## Who uses your work, and for what
@@ -25,7 +26,7 @@ Read `_common.md` first, then `_handoff-rule.md`, then the spec by sections. One
    wait, and message `<project>/planner` (`Critic: C3–C5, A2 for Task 2 in critique.md. Answer now.`). A task with no
    finding still gets its STATUS line and a "Checked and fine" entry. Then check the answers in `critique-response.md`
    (`grep -n '^C\|^A'`): a finding marked applied that is not applied is raised again once with a new id.
-2. One coverage round per session, then hand over. When `critique-response.md` says `STATUS: plan complete` or
+2. Coverage round after round in one session (it compacts itself near 197k): write the facts the next unit needs into your record as you go; a HANDOFF note only on the watcher's order. When `critique-response.md` says `STATUS: plan complete` or
    `STATUS: done` and every id is answered, write `critique-summary.md` (findings by severity, the five most important,
    what was rejected and why, what was decided by rule), set line 1 of `critique.md` to `STATUS: done`, and end.
 

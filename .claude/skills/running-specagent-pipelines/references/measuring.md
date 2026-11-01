@@ -13,7 +13,8 @@ Read-only scripts for the main session (usage and options on each script's page 
   sessions since 2026-10-22: the median start-up was 113–137k per pipeline, and 1,026 of 1,064 fresh sessions started
   over 60k; the costliest reached the cap before their first write. A resumed session's transcript repeats the one it
   resumes, and usage figures from before 2026-10-26 counted those calls twice.
-- Budget: the watcher's `budget` (150 calls or 2,000,000 output tokens per session by default) returns with exit 3
+- Budget: the watcher's `budget` (3,000 calls or 40,000,000 output tokens per session by default, counted over the whole transcript: a session now
+  lives through its compactions and its waiter calls, about 17 an hour) returns with exit 3
   when a session passes it, so a runaway session is seen; at the check of 2026-10-26 the busiest live session had made
   109 calls.
 - Lessons: `scripts/audit_read_first.py <run-dir>` before compacting lessons.md's "Read first": it flags marker

@@ -2,7 +2,7 @@
 title: "Pipeline economy: hand over by itself, size the units, check in pairs, write a facts pack"
 type: decision
 status: draft
-updated: 2026-10-30
+updated: 2026-11-01
 created: 2026-10-30
 audience: [all]
 decided: 2026-10-30
@@ -15,6 +15,8 @@ tags:
   - decision
 ---
 # Pipeline economy: hand over by itself, size the units, check in pairs, write a facts pack
+
+Superseded in part (2026-11-01): the TTL is 5m for every role and a session compacts instead of handing over by itself; see [decisions/session-compaction-and-the-lane-pack-in-the-prompt-cache.md](session-compaction-and-the-lane-pack-in-the-prompt-cache.md).
 
 Four rules of the SpecAgent pipeline cut the copies and the re-reading that made the obsidian-ingest run of
 2026-10-30 cost $43.01 against an estimate of $15-25 (40 pages in 5 units, 9 sessions started by orders), and one row

@@ -6,8 +6,9 @@ on its page under `scripts/docs/`, indexed in `scripts/README.md`.
 - Each round: a fresh session when a hand-over note appears, if the note's mtime lies within its session's transcript
   plus five minutes; builder and verifier switched at the config's `milestones`; a permission prompt cancelled after
   `permission_wait`; a stopped agent continued with a nudge, at most `nudges` times (6).
-- Hand-over: at a unit's end (a new line 1 in the agent's record) once its last call passes `handoff_at` (150000),
-  never in the middle of a unit; past the `cap` (200000) at once.
+- Hand-over: at a unit's end (a new line 1 in the agent's record) once its last call passes `handoff_at` (250000),
+  never in the middle of a unit; past the `cap` (260000) at once. Both are a backstop: a session compacts itself first
+  (`--autocompact 235000` in `common`, `references/launch.md`).
 - Orders: the watcher's (`handoff`, `unit-end`, `reload`) and the manager's (`--order <agent> <text>`) reach a session
   by a stop and a resume whose prompt ends with ``Order <msg_id>: append the line `ACK <msg_id>` to <record> before
   anything else.``; without that line the order is resent after `ack_wait` seconds, at most `ack_resends` times, and

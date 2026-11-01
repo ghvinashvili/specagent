@@ -127,7 +127,7 @@
   },
   "env": {
     "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "",
-    "CLAUDE_CODE_PROMPT_CACHE_TTL": "1h"
+    "CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"
   },
   "crossSessionInbound": "accept"
 }

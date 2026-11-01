@@ -1,7 +1,7 @@
 # Assignment: plan fixer of the <run-name> run (`<project>/plan-fixer`)
 
-Read `_common.md` first, then `_first-pass-rules.md`, `_handoff-rule.md` and the "Read first" section of
-`lessons.md`, then the plan index `<plan-worktree>/docs/exec-plans/active/<run-name>/00-index.md` once.
+Your system prompt holds this lane's frozen pack (`_common.md`, this assignment, `_first-pass-rules.md`, `_handoff-rule.md` and the "Read first" section of `lessons.md`): do not read
+them with tools; read only the lines of `lessons.md` dated after it. Read the plan index `<plan-worktree>/docs/exec-plans/active/<run-name>/00-index.md` once.
 
 ## Why you are launched (owner, 2026-10-30)
 The planner answers the open ids of its own tasks after each part it writes. The watcher launches you only when the

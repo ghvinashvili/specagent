@@ -86,14 +86,14 @@ Each round, for every agent whose STATUS line (line 1 of its `status` file) does
 Safety: at start it records the SHA-256 of every control file (the config, the settings files, the `extra_prompt`
 file, the `_*` files of the run folder its texts name: the briefs).
 A brief whose hash changed, or one created after the start, is reloaded each round (above). Before each stop and launch
-it checks the settings files and the `extra_prompt` file again, and that every brief still exists; on a change it logs
+it checks the settings files and every `extra_prompt` file (the run's and each lane's pack) again, and that every brief still exists; on a change it logs
 `control file changed: <name>` and exits with code 4 instead. The config is the exception: a
 changed config is read and checked again at the start of the next round; a valid one replaces the old one (the run
 state stays: the sessions seen, pending orders, revivals) and logs `config reloaded: <name>`, an invalid one
 (unreadable, not JSON, a field missing or unknown, a value of the wrong JSON type, as the script's `TYPES` gives
 them, or a negative number) is kept out and logs `config invalid, kept the previous one: <error>`, once per change,
 and neither exits. At start the same checks give exit 2.
-Code 4 is left for a settings file, the `extra_prompt` file and a removed brief.
+Code 4 is left for a settings file, an `extra_prompt` file (a lane's pack included) and a removed brief.
 
 `--check` runs only `claude agents --json --all` (and, for a new note, the agent's `work_check`, so a check must only read)
 and prints one line per agent with its decisions (`would stop <id>`,
@@ -116,4 +116,4 @@ the `ACK <msg_id>` line and resends by stop and resume.
 | 1 | the last round ended without an event |
 | 2 | a config error at start; nothing is run (a config changed later is reloaded or kept out, above) |
 | 3 | a budget line (above); decide whether the session may go on, then restart the watcher |
-| 4 | a settings file or the `extra_prompt` file changed, or a brief was removed (a changed brief is reloaded, above); check the change, then restart the watcher: the registry keeps the orders, the revivals and the session ids |
+| 4 | a settings file or an `extra_prompt` file (the run's, or a lane's own pack) changed, or a brief was removed (a changed brief is reloaded, above); check the change, then restart the watcher: the registry keeps the orders, the revivals and the session ids |

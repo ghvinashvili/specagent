@@ -2,7 +2,7 @@
 
 - Time: roles start when their input is ready, nothing waits for the owner (two waits cost 2 h 10 min once), work runs
   side by side, fixes land minutes after the unit, the watcher hands over and revives without a human.
-- Money: one unit per session and a hand-over at 200k (no cap: three times the cost per call), a note of facts, reading
+- Money: a session compacts near 197k instead of handing over (2026-11-01; no cap: three times the cost per call), a note of facts, reading
   on need, 98% cache read, mechanical work on the cheaper class.
 - Quality's cost: the verifier's share of each run, and the ingest run's overrun with its two causes; the table of the
   two runs and the third run of the day.

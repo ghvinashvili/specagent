@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build a role's startup pack: the standing orders a fresh session would otherwise read with tools at every start
 (owner, 2026-10-25: cut what a session loads at start). Passed with --append-system-prompt-file, it is a cached prefix
-that every session of the role shares, and none of it is read again with tools. Packs are off since 2026-10-25
-(`watch_agents.py` refuses `pack: true`); this script builds them to measure again.
+that every session of the lane shares, and none of it is read again with tools. Since 2026-11-01 (owner) every lane
+has one, built once before its first launch and passed by the agent's own `extra_prompt` in the watcher's config.
 The pack holds no time stamp: built from unchanged files it is byte for byte the same, so the cache holds.
 
 Usage: python3 -I make_pack.py [--no-note] <run-dir>/_packs.json [<role> ...]
@@ -27,8 +27,8 @@ SECTIONS = ["Read first", "Known error classes"]
 HEAD = """# Your standing orders (startup pack of {name}/{role})
 
 These files of the run folder {run} are copied here in full, so you do not read them with tools: {files}, and the
-{sections} of {lessons}. They are current as of this session's start. Lines added to {lessons} later carry their
-date: before each task, `grep -n "<today's date>" {run}/{lessons}`. Everything else (the plan, the logs, the rest of
+{sections} of {lessons}. They are frozen at the lane's first launch. Lines added to {lessons} during the run carry
+their date: read those dated on or after the run's first day. Everything else (the plan, the logs, the rest of
 {lessons}, the spec) you read when a step needs it, by line ranges.{note}
 
 """

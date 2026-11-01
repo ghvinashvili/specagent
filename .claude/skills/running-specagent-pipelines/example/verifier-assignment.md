@@ -1,6 +1,7 @@
 # Assignment: verifier of the <run-name> run (`<project>/verifier`, worktree `<verify-worktree>`)
 
-Read `_common.md` first, then `_handoff-rule.md`, then the plan index `<plan-worktree>/docs/exec-plans/active/<run-name>/00-index.md` once.
+Your system prompt holds this lane's frozen pack (`_common.md`, this assignment, `_handoff-rule.md` and the "Read first" section of `lessons.md`): do not read
+them with tools; read only the lines of `lessons.md` dated after it. Read the plan index `<plan-worktree>/docs/exec-plans/active/<run-name>/00-index.md` once.
 
 Repeat units: <units, or none>
 
@@ -40,7 +41,8 @@ style.
    suites: `(ulimit -v 8388608; timeout -k 10 3600 uv run pytest -q)`, `just validate`, `uv run harness docs-check`,
    `uv run harness wiki-lint` (when it exists), `just graph` (expect `wiki/graph/index.md` under 12 KB and no file of
    it tracked by git). Record the results under `## Milestone <k>`.
-4. One built commit (a pair of repeat units counts as one) or one milestone run per session, then hand over. When
+4. Built commit after built commit (a pair of repeat units counts as one) and milestone runs in one session (it
+   compacts itself near 197k): write the facts the next unit needs into your record as you go; a HANDOFF note only on the watcher's order. When
    every task is verified and the last milestone passed, write `verify-summary.md` (what passed, what was found,
    what remains), set line 1 of `verify.md` to `STATUS: done`, and end.
 

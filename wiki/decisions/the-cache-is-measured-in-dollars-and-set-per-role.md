@@ -2,7 +2,7 @@
 title: The cache is measured in dollars and set per role
 type: decision
 status: draft
-updated: 2026-10-31
+updated: 2026-11-01
 created: 2026-10-31
 audience: [all]
 decided: 2026-10-31
@@ -15,6 +15,8 @@ tags:
   - decision
 ---
 # The cache is measured in dollars and set per role
+
+Superseded in part (2026-11-01): the TTL is 5m for every role and a session compacts instead of handing over by itself; see [decisions/session-compaction-and-the-lane-pack-in-the-prompt-cache.md](session-compaction-and-the-lane-pack-in-the-prompt-cache.md).
 
 A token count hides what the cache costs: a cache write is priced at twice an input token for an hour and at 1.25 times for five
 minutes, and the readme writer's $129.61 was 31% cache reads, 29% cache writes and 40% output. So the measuring scripts print

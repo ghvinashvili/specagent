@@ -117,6 +117,9 @@ class Pipeline:
             "common": ["--model", "opus", "--effort", "max"],
             "blocked_files": ["build-log.md"],
             "interval": 0,
+            # the hand-over thresholds these tests were written for; the defaults moved to 260000 and 250000 (2026-11-01)
+            "cap": 200_000,
+            "handoff_at": 150_000,
             "agents": {"t/builder": self.agent("builder", "build-log.md")},
         }
         self.rounds([row()])
@@ -676,6 +679,64 @@ def test_extra_prompt_for_new_sessions_and_for_resumes_that_started_with_it(p):
     assert by_name["t/critic"][-4:-2] == extra  # a resume of a session that started with it keeps it
 
 
+def test_a_lanes_own_extra_prompt_replaces_the_runs_and_the_others_keep_the_runs(p):
+    """One frozen pack per lane in the system prompt (owner, 2026-11-01): an agent's own `extra_prompt` replaces the
+    run's for that agent, a new session and a resume that started with its mark get it, an agent without one keeps the
+    run's."""
+    mark, own = "Extra voice is on for this whole session", "Your standing orders: the builder lane's pack"
+    p.write("_extra.md", f"# {mark}\n")
+    p.write("_pack-builder.md", f"# {own}\n")
+    p.config["extra_prompt"] = {"file": "_extra.md", "mark": mark}
+    p.config["agents"]["t/builder"]["extra_prompt"] = {"file": "_pack-builder.md", "mark": own}
+    p.config["agents"]["t/verifier"] = p.agent("verifier", "verify.md")
+    p.transcript()
+    p.transcript(sid=SID2)
+    note(p)
+    stopped = {"state": "stopped", "status": None, "pid": None}
+    p.rounds([row(), row(name="t/verifier", sid=SID2, **stopped)])
+    r = p.watch(rounds=1)
+    assert r.returncode == 1, r.stdout + r.stderr
+    by_name = {c["argv"][c["argv"].index("--name") + 1]: c["argv"] for c in p.launches()}
+    assert by_name["t/builder"][-4:-2] == ["--append-system-prompt-file", str(p.run / "_pack-builder.md")]
+    assert str(p.run / "_extra.md") not in by_name["t/builder"]
+    assert "--append-system-prompt-file" not in by_name["t/verifier"]  # its resume started without the run's mark
+
+
+def test_a_resume_that_started_with_the_lanes_own_mark_keeps_its_own_pack(p):
+    """The resume rule reads the lane's own mark, not the run's: a session whose transcript carries the builder pack's
+    mark is resumed with that pack, and one with only the run's mark is not."""
+    mark, own = "Extra voice is on for this whole session", "Your standing orders: the builder lane's pack"
+    p.write("_extra.md", f"# {mark}\n")
+    p.write("_pack-builder.md", f"# {own}\n")
+    p.config["extra_prompt"] = {"file": "_extra.md", "mark": mark}
+    p.config["agents"]["t/builder"]["extra_prompt"] = {"file": "_pack-builder.md", "mark": own}
+    p.config["agents"]["t/verifier"] = p.agent("verifier", "verify.md")
+    p.config["agents"]["t/verifier"]["extra_prompt"] = {"file": "_pack-builder.md", "mark": own}
+    p.transcript(prompts=[(time.time() - 3000, f"<system-reminder>{own}</system-reminder>")])
+    p.transcript(sid=SID2, prompts=[(time.time() - 3000, f"<system-reminder>{mark}</system-reminder>")])
+    stopped = {"state": "stopped", "status": None, "pid": None}
+    p.rounds([row(**stopped), row(name="t/verifier", sid=SID2, **stopped)])
+    r = p.watch(rounds=1)
+    assert r.returncode == 1, r.stdout + r.stderr
+    by_name = {c["argv"][c["argv"].index("--name") + 1]: c["argv"] for c in p.launches()}
+    assert by_name["t/builder"][-4:-2] == ["--append-system-prompt-file", str(p.run / "_pack-builder.md")]
+    assert "--append-system-prompt-file" not in by_name["t/verifier"]
+
+
+def test_a_lanes_pack_changed_during_the_run_exits_4_instead_of_launching(p):
+    """A lane's pack is frozen for the run: like a settings file, a changed pack stops the launch with exit 4."""
+    own = "Your standing orders: the builder lane's pack"
+    p.write("_pack-builder.md", f"# {own}\n")
+    p.config["agents"]["t/builder"]["extra_prompt"] = {"file": "_pack-builder.md", "mark": own}
+    p.transcript()
+    note(p)
+    p.rounds({"rows": [row()], "write": {str(p.run / "_pack-builder.md"): "# a lesson added mid-run\n"}})
+    r = p.watch(rounds=2)
+    assert r.returncode == 4, r.stdout + r.stderr
+    assert "control file changed: _pack-builder.md" in r.stdout
+    assert p.calls() == []
+
+
 @pytest.mark.parametrize(
     "change, message",
     [
@@ -713,6 +774,36 @@ def test_extra_prompt_for_new_sessions_and_for_resumes_that_started_with_it(p):
         (
             {"extra_prompt": {"file": "/etc/passwd", "mark": "x"}},
             "config error: extra_prompt file /etc/passwd leaves run_dir",
+        ),
+        (
+            {
+                "agents": {
+                    "t/builder": {
+                        "cwd": "/x",
+                        "add_dirs": [],
+                        "settings": "_builder-settings.json",
+                        "status": "build-log.md",
+                        "final": "STATUS: done",
+                        "extra_prompt": {"file": "_pack.md"},
+                    }
+                }
+            },
+            "config error: t/builder: extra_prompt is not an object with file and mark, each a string",
+        ),
+        (
+            {
+                "agents": {
+                    "t/builder": {
+                        "cwd": "/x",
+                        "add_dirs": [],
+                        "settings": "_builder-settings.json",
+                        "status": "build-log.md",
+                        "final": "STATUS: done",
+                        "extra_prompt": {"file": "../_pack.md", "mark": "x"},
+                    }
+                }
+            },
+            "config error: t/builder: extra_prompt file ../_pack.md leaves run_dir",
         ),
     ],
 )
@@ -1227,7 +1318,7 @@ def test_the_example_configs_name_no_model_and_set_the_hand_over_mark_and_the_ac
     for name in ("agents.json", "agents-judge.json"):
         assert "--model" not in json.loads((example / name).read_text(encoding="utf-8"))["common"], name
     config = json.loads((example / "agents.json").read_text(encoding="utf-8"))
-    assert (config["handoff_at"], config["ack_wait"], config["ack_resends"]) == (150_000, 900, 2)
+    assert (config["handoff_at"], config["ack_wait"], config["ack_resends"]) == (250_000, 900, 2)
     assert config["unit_end_grace"] == 600
 
 

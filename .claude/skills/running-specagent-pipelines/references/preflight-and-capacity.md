@@ -11,6 +11,11 @@ that. The checks, in their order:
 - `config`: the watcher config and every settings file lie inside `<run-dir>/_control/` and parse.
 - `model`: no config, brief or `lessons.md` of the run names a model or passes the model flag (the model is the
   manager's setting).
+- `cache`: the config's `common` carries `--autocompact 235000`, `--exclude-dynamic-system-prompt-sections` and
+  `--system-prompt-snapshot on`, and its `handoff_at` and `cap` lie above the compaction point (about 197k); the role
+  has its own `extra_prompt` whose pack is a file of the run folder holding its mark; its settings keep
+  `CLAUDE_CODE_PROMPT_CACHE_TTL` at `5m`, the empty compaction override and a `model` (one model per lane; owner,
+  2026-11-01, `launch.md`).
 - `blind`: each role's settings deny the ten rules that keep it blind to transcripts, the control files, the hand-overs
   and the processes and away from the credentials file `~/.claude/.credentials.json`; a sandboxed role also fails closed
   and hides the same four paths from reading. An `Edit` or `Write` deny rule with one leading slash (`Edit(/x)`) fails

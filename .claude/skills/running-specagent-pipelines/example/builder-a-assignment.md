@@ -1,7 +1,7 @@
 # Assignment: builder A of the <run-name> run (`<project>/builder-a`, worktree `<worktree-a>`, branch `feat/<run-name>-a`)
 
-Read `_common.md` first, then `_first-pass-rules.md`, `_handoff-rule.md` and the "Read first" section of
-`lessons.md`, then the plan index `<plan-worktree>/docs/exec-plans/active/<run-name>/00-index.md` once.
+Your system prompt holds this lane's frozen pack (`_common.md`, this assignment, `_first-pass-rules.md`, `_handoff-rule.md` and the "Read first" section of `lessons.md`): do not read
+them with tools; read only the lines of `lessons.md` dated after it. Read the plan index `<plan-worktree>/docs/exec-plans/active/<run-name>/00-index.md` once.
 
 ## Who uses your work, and for what
 The verifier reads each commit's diff by file and re-runs every check of your commits in its own worktree; the main
@@ -33,7 +33,8 @@ session merges both builders' branches into `feat/<run-name>` and, at the end, i
    `(code)` ones first, test first, one commit `fix(template): V<n>, V<m> — <what>`, and log `V<n>: fixed — <sha>` (or
    `rejected — <proof>`); `(plan)` and `(spec)` ones are answered in `critique-response.md`: build what the plan says
    once it is fixed. Check `verify.md` for new ids before each task (`grep -n '^#### '`).
-5. One task per session, then hand over (`_handoff-rule.md`). At the end of your last task write
+5. Task after task in one session: the session compacts itself near 197k, so write the facts the next step needs
+   into your log as you go; a HANDOFF note (`_handoff-rule.md`) only on the watcher's order. At the end of your last task write
    `build-summary-a.md` (what was built, what was deferred, what the owner must do once) and set line 1 of your
    log to `STATUS: done`.
 

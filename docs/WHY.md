@@ -33,7 +33,11 @@ judges the model, not the text, and a session that knows its reviewer's model sp
 a settings file in the run's control folder, which no role may read, and the sandbox hides the transcripts
 ([sandbox and blindness](../.claude/skills/running-specagent-pipelines/references/sandbox-and-blindness.md)).
 
-## One unit of work per session and a hand-over at 200k
+## Small contexts: a hand-over at 200k, since 2026-11-01 a compaction near 197k
+
+Since 2026-11-01 a session compacts itself near 197k and keeps its lane's pack in the system prompt; the hand-over
+below is the watcher's backstop (README "The cache and the context"). The history of the rule:
+
 
 Every call re-reads the whole context from the cache, so a read costs its size times the calls that follow it.
 Measured 2026-10-22: 27k tokens at a session's first call, 81k after ten calls, 180-200k at the hand-over after 30-70

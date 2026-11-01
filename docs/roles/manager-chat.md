@@ -50,6 +50,11 @@ Before a run:
 - The pre-flight: `scripts/manager/preflight.py`; the usage reading of the desktop app's `get_usage` is written to
   `_control/usage.json` before each launch.
 - The `_launch.md` table, each of its times from `date -u`.
+- The cache and the context (owner, 2026-11-01): `common` carries `--autocompact 235000`,
+  `--exclude-dynamic-system-prompt-sections` and `--system-prompt-snapshot on`, `cap` 260000 and
+  `handoff_at` 250000; one pack per lane built by `scripts/make_pack.py --no-note` before the first launch and passed by
+  the agent's own `extra_prompt`, never rebuilt during the run; every role's settings at the 5m TTL with the empty
+  compaction override and the lane's one model. The pre-flight's `cache` check fails a lane that misses one.
 
 During a run:
 - The monitor: `scripts/monitor_records.py watch <run-dir>`, a background command, re-armed with the same command

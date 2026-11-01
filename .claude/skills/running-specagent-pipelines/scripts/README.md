@@ -17,7 +17,9 @@ README of their own.
 - [`judge_after_verify.sh`](docs/judge_after_verify.md): the judge, once, after every task is verified
 
 ## Waiting
-Zero-token waiters: each polls once a minute, exits 0 when there is work, and gives up after 8 hours. Copy them into
+Zero-token waiters: each polls every 30 s, exits 0 when there is work, and returns within 3.5 minutes with exit 3 and
+the line "Run the same command again now", so a waiting role's next call comes inside the 5-minute prompt cache
+(owner, 2026-11-01); a wait known to be longer than about an hour ends the session instead. Copy them into
 the run folder (`_wait_for_*.py`) and write the full command with its path arguments into each brief. With `--once`
 each checks once and exits 0 (work) or 3 (none): the form an agent's `work_check` takes, as `open_ids.py` does.
 
@@ -54,13 +56,13 @@ required; every other field takes its default. Keys that begin with `_` are igno
 | `agents` | required | name → the agent's fields (below); the role is the part of the name after the slash |
 | `common` | `[]` | flags for every launch and resume (`--effort max --setting-sources local …`; the model is set in the settings file) |
 | `blocked_files` | `[]` | files of the run folder whose line 1 holding `blocked` (any case) is an exit event |
-| `cap` | `200000` | the context of a session's last call, in tokens, past which it is ordered to hand over |
+| `cap` | `260000` | the context of a session's last call, in tokens, past which it is ordered to hand over (a backstop: `--autocompact 235000` compacts near 197k first) |
 | `handoff_wait` | `1200` | seconds after the order before a fresh session starts without a note |
 | `nudges` | `6` | revivals per agent |
 | `permission_wait` | `600` | seconds a block may last before it is cancelled or exits; `null`: every block exits at once |
 | `final_stop_minutes` | `10` | a final agent's live session is stopped by the watcher: at its prompt at once, busy once its record is this many minutes old; the end exit waits for it; `null`: left live (owner, 2026-10-30: sessions close without the owner) |
 | `interval` | `120` | seconds between rounds |
-| `budget` | `{"calls": 150, "output_tokens": 2000000}` | per session; past either: the `budget …` line and exit 3 |
+| `budget` | `{"calls": 3000, "output_tokens": 40000000}` | per session, counted over its whole transcript (compactions and waiter calls included); past either: the `budget …` line and exit 3 |
 | `fresh` | the code's texts | role → the fresh session's prompt, `{run}` filled in; merged over the defaults |
 | `lang` | the English-only sentence | appended to every fresh text, the nudge, the hand-over, unit-end and reload orders; `""`: nothing |
 | `nudge` | the code's text | the prompt that resumes a revived session |
@@ -69,7 +71,7 @@ required; every other field takes its default. Keys that begin with `_` are igno
 | `milestones` | `[]` | task numbers at which the builder and the verifier get fresh sessions (see [the watcher's page](docs/watch_agents.md)) |
 | `extra_prompt` | none | `{"file": "<file in run_dir>", "mark": "<its first line>"}`, given below |
 | `pack` | none | startup packs (`scripts/make_pack.py`), which this watcher does not pass: `true` is a config error |
-| `handoff_at` | `150000` | context tokens of the last call past which the end of a unit orders a hand-over; below `cap` |
+| `handoff_at` | `250000` | context tokens of the last call past which the end of a unit orders a hand-over; below `cap` (absent with an own `cap` below 250000: three quarters of it) |
 | `unit_end_grace` | `600` | seconds a unit end waits, from when its new line 1 was written, for the session's own note before the order; `0`: at once |
 | `ack_wait` | `900` | seconds an order waits for its `ACK <msg_id>` line before it is resent |
 | `ack_resends` | `2` | resends of an order without its `ACK` line; then `no ack …` and exit code 0 |
@@ -93,6 +95,7 @@ The fields of an agent (`agents.<name>`):
 | `status` | its record file in `run_dir`; line 1 is its STATUS |
 | `final` | the STATUS prefix that ends its work (`STATUS: done`) |
 | `budget` | optional: overrides the common `budget` for this agent's sessions |
+| `extra_prompt` | optional: `{"file", "mark"}`, this lane's own frozen pack in the system prompt (`--append-system-prompt-file`), replacing the run's `extra_prompt` for this agent; a new session gets it, a resume only when its transcript holds the mark; a changed file exits 4 |
 | `work_check` | optional: a command (a list of strings, `{run}` and `{skill}` filled in) run on a hand-over note; exit 0 launches the fresh session, 3 leaves the role idle and re-checks it every round, any other launches (see [the watcher's page](docs/watch_agents.md)) |
 | `on_demand` | optional, default `false`: the watcher alone launches the agent, when its `demand` passes, and stops it when none of its ids is open; the manager never launches it at the start, and it is never revived (see [the watcher's page](docs/watch_agents.md)) |
 | `demand` | optional, needs `on_demand`: `kinds` (default `["C", "A", "B", "V", "R"]`), `cause` (`"plan"` or `"any"`, default `"plan"`), `parity` (`"odd"`, `"even"` or `"all"`, default `"all"`), `shared` (default `true`; `false` drops the shared ids, the index's, a non-task section's and the build logs' B lines: the second fixer's, judge J3), `queue` (a positive integer, default 6), `wait_minutes` (a non-negative number, default 45); the agent is launched when its open ids reach `queue` or the oldest has waited `wait_minutes`, and a key left out takes its default |

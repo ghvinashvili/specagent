@@ -1,7 +1,10 @@
 # Common mistakes
 | Mistake | Fix |
 |---|---|
-| `--autocompact 200k` or the 60% override in agents | the empty env override |
+| the 60% override in agents, or a hand-over as the default | `--autocompact 235000` in `common` and the empty env override; a HANDOFF note only on the watcher's order |
+| the briefs read with tools at every start, or a pack rebuilt mid-run | one frozen pack per lane in the system prompt (`extra_prompt` per agent) |
+| a waiter that blocks past 5 minutes, or the 1-hour TTL | waiters return within 3.5 minutes; 5m for every role |
+| two models in one lane | one model per lane for the whole run |
 | effort high or xhigh to save cost | max |
 | critic only after the whole plan; builder waits for a frozen plan | the per-task flow (SKILL.md, Pipeline) |
 | owner questions mid-run; the owner decides after round 3 | decided by rule; the owner reads summaries |

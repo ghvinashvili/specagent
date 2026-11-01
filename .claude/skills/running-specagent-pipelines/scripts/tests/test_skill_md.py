@@ -61,7 +61,7 @@ def test_skill_md_and_its_references_name_only_files_the_skill_has_and_the_curre
     assert linked == {f"references/{name}" for name in MOVED}
     gone = ("watch_agents_cap.py", "watch_agents_project.py", "SKILL.md.proposed")
     assert [x for x in gone if any(x in text for text in texts)] == []
-    assert "200k" in skill and "300k" not in skill  # B6: the owner's cap since 2026-10-29 (C11)
+    assert "235000" in skill and "300k" not in skill  # the compaction window since 2026-11-01 (owner)
     assert "`B<n>: sent to plan-fixer`" in skill and "plan fixer" in skill  # lessons.md: the plan-fixer role
 
 
@@ -147,11 +147,11 @@ def test_skill_md_names_the_manager_tools_and_the_third_watcher_and_its_page_hol
         "`python3 -I scripts/duty_list.py extract <plan-dir> --out <run-dir>/_control/duties.md`",
         "`python3 -I scripts/monitor_records.py watch <run-dir>`",
         "`scripts/collect_run.py` (a dry run, then `--apply --yes <digest>`",
-        "`handoff_at` (150000)",
+        "`handoff_at` (250000, a backstop)",
         "`_control/registry.json`",
         "`ACK <msg_id>`",
         "`python3 -I scripts/watch_agents.py --order <agent> <text> <agents.json>`",
-        "exits 4 only when a settings file or the extra prompt file changed or a brief was removed",
+        "when a settings file or an extra prompt file (a lane's pack) changed or a brief was removed",
         "a changed brief is reloaded",
         "`scripts/manager/measure_manager.py`",
     )

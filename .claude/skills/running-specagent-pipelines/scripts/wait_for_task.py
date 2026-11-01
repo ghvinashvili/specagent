@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Critic's waiter. Polls once a minute for up to 8 hours; exits 0 when there is work.
+"""Critic's waiter: exits 0 when there is work.
+Polls every 30 s and returns within 3.5 min (exit 3 and the line to run it again), so the caller's next call
+comes within the prompt cache's 5 minutes (owner, 2026-11-01); a wait known to be longer than about an hour ends the
+session instead, and the watcher relaunches it on work.
 
 python3 wait_for_task.py --plan PLAN.md --response critique-response.md N
     exit when a task after N is complete, or the response file says 'STATUS: plan complete'
@@ -77,11 +80,18 @@ def check():
     return f"complete through Task {done}; plan complete: {complete}", done > args.last or complete, []
 
 
-for _ in range(480):
+deadline = time.monotonic() + 210
+while True:
     line, work, missing = check()
     if work or args.once:
         print(line)
         sys.exit(0 if work else 3)
-    time.sleep(60)
-print("timeout after 8 hours" + (f"; unanswered: {', '.join(missing)}" if missing else ""))
-sys.exit(1)
+    if time.monotonic() + 30 > deadline:
+        break
+    time.sleep(30)
+print(
+    line
+    + (f"; unanswered: {', '.join(missing)}" if missing else "")
+    + ". Run the same command again now: a call within 5 min keeps the prompt cache warm"
+)
+sys.exit(3)

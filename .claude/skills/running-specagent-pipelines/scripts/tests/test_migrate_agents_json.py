@@ -143,7 +143,7 @@ def test_a_dict_comprehension_form_is_read_without_importing_it(run, tmp_path):
     assert v2["unblock"] == "Unblock text."
     assert v2["fresh"] == {"builder": "Fresh builder: read {run}/_builder-assignment.md.", "critic": "Fresh critic."}
     assert (v2["permission_wait"], v2["nudges"], v2["interval"]) == (900, 4, 90)
-    assert "cap" not in v2 and "handoff_wait" not in v2  # the defaults' values
+    assert v2.get("cap") == 200_000 and "handoff_wait" not in v2  # the old run keeps its cap; the rest are defaults
     assert "config: _agents.json" in r.stdout
     assert "permission_wait: 600 -> 900" in r.stdout and "nudges: 6 -> 4" in r.stdout
     assert "fresh.builder" in r.stdout and "lang" in r.stdout

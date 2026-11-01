@@ -1,9 +1,13 @@
 # Launch
 ```bash
 cd <repo> && claude --name <role> --add-dir <run-dir> <more dirs> --strict-mcp-config --effort max \
-  --permission-mode auto --setting-sources local --settings "$(cat <run-dir>/_control/<role>-settings.json)" \
-  --bg "Read and follow the assignment in <run-dir>/<role>-assignment.md. Start now."
+  --permission-mode auto --setting-sources local --autocompact 235000 --exclude-dynamic-system-prompt-sections \
+  --system-prompt-snapshot on --settings "$(cat <run-dir>/_control/<role>-settings.json)" \
+  --append-system-prompt-file <run-dir>/_pack-<role>.md \
+  --bg "Your system prompt holds this lane's pack, your assignment included: follow it. Start now."
 ```
+- The first launch carries the same flags as the watcher's `common` and the lane's pack (`_pack-<role>.md`, built
+  before the pre-flight), so the first session of a lane starts from the same bytes as every later one.
 - Add `--setting-sources local` to every launch and resume (also in `agents.json` `common`): for a checkout under the owner's home directory, Claude Code loads `~/.claude/CLAUDE.md` through the project source as well, and its language rule made about half of the planner's sessions think and narrate in that language (measured 2026-10-22: critic 0 of 9 sessions, planner 7 of 15). Settings passed with `--settings` still apply (tested: a deny holds); the project's `.claude/settings.json`, hooks and CLAUDE.md are not loaded, which the briefs replace.
 - Put `--bg` last, right before the prompt; a variadic flag such as `--add-dir` swallows a prompt that follows it.
 - Settings per role (see `example/*-settings.json`): allow `SendMessage`, `ListAgents`, `ToolSearch` and what the role
@@ -14,18 +18,43 @@ cd <repo> && claude --name <role> --add-dir <run-dir> <more dirs> --strict-mcp-c
   message names the models, no file a role reads does) and keep the effort max; add `"includeCoAuthoredBy": false`
   (the default `Co-Authored-By` trailer of a commit names the model, which no role may know; the pre-flight's `blind`
   check fails a file without it).
-- No early compaction in SpecAgent sessions: `"env": {"CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": ""}` in `--settings` clears the
-  main session's 60%, which the daemon passes on; never `--autocompact` with a small window.
+- Compaction instead of a hand-over, by default (owner, 2026-11-01): `common` carries `--autocompact 235000` (the session
+  compacts near 197k), `cap` is 260000 and `handoff_at` 250000, so the watcher's hand-over is a backstop only; and
+  `"env": {"CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": ""}` in `--settings` clears the main session's 60%, which the daemon passes
+  on. A compaction costs about $0.45 against $0.70-1.00 for a hand-over and the session keeps its memory (a project's run of
+  2026-11-01). A hand-over stays for a model change (a
+  resume keeps the old model) and for a stuck session. A role writes the facts its next step needs into its record file
+  as it works, since a compaction keeps only the main points; it writes a HANDOFF note only on the watcher's order.
+- A long wait: a waiter returns within 3.5 minutes and the role runs it again (about 17 calls an hour, $0.040 each
+  at 150k). A role whose input may be more than about an hour away gets a `work_check` in its agent entry; it then
+  writes a hand-over note for the wait and the watcher relaunches it when the check finds work (`watch_agents.py`,
+  hand-over and idle). A role without one keeps waiting in its session.
+- One frozen pack per lane in the system prompt: `_pack-<role>.md` holds `_common.md`, the role's assignment,
+  `_first-pass-rules.md`, `_handoff-rule.md` and the "Read first" section of lessons.md, is built by
+  `scripts/make_pack.py --no-note` before the lane's first launch, and the agent's own `extra_prompt` passes it with
+  `--append-system-prompt-file`. The system prompt is rebuilt the same on every call, so the pack survives a compaction
+  and every session of the lane reads it from the cache. `common` also carries
+  `--exclude-dynamic-system-prompt-sections` (git status, cwd, date and memory paths go into the first message, so a
+  commit or a new day does not change the prefix before the pack) and `--system-prompt-snapshot on` (the prompt is
+  recorded once and sent as-is until a compaction); both are in Claude Code 2.1.316 (probe: `claude --help | grep -c
+  -- '--exclude-dynamic-system-prompt-sections\|--system-prompt-snapshot'` prints 2). The critic, verifier and judge
+  packs leave `_first-pass-rules.md` out, as their briefs never read it. The scope is the pipeline skill's roles;
+  the harness's stage types keep their own TTL (`docs/roles/need-to-know.yaml`) until the owner says otherwise.
+  The sandbox is untouched: the CLI reads the pack at the start,
+  outside any tool, and the pack lies outside `_control/`, closed to every role's Edit and Write. The pack is never rebuilt during the run (a changed pack exits
+  the watcher 4); a lesson added later goes into lessons.md with its date. One model per lane for the whole run.
 - The cache TTL per role: `"CLAUDE_CODE_PROMPT_CACHE_TTL": "<ttl>"` in the role's settings `env` next to that override
   (Claude Code 2.1.316 reads `5m` or `1h`, and the variable wins over the `promptCacheTtl` setting; unset, a subscription
   within its limits gets 1 hour and an API key 5 minutes). A cache write at 1 hour costs more than one at 5 minutes, and
-  a gap over 5 minutes makes the next call write the prefix again (`docs/economy.md`, measured 2026-10-31), so the TTL
-  follows whether the role waits on another role; `example/*-settings.json` carry it:
+  a gap over 5 minutes makes the next call write the prefix again (`docs/economy.md`, measured 2026-10-31). Every role
+  runs at 5 minutes and keeps its cache warm by calls: a waiter returns within 3.5 minutes and the role runs it again;
+  a wait known to be longer than about an hour ends the session, and the watcher relaunches it on work. The 1-hour TTL
+  is rejected (a project's run of 2026-11-01: $59.51 more in writes against $26.91 saved, a net $32.60 more); `example/*-settings.json` carry it:
 
 | TTL | Roles | Why |
 |---|---|---|
-| `5m` | planner, builder-a, builder-b, any writer | they wait on no other role: the next call comes within minutes |
-| `1h` | verifier, critic, plan-fixer, judge | they wait for a log line or a task: gaps over 5 minutes are the rule |
+| `5m` | planner, builder-a, builder-b, any writer, verifier, critic, plan-fixer, judge | every role: the waiters return within 3.5 minutes, so the next call comes inside the TTL |
+| `1h` | none | rejected 2026-11-01: its writes cost more than the gaps it saves |
 
 - Only the plugins and MCP a role needs: `--strict-mcp-config` on every launch and resume; design plugins only for
   design roles (`~/.claude/design-plugins.json` merged into `--settings`).

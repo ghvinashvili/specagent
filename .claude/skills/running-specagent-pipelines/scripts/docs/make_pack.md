@@ -2,8 +2,8 @@
 ```
 python3 -I scripts/make_pack.py [--no-note] <run-dir>/_packs.json [<role> ...]
 ```
-Packs are off since 2026-10-25 (an earlier run's trial; the numbers are in `references/context-and-cost.md`) and
-`watch_agents.py` refuses `pack: true`; this builds them to measure again. It writes `<run-dir>/_pack-<role>.md` for
+Since 2026-11-01 (owner) every lane has one pack, built with `--no-note` once before its first launch, passed by the
+agent's own `extra_prompt` in the system prompt and frozen for the run (a changed pack exits the watcher 4). It writes `<run-dir>/_pack-<role>.md` for
 each role named (every role of the config, in its order, when none is): the role's files of the run folder in full
 and the `sections` of the `lessons` file, with no time stamp, and only when the text changed; it prints
 `_pack-<role>.md: <n> KB` per role. The config (`example/packs.json` is one): `roles` (role → file names in the run

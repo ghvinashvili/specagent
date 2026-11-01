@@ -7,14 +7,19 @@
     "--permission-mode",
     "auto",
     "--setting-sources",
-    "local"
+    "local",
+    "--autocompact",
+    "235000",
+    "--exclude-dynamic-system-prompt-sections",
+    "--system-prompt-snapshot",
+    "on"
   ],
   "blocked_files": [],
-  "cap": 200000,
-  "handoff_order": "Orders from the owner: your context has passed the size limit (200k tokens per call). Finish the step you are on at a point where nothing is half done (not the whole task), save and commit what you have, then write your hand-over note exactly as {run}/_handoff-rule.md says (handoff-<role>.md, line 1 `HANDOFF <role> after Task <N> — <date time>`) and end your turn. Start no waiter and no new work; a fresh session continues from your note and the files. The note carries the facts the next session needs, copied in, not pointers to them.",
+  "cap": 260000,
+  "handoff_order": "Orders from the owner: your context has passed the size limit ({cap} tokens per call). Finish the step you are on at a point where nothing is half done (not the whole task), save and commit what you have, then write your hand-over note exactly as {run}/_handoff-rule.md says (handoff-<role>.md, line 1 `HANDOFF <role> after Task <N> — <date time>`) and end your turn. Start no waiter and no new work; a fresh session continues from your note and the files. The note carries the facts the next session needs, copied in, not pointers to them.",
   "unblock": "Your last command waited more than 10 minutes for a permission approval that nobody could give, so the owner's watcher cancelled it and restarted you. Do not run that command again. Reach the same result another way that needs no approval (reading with sed -n or python3; writing your own files with Write, Edit, or a python3 script written with Write and run by path); if there is none, record the step as open in your log and go on with your work. Work in English only.",
   "fresh": {
-    "judge": "You are a fresh judge session; the previous one handed over to keep the context small. Read {run}/_judge-assignment.md, {run}/_handoff-rule.md and {run}/handoff-judge.md. The note carries the state: open judge.md, the spec, the plan or the logs only when your step needs them, by line ranges, never whole. Do the unit the note names, and hand over after it."
+    "judge": "You are a fresh judge session; the previous one handed over (a model change or a stuck session). Your system prompt holds this lane's frozen pack: {run}/_common.md, {run}/_judge-assignment.md, {run}/_handoff-rule.md and the \"Read first\" section of {run}/lessons.md; do not read them again. Read the lessons added to {run}/lessons.md since the run began (each carries its date) and, last, {run}/handoff-judge.md. The note carries the state: open the record files only when your first step needs them, by line ranges, never whole. Do the unit (Task 1-5) the note names. Write the facts your next step needs into your record file as you go; write a HANDOFF note only on the watcher's order. Work in English only."
   },
   "budget": {
     "calls": 400,
@@ -29,7 +34,12 @@
       ],
       "settings": "_control/judge-settings.json",
       "status": "judge.md",
-      "final": "STATUS: done"
+      "final": "STATUS: done",
+      "extra_prompt": {
+        "file": "_pack-judge.md",
+        "mark": "Your standing orders (startup pack of <run-name>/judge)"
+      }
     }
-  }
+  },
+  "handoff_at": 250000
 }
