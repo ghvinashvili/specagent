@@ -253,6 +253,10 @@ class Run:
             },
             "env": {"CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "", "CLAUDE_CODE_PROMPT_CACHE_TTL": "5m"},
             "includeCoAuthoredBy": False,
+            "hooks": {
+                "PreToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": f"{WARM} pretool"}]}],
+                "Stop": [{"hooks": [{"type": "command", "command": f"{WARM} stop rec.md 'STATUS: done'"}]}],
+            },
         }
 
     @staticmethod
@@ -320,7 +324,7 @@ def found(proc, check, agent=None):
     return [(s, d) for s, c, a, d in results(proc) if c == check and a == agent]
 
 
-def test_a_ready_run_passes_nineteen_checks_writes_the_result_file_and_leaves_no_probe_mark(tmp_path):
+def test_a_ready_run_passes_twenty_checks_writes_the_result_file_and_leaves_no_probe_mark(tmp_path):
     r = Run(tmp_path)
     proc = preflight(*r.args(), env=r.env)
     assert proc.returncode == 0, proc.stdout + proc.stderr
@@ -335,17 +339,19 @@ def test_a_ready_run_passes_nineteen_checks_writes_the_result_file_and_leaves_no
             ("PASS", "worktree"),
         )
     ]
-    run_wide = [("PASS", c, None) for c in ("waiters", "formats", "monitor", "disk", "usage", "live", "launch")]
+    run_wide = [
+        ("PASS", c, None) for c in ("waiters", "briefs", "formats", "monitor", "disk", "usage", "live", "launch")
+    ]
     assert [(s, c, a) for s, c, a, _ in results(proc)] == [
         ("PASS", "config", None),
         ("PASS", "model", None),
         *per_role,
         *run_wide,
     ]
-    assert proc.stdout.splitlines()[-1] == f"preflight: 19 passed, 0 failed, 0 skipped — {r.control}/preflight.json"
+    assert proc.stdout.splitlines()[-1] == f"preflight: 20 passed, 0 failed, 0 skipped — {r.control}/preflight.json"
     saved = json.loads((r.control / "preflight.json").read_text(encoding="utf-8"))
     assert saved["passed"] is True and saved["written_at"] == NOW and saved["roles"] == ["planner", "builder-a"]
-    assert saved["run_dir"] == str(r.run) and len(saved["results"]) == 19
+    assert saved["run_dir"] == str(r.run) and len(saved["results"]) == 20
     assert {k: saved["results"][2][k] for k in ("check", "agent", "status")} == {
         "check": "blind",
         "agent": "planner",
@@ -502,7 +508,7 @@ def test_without_bwrap_the_probe_fails_unless_it_is_skipped_on_purpose_and_unsan
     assert found(proc, "probe", "planner") == [("FAIL", "bwrap not on PATH")] and proc.returncode == 1
     proc = preflight(*args, "--no-sim", env=env)
     assert [s for s, _ in found(proc, "probe", "planner")] == ["SKIP"] and proc.returncode == 0
-    assert proc.stdout.splitlines()[-1].startswith("preflight: 13 passed, 0 failed, 1 skipped — ")
+    assert proc.stdout.splitlines()[-1].startswith("preflight: 14 passed, 0 failed, 1 skipped — ")
     r.edit(r.planner_settings, lambda s: s["sandbox"].update(enabled=False))
     proc = preflight(*r.args("--roles", "planner", "--unsandboxed", "planner"), env=r.env)
     assert [s for s, _ in found(proc, "probe", "planner")] == ["SKIP"]
@@ -893,7 +899,7 @@ def test_with_yes_a_stamp_the_calendar_refuses_fails_the_launch_and_the_run_is_s
     assert found(proc, "launch") == [
         ("FAIL", f"a Yes: line has an impossible time: {line}; no Yes: line names planner, builder-a")
     ]
-    assert proc.stdout.splitlines()[-1] == f"preflight: 18 passed, 1 failed, 0 skipped — {r.control}/preflight.json"
+    assert proc.stdout.splitlines()[-1] == f"preflight: 19 passed, 1 failed, 0 skipped — {r.control}/preflight.json"
     saved = json.loads((r.control / "preflight.json").read_text(encoding="utf-8"))
     assert proc.returncode == 1 and saved["written_at"] == NOW and saved["passed"] is False
 
@@ -1186,6 +1192,20 @@ def test_blind_fails_a_role_whose_settings_carry_an_attribution_key_with_the_tra
         assert failed == [("FAIL", ATTRIBUTION)] * len(held)
         both_failed = blind(tmp_path, "critic", both, *unsandboxed)
         assert both_failed == ("FAIL", f"missing includeCoAuthoredBy false; {ATTRIBUTION}")
+
+
+WARM = 'python3 "/c/.claude/hooks/keep-cache-warm.py"'
+
+
+def test_the_cache_check_fails_a_lane_without_the_warm_cache_hooks(tmp_path):  # owner, 2026-11-01
+    r = Run(tmp_path)
+    r.edit(r.planner_settings, lambda s: s.pop("hooks"))
+    r.edit(r.builder_settings, lambda s: s["hooks"].pop("Stop"))
+    proc = preflight(*r.args(), env=r.env)
+    [(status, planner)] = found(proc, "cache", "planner")
+    assert status == "FAIL" and "no keep-cache-warm.py pretool hook on Bash" in planner and "stop hook" in planner
+    [(status, builder)] = found(proc, "cache", "builder-a")
+    assert status == "FAIL" and "pretool" not in builder and "no keep-cache-warm.py stop hook" in builder
 
 
 def test_the_cache_check_fails_a_lane_without_compaction_its_own_pack_the_5m_ttl_or_its_model(tmp_path):

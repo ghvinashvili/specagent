@@ -80,6 +80,10 @@ The owner's questions:
   manager writes to the owner only for a decision the owner must make, a problem, or a milestone (a unit done, a run
   done, a merge, a publish); a background wake ends with no text at all, not a status line, not a placeholder such as
   "·" or "ok" (the owner, 2026-10-31, after nine status lines in forty minutes and three objections in a day).
+- The manager answers in the language of the owner's own messages, whatever language its tools, logs and agents use;
+  a transliterated language in its own script; agents stay English (owner, 2026-11-01). The Stop hook
+  `.claude/hooks/language-gate.py`, registered in `.claude/settings.json`, sends a reply in another script back once;
+  `LANGUAGE_GATE_SCRIPT` in the chat's environment names the script when the owner writes a transliteration.
 - A routine question is decided by the manager, with the assumption stated.
 - Only four kinds are asked, once, in one message with the sizes and the options: agent launches, destructive or
   irreversible actions, merges into `main`, and spending.

@@ -4,26 +4,25 @@ The manager's own scripts: standard library only, each run as `python3 -I <scrip
 the pre-flight before a launch, never by a role (no brief names them).
 
 ## catalogue.py
-Measures what a role session loads (manager spec, section 3): every agent file (`.claude/agents/`), contract
-(`docs/roles/types/`), example brief, skill (whole, and by its `description:` line, which is all a session loads before
-the skill is used) and pinned ECC text (`.claude/ecc/agents/`), in bytes and in tokens at four bytes per token.
-`table` prints the catalogue: a block per kind, a total per block, and a `half-use` column that says `over` for an item
-above 2,500 tokens. `prefix` adds up one role's start-up prefix (each FILE whole, each `--skill` by its description
-line, each `--ecc` text whole) and gives the verdict of spec 3.8: within 10,000 tokens, near up to 13,000, over above.
+Measures what a role session loads (spec 3): every agent file, contract, example brief, skill (whole, and by its `description:` line) and pinned ECC text, in bytes and in tokens at four bytes per token.
+`table` prints a block per kind with its total and a `half-use` column (`over` above 2,500 tokens). `prefix` adds up one role's start-up prefix (each FILE whole, each `--skill` by its description
+line, each `--ecc` text whole) and gives spec 3.8's verdict: within 10,000 tokens, near up to 13,000, over above.
 `briefs` checks the `## Domain checklist and skills` section of every `*-assignment.md` in a folder: one `Spec:` line
-(pinned ranges under 60 lines in all, or `none — <why>`), one `Skills:` line (at most five skills under
-`.claude/skills/`, each with its step, or `none — <why>`), the launch slot or the pasted text, under 60 lines. How the
-numbers are used: `references/choosing-roles-and-skills.md`.
+(pinned ranges under 60 lines, or `none — <why>`), one `Skills:` line (at most five under
+`.claude/skills/`, each with its step, or `none — <why>`), the launch slot or the pasted text, under 60 lines. Their use:
+`references/choosing-roles-and-skills.md`.
 
 ```text
 Usage: python3 -I scripts/manager/catalogue.py table [--checkout DIR]
 Usage: python3 -I scripts/manager/catalogue.py prefix FILE... [--skill NAME]... [--ecc NAME]... [--checkout DIR]
 Usage: python3 -I scripts/manager/catalogue.py briefs DIR [--checkout DIR]
+Usage: python3 -I scripts/manager/catalogue.py fill RUN [--checkout DIR]
 ```
 
-`--checkout` defaults to the checkout the skill sits in. Exit codes: 0 done (`prefix` within or near; `briefs` finds no
-problem and prints `ok: <n> briefs checked`); 1 `prefix` over 13,000 tokens, or `briefs` finds a problem (one line each,
-`<file>: <problem>`); 2 a folder or a file that cannot be read.
+`fill RUN` pastes each run brief's `Spec:` ranges in place of its slot, then checks as `briefs`, which refuses a run
+brief (`_<role>-assignment.md`) with the slot or a pasted block unlike the copy. `--checkout` defaults to the skill's
+checkout. Exit codes: 0 done (`briefs`: `ok: <n> briefs checked`); 1 `prefix` over 13,000 tokens, or a brief's problem
+(`<file>: <problem>` each); 2 a folder or a file that cannot be read.
 
 Example (a planner's brief files, one skill, two ECC texts):
 
@@ -48,7 +47,7 @@ Usage: python3 -I scripts/manager/preflight.py clock <record>... [--transcript J
 
 The manager's checks before a launch and two audits of a run's practice (`references/preflight-and-capacity.md`).
 - `check` prints `PASS|FAIL|SKIP <check>[ <role>]: <detail>` for `config` and `model`, then per role `blind`,
-  `ancestor`, `probe` and `worktree`, then `waiters`, `formats`, `monitor`, `disk`, `usage`, `live` and `launch`; a
+  `cache`, `ancestor`, `probe` and `worktree`, then `waiters`, `briefs`, `formats`, `monitor`, `disk`, `usage`, `live` and `launch`; a
   `config` failure stops the rest. `live` fails on a busy outside session in the checkout or its worktrees that no
   `Live:` line names. It writes `<run-dir>/_control/preflight.json`; exit 0 when nothing failed, 1 otherwise, 2 on a
   usage error. Options: `--config` (default `<run-dir>/_control/_agents.json`), `--launch` (default

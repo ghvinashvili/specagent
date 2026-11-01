@@ -279,3 +279,42 @@ def test_the_manager_readme_documents_every_script_of_its_folder():
     for script in sorted(MANAGER.glob("*.py")):
         assert f"## {script.name}" in readme.splitlines(), script.name
         assert re.search(rf"(?m)^Usage: .*scripts/manager/{re.escape(script.name)}\b", readme), script.name
+
+
+def test_a_run_brief_with_its_launch_slot_unfilled_is_refused(checkout):  # owner, 2026-11-01
+    folder = checkout / "run"
+    write(folder / "_planner-assignment.md", brief(SPEC_OK, SKILLS_OK, SLOT))
+    problems = catalogue.check_briefs(folder, checkout)
+    assert "_planner-assignment.md: the launch slot is not filled (`catalogue.py fill <run>`)" in problems
+    assert any("is not pasted" in p for p in problems)
+
+
+def test_fill_pastes_each_range_word_for_word_and_drops_a_subagent_s_tools_and_model_lines(checkout):
+    write(checkout / A, "---\ntools: Read\nmodel: big\n---\n## Checklist\n- one\n" + "a\n" * 34)
+    folder = checkout / "run"
+    write(folder / "_planner-assignment.md", brief(SPEC_OK, SKILLS_OK, SLOT))
+    r = run("fill", folder, "--checkout", checkout)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert r.stdout.startswith("filled _planner-assignment.md\n")
+    text = (folder / "_planner-assignment.md").read_text(encoding="utf-8")
+    assert SLOT not in text and "tools: Read" not in text and "model: big" not in text
+    assert "## Checklist\n- one\n" in text and text.endswith("## Done when\nAll is written.\n")
+    assert catalogue.check_briefs(folder, checkout) == []
+    again = run("fill", folder, "--checkout", checkout)
+    assert (again.returncode, again.stdout) == (0, "nothing to fill\n")
+
+
+def test_a_pasted_block_that_differs_from_the_pinned_copy_is_refused(checkout):
+    folder = checkout / "run"
+    write(folder / "_planner-assignment.md", brief(SPEC_OK, SKILLS_OK, SLOT))
+    catalogue.fill_briefs(folder, checkout)
+    path = folder / "_planner-assignment.md"
+    path.write_text(path.read_text(encoding="utf-8").replace("a\n", "x\n", 1), encoding="utf-8")
+    [problem] = catalogue.check_briefs(folder, checkout)
+    assert problem.startswith("_planner-assignment.md: the pasted block ") and problem.endswith("pinned copy")
+
+
+def test_an_example_brief_keeps_its_slot(checkout):
+    folder = checkout / "run"
+    write(folder / "planner-assignment.md", brief(SPEC_OK, SKILLS_OK, SLOT))
+    assert catalogue.check_briefs(folder, checkout) == []

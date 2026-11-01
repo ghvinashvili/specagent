@@ -272,7 +272,31 @@ def check_cache(st: State, role: str) -> Result:
         problems.append("env CLAUDE_AUTOCOMPACT_PCT_OVERRIDE is not empty")
     if not st.settings[role].get("model"):
         problems.append("no model in its settings (one model per lane)")
-    return verdict("cache", role, problems, f"compaction, its pack {pack}, 5m TTL, one model")
+    problems += warm_hook_problems(st.settings[role].get("hooks"), str(agent.get("status", "")))
+    return verdict("cache", role, problems, f"compaction, its pack {pack}, 5m TTL, one model, the warm-cache hooks")
+
+
+def warm_hook_problems(hooks: object, record: str) -> list[str]:
+    """The settings register keep-cache-warm.py: `pretool` on Bash, `stop` on the agent's record (owner, 2026-11-01:
+    the cache is kept warm by rule, not by the role)."""
+    hooks = hooks if isinstance(hooks, dict) else {}
+
+    def commands(event: str, matcher: str | None = None) -> list[str]:
+        entries = hooks.get(event) if isinstance(hooks.get(event), list) else []
+        return [
+            str(h.get("command", ""))
+            for e in entries
+            if isinstance(e, dict) and (matcher is None or matcher in str(e.get("matcher", "")).split("|"))
+            for h in (e.get("hooks") if isinstance(e.get("hooks"), list) else [])
+            if isinstance(h, dict)
+        ]
+
+    problems = []
+    if not any("keep-cache-warm.py" in c and "pretool" in c for c in commands("PreToolUse", "Bash")):
+        problems.append("no keep-cache-warm.py pretool hook on Bash (a foreground call past 210 s)")
+    if not any("keep-cache-warm.py" in c and " stop " in c and record in c for c in commands("Stop")):
+        problems.append(f"no keep-cache-warm.py stop hook on its record {record or '(any)'}")
+    return problems
 
 
 def check_ancestor(st: State, role: str) -> Result:
@@ -342,6 +366,12 @@ def check_waiters(st: State) -> Result:
             if "<" in token or ">" in token or os.path.dirname(path) != st.run or not os.path.isfile(path):
                 bad.append(f"{brief.name}: {token}")
     return verdict("waiters", None, bad, f"{count} waiters named in the briefs are files in the run folder")
+
+
+def check_briefs(st: State) -> Result:
+    """Every run brief's domain section holds its Spec ranges pasted, not the launch slot (owner, 2026-11-01)."""
+    catalogue = str(SKILL / "scripts" / "manager" / "catalogue.py")
+    return script_result("briefs", catalogue, "briefs", st.run, "--checkout", st.checkout)
 
 
 def check_formats(st: State) -> Result:
@@ -583,7 +613,16 @@ def run_check(a: argparse.Namespace) -> int:
             results += [
                 emit(f(st, role)) for f in (check_blind, check_cache, check_ancestor, check_probe, check_worktree)
             ]
-        run_wide = (check_waiters, check_formats, check_monitor, check_disk, check_usage, check_live, check_launch)
+        run_wide = (
+            check_waiters,
+            check_briefs,
+            check_formats,
+            check_monitor,
+            check_disk,
+            check_usage,
+            check_live,
+            check_launch,
+        )
         results += [emit(f(st)) for f in run_wide]
     return save(st, results)
 

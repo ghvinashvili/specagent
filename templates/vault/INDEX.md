@@ -14,6 +14,7 @@ The clone of the public commons named above is a source, not an authority (`READ
 - [agents-are-blind](decisions/global/agents-are-blind.md): Every launched agent is blind - fresh context, material and question only, never my conclusions or the owner's authority
 - [agents-work-in-english](decisions/global/agents-work-in-english.md): Pipeline agents work in English from the first word
 - [answers-short-plain-bottom-line-first](decisions/global/answers-short-plain-bottom-line-first.md): Answers are short, in plain words, bottom line first; the domain fact behind a decision is explained
+- [cache-and-compaction](decisions/global/cache-and-compaction.md): A role's session compacts instead of handing over and reads its frozen lane pack from the prompt cache
 - [chats-get-every-demand](decisions/global/chats-get-every-demand.md): A role chat gets every demand a subagent would, 1:1, plus the cache; success is quality, speed and economy together
 - [checks-once-each](decisions/global/checks-once-each.md): Every check runs once, by one role; full suites only at milestones; heavy runs take a machine lock
 - [decisions-are-the-owners-technical-choices-are-mine](decisions/global/decisions-are-the-owners-technical-choices-are-mine.md): Goals, behaviour and rules are the owner's, recorded only when they decide; technical choices are mine, made and explained
@@ -24,6 +25,7 @@ The clone of the public commons named above is a source, not an authority (`READ
 - [keep-context-small](decisions/global/keep-context-small.md): Keep every session's context small: plugins off by default, filtered output, no schema-heavy skills for simple edits
 - [layered-indexes-small-parts](decisions/global/layered-indexes-small-parts.md): Big files are split by topic into titled parts; indexes are layered by category, so no agent reads a whole file or a whole index
 - [manager-owns-structure](decisions/global/manager-owns-structure.md): The managing session owns the structure; mechanical steps are scripts; the owner reads outputs and decides
+- [manager-replies-in-the-users-language](decisions/global/manager-replies-in-the-users-language.md): The manager chat replies in the language the user writes in
 - [no-conversation-copies](decisions/global/no-conversation-copies.md): No copies of conversations anywhere; a hand-off keeps the main points; hand-off files reach subagents
 - [no-one-agent-mode](decisions/global/no-one-agent-mode.md): No one-agent mode; a project's work runs as the multi-role pipeline
 - [no-pointless-tests](decisions/global/no-pointless-tests.md): No tests that settle no decision; think from the evidence, fix everything known, launch once

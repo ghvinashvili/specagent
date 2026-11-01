@@ -261,6 +261,15 @@
             "timeout": 180
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/language-gate.py",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "UserPromptExpansion": [

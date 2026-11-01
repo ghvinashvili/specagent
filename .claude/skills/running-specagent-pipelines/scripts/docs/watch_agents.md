@@ -75,7 +75,13 @@ Each round, for every agent whose STATUS line (line 1 of its `status` file) does
   A line of the record that starts with `ACK <msg_id>` closes it (`ack <agent> <msg_id>`); without one after
   `ack_wait` seconds it is resent (`resent <msg_id> to <agent> (<n> of <ack_resends>)`), and after `ack_resends`
   resends it gives `no ack <agent> <msg_id> after <n> resends` and exit code 0. A fresh session gets the open
-  `--order` orders in its prompt; it supersedes the cap's, the unit end's and the reload orders.
+  `--order` orders in its prompt; it supersedes the cap's, the unit end's and the reload orders. A `--order` order to
+  an agent the manager cannot reach (no process, or line 1 final: a finished builder, a done on-demand fixer) is
+  delivered by the watcher in its next round, once (`woke <agent> with order <msg_id>`; the order's `woken` in the
+  registry): a resume of its session, or a fresh launch when it has none or is idle. While the order is open the agent
+  is not final; a final agent's prompt also gets the line "Your record <record> is final on line 1. After the ACK, set
+  line 1 to `STATUS: working on order <msg_id>`; when this order's work is done, set it back to your final line."
+  (owner, 2026-11-01: an order to a done on-demand fixer waited unanswered, and a hand resume made a second copy).
 - the registry: the `registry` file (default `_control/registry.json`) is written whole at the end of every round and
   when the watcher returns: per agent its `state` (`running`, `stopped`, `blocked`, `done`), lane and settings (from
   `_launch.md` when the run folder has one), line 1 of its record, its session ids, context, calls, cost, idle note,
@@ -107,8 +113,9 @@ name only, so its output for the same rows is version 2's.
 `config error: no agent <agent>` or `config error: empty order`: exit 2, nothing written), appends one line
 `{"msg_id", "agent", "text", "at"}` to `orders.jsonl` beside the registry, prints `order <msg_id> <agent>` and the
 prompt to send (the text, a blank line, its Order line), runs no `claude` command and exits 0. The manager sends that
-prompt itself; the running watcher merges the line in its next round as sent at `at`, waits `ack_wait` seconds for
-the `ACK <msg_id>` line and resends by stop and resume.
+prompt itself to a live working session; the running watcher merges the line in its next round as sent at `at`, waits
+`ack_wait` seconds for the `ACK <msg_id>` line and resends by stop and resume. To an agent with no process or a final
+line 1 the manager sends nothing and never resumes it by hand (a second copy): the watcher delivers it (orders above).
 
 | code | the watcher returns because |
 |---|---|

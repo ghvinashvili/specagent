@@ -1176,19 +1176,61 @@ def test_an_order_still_without_ack_after_the_last_resend_ends_the_watch_with_ex
     assert (o["resends"], o["closed"]) == (1, "no ack")
 
 
-def test_a_final_line_with_a_suffix_is_done_and_closes_the_open_orders(p):
+def test_a_final_line_with_a_suffix_is_done(p):
     p.config["agents"]["t/verifier"] = p.agent("verifier", "verify.md")
     p.write("verify.md", "STATUS: done after Task 2\n")
-    o = p.watch("--order", "t/verifier", "Verify Task 3 again.")
-    assert o.returncode == 0, o.stdout + o.stderr
     p.rounds([row(), row(name="t/verifier", sid=SID2, state="stopped", status=None, pid=None)])
     r = p.watch(rounds=1)
     assert r.returncode == 1, r.stdout + r.stderr
     v = registry(p)["roles"]["t/verifier"]
     assert (v["state"], v["unit"]) == ("done", "STATUS: done after Task 2")  # equality gives "stopped"
-    [closed] = v["orders"]
-    assert closed["closed"] == "final"  # equality leaves it open
     assert p.launches() == []
+
+
+def wake_line(p: Pipeline, record: str, msg_id: str) -> str:
+    return (
+        f"Your record {p.run / record} is final on line 1. After the ACK, set line 1 to `STATUS: working on order "
+        f"{msg_id}`; when this order's work is done, set it back to your final line."
+    )
+
+
+def test_a_manager_order_wakes_a_final_agent_by_a_resume_with_the_wake_line(p):  # owner, 2026-11-01
+    p.config["agents"]["t/verifier"] = p.agent("verifier", "verify.md")
+    p.write("verify.md", "STATUS: done after Task 2\n")
+    o = p.watch("--order", "t/verifier", "Verify Task 3 again.")
+    mid = re.fullmatch(r"order ([0-9a-f]{8}) t/verifier", o.stdout.splitlines()[0]).group(1)
+    p.rounds([row(), row(name="t/verifier", sid=SID2, state="stopped", status=None, pid=None)])
+    r = p.watch(rounds=1)
+    assert r.returncode == 1, r.stdout + r.stderr
+    [launch] = p.launches()
+    order = f"Order {mid}: append the line `ACK {mid}` to {p.run / 'verify.md'} before anything else."
+    assert launch["argv"][:2] == ["--resume", SID2]
+    assert launch["argv"][-1] == f"Verify Task 3 again.\n\n{wake_line(p, 'verify.md', mid)}\n\n{order}"
+    [entry] = registry(p)["roles"]["t/verifier"]["orders"]
+    assert entry["closed"] is None and entry["sent_at"] is not None
+
+
+def test_a_manager_order_wakes_a_final_on_demand_fixer_and_it_is_not_left_unrevived(p):  # owner, 2026-11-01
+    fixer(p)
+    p.write("fixer-log.md", "STATUS: done\n")
+    o = p.watch("--order", "t/plan-fixer", "The owner answered the three held points.")
+    assert o.returncode == 0, o.stdout + o.stderr
+    p.rounds([row(), row(name="t/plan-fixer", sid=SID2, state="stopped", status=None, pid=None)])
+    r = p.watch(rounds=1)
+    [launch] = p.launches()
+    assert launch["argv"][:2] == ["--resume", SID2] and "not revived" not in r.stdout
+    assert launch["argv"][-1].startswith("The owner answered the three held points.\n\nYour record ")
+
+
+def test_a_manager_order_launches_an_on_demand_fixer_that_has_no_session(p):
+    fixer(p)
+    o = p.watch("--order", "t/plan-fixer", "Answer C7 again.")
+    mid = re.fullmatch(r"order ([0-9a-f]{8}) t/plan-fixer", o.stdout.splitlines()[0]).group(1)
+    p.rounds([row()])
+    r = p.watch(rounds=1)
+    [launch] = p.launches()
+    assert f"demand t/plan-fixer: order {mid}; launched" in r.stdout and "--resume" not in launch["argv"]
+    assert launch["argv"][-1].startswith("Fixer: answer the open ids. ") and "Answer C7 again." in launch["argv"][-1]
 
 
 def test_a_watcher_restarted_after_exit_4_logs_the_same_pending_orders_and_revival_counts(p):

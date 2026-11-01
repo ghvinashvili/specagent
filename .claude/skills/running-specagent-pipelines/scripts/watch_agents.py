@@ -67,7 +67,9 @@ slash):
   `ACK <msg_id>` to <record> before anything else.`; a line `ACK <msg_id>` at the start of a line of the record closes
   the order (`ack <agent> <msg_id>`). Without it the order is resent after `ack_wait` seconds, at most `ack_resends`
   times, then closed with the exit event `no ack <agent> <msg_id> after <n> resends`. A fresh session gets the open
-  manager orders in its prompt, and the watcher's own are superseded.
+  manager orders in its prompt, and the watcher's own are superseded. A manager order to an agent with no process or
+  a final line 1 is delivered by the watcher at once, once (`woke <agent> with order <msg_id>`); while it is open the
+  agent is not final.
 - registry: `<run_dir>/<registry>` (default `_control/registry.json`), written whole with `os.replace` at the end of
   every round and when the watcher returns (never with --check, --order or on exit 2): per agent its lane and settings
   (from the first table of `_launch.md` with role, lane and settings columns), record, unit, state, session ids,
@@ -169,6 +171,10 @@ RELOAD_ORDER = (
     "where you were."
 )
 ORDER_LINE = "Order {msg_id}: append the line `ACK {msg_id}` to {record} before anything else."
+WAKE_LINE = (  # a manager order to an agent whose line 1 is final: the order wakes it (owner, 2026-11-01)
+    "Your record {record} is final on line 1. After the ACK, set line 1 to `STATUS: working on order {msg_id}`; when "
+    "this order's work is done, set it back to your final line."
+)
 UNBLOCK = (
     "Your last command waited more than 10 minutes for a permission approval that nobody could give, so the "
     "owner's watcher cancelled it and restarted you. Do not run that command again. Reach the same result another "
@@ -291,7 +297,7 @@ JOB = re.compile(r"claude stop ([0-9a-f]{8})\b")  # the job id a `--bg` launch p
 COPY = re.compile(r"a copy as ([0-9a-f]{8})\b")  # a resume of a session that still runs starts a copy
 ORIGINAL = re.compile(r"claude attach ([0-9a-f]{8})\W+opens the original")
 YES = re.compile(r"(?m)^Yes: (\d{4}-\d\d-\d\dT\d\d:\d\dZ) — ")  # the pre-flight's yes line in _launch.md (preflight.py)
-ORDER_KEYS = ("msg_id", "kind", "text", "sent_at", "resends", "acked_at", "closed")  # an order in the registry
+ORDER_KEYS = ("msg_id", "kind", "text", "sent_at", "resends", "acked_at", "closed", "woken")  # an order in the registry
 PRICED = ("input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")  # PRICE's order
 
 
@@ -497,6 +503,7 @@ def restored(order):
         "resends": order["resends"] if number(order.get("resends")) else 0,
         "acked_at": stamp(order.get("acked_at")),
         "closed": order["closed"] if isinstance(order.get("closed"), str) else None,
+        "woken": order.get("woken") is True,
     }
 
 
@@ -832,6 +839,10 @@ class Watcher:
             if final:
                 for order in self.roles[name]["orders"]:
                     order["closed"] = order["closed"] or "final"
+            elif self.line_final(name):  # woken by a manager order: the watcher's own orders end with line 1
+                for order in self.roles[name]["orders"]:
+                    if order["kind"] != "manager":
+                        order["closed"] = order["closed"] or "final"
         if self.demand(name, row, events):
             pass  # an on-demand agent launched or stopped: nothing else this turn
         elif row is None:
@@ -854,6 +865,8 @@ class Watcher:
         a, path = self.agents[name], self.run / self.agents[name]["status"]
         if not first_line(path).startswith(a["final"]):
             return False
+        if self.open_manager_orders(name):
+            return False  # a manager order wakes a final agent (owner, 2026-11-01): it is delivered, not closed
         if a.get("final_check") and self.lane_has_work(name):
             return False
         launched = self.roles[name]["launched_at"]
@@ -916,6 +929,10 @@ class Watcher:
             return False  # busy: the cap, the note and the budget apply to it as to any role
         if row is not None and row.get("state") == "failed":
             return False  # R9: decide() exits with `<agent> failed`, as for any role; a relaunch would fail again
+        if row is None and self.wake_orders(name, row):
+            why = f"demand {name}: order {self.wake_orders(name, row)[0]['msg_id']}; launched"
+            self.launch_fresh(name, row, self.fresh_text(name.split("/")[-1]), why, events)
+            return True
         if found and (len(found) >= d["queue"] or now - min(seen.values()) >= d["wait_minutes"] * 60):
             oldest = int((now - min(seen.values())) // 60)
             why = f"demand {name}: {len(found)} open ids, oldest {oldest} min; launched"
@@ -969,7 +986,9 @@ class Watcher:
         if self.handoff_note(name, row, role, events) or self.milestone(name, row, role, status, events):
             return True
         if name in self.idle:  # an idle role's whole turn is its check: no revival, nudge or timeout launch
-            if self.work_check(name)[0]:
+            if self.wake_orders(name, row):
+                self.launch_fresh(name, row, self.fresh_text(role), f"fresh {name} after idle: an order waits", events)
+            elif self.work_check(name)[0]:
                 self.launch_fresh(name, row, self.fresh_text(role), f"fresh {name} after idle: work waits", events)
             return True
         if state == "failed":
@@ -983,6 +1002,8 @@ class Watcher:
             return ordered  # False: the order waits for send_due() in this round, before waiting() may supersede it
         if name in self.pending:
             return self.waiting(name, row, role, events)
+        if not row.get("pid") and self.wake_orders(name, row):
+            return False  # send_due() resumes the session with the order, an on-demand agent's too
         if not row.get("pid") and state in ("stopped", "done") and "blocked" not in status.lower():
             return self.revive(name, row, sid, events)
         detail = [state, row.get("status") or "no status", "pid" if row.get("pid") else "no process"]
@@ -1188,7 +1209,30 @@ class Watcher:
     def add_order(self, name, kind, text, why):
         """A new order of the watcher's; send_due() sends it and logs `why`, which the registry leaves out."""
         order = {"msg_id": secrets.token_hex(4), "kind": kind, "text": text, "sent_at": None, "resends": 0}
-        self.roles[name]["orders"].append({**order, "acked_at": None, "closed": None, "why": why})
+        self.roles[name]["orders"].append({**order, "acked_at": None, "closed": None, "woken": False, "why": why})
+
+    def open_manager_orders(self, name):
+        """The manager's orders to the agent that no ACK, final line or resend limit has closed."""
+        return [o for o in self.roles[name]["orders"] if o["closed"] is None and o["kind"] == "manager"]
+
+    def wake_orders(self, name, row):
+        """The open manager orders the watcher delivers at once (owner, 2026-11-01): the manager cannot reach an agent
+        with no process or one whose line 1 is final, so each such order resumes it once (`woken`); a live working
+        agent gets the manager's orders from the manager, and from the watcher only as resends after `ack_wait`."""
+        if row is not None and row.get("pid") and not self.line_final(name):
+            return []
+        return [o for o in self.open_manager_orders(name) if not o.get("woken")]
+
+    def line_final(self, name):
+        """Line 1 of the agent's record starts with its `final`, whatever the open orders say."""
+        return first_line(self.run / self.agents[name]["status"]).startswith(self.agents[name]["final"])
+
+    def order_text(self, name, o):
+        """An order's prompt: its text, the wake line when line 1 is final and it is the manager's, its Order line."""
+        wake = o["kind"] == "manager" and self.line_final(name)
+        record = self.run / self.agents[name]["status"]
+        middle = f"{self.fill(WAKE_LINE, msg_id=o['msg_id'], record=record)}\n\n" if wake else ""
+        return f"{o['text']}\n\n{middle}{self.order_line(name, o['msg_id'])}"
 
     def order_line(self, name, msg_id):
         """K3's Order line: the ACK goes to the agent's record, named by its absolute path."""
@@ -1200,13 +1244,16 @@ class Watcher:
         row is blocked."""
         if not row.get("sessionId") or row.get("state") == "blocked":
             return
-        now, due, lines = time.time(), [], []
+        now, due, lines, wake = time.time(), [], [], self.wake_orders(name, row)
         for o in self.roles[name]["orders"]:
             if o["closed"] or (name in self.pending and o["kind"] not in ("handoff", "unit-end")):
                 continue  # while a hand-over is pending, only its own order moves
             if o["sent_at"] is None:
                 due.append(o)
                 lines.append(o.get("why") or f"{o['kind']} {name} {o['msg_id']}")
+            elif o in wake:
+                due.append(o)
+                lines.append(f"woke {name} with order {o['msg_id']}")
             elif now - o["sent_at"] >= self.ack_wait and o["resends"] < self.ack_resends:
                 due.append(o)
                 lines.append(f"resent {o['msg_id']} to {name} ({o['resends'] + 1} of {self.ack_resends})")
@@ -1215,12 +1262,12 @@ class Watcher:
                 self.event(name, f"no ack {name} {o['msg_id']} after {o['resends']} resends", events)
         if not due:
             return
-        prompt = "\n\n".join(f"{o['text']}\n\n{self.order_line(name, o['msg_id'])}" for o in due)
+        prompt = "\n\n".join(self.order_text(name, o) for o in due)
         if self.act(name, row, prompt, lines[0], events, resume=row["sessionId"], stop=bool(row.get("pid"))) is None:
             return
         for o in due:
-            o["resends"] += 0 if o["sent_at"] is None else 1
-            o["sent_at"] = time.time()
+            o["resends"] += 0 if o["sent_at"] is None or o in wake else 1
+            o["sent_at"], o["woken"] = time.time(), o["woken"] or o in wake
         for line in lines[1:]:
             log(line)
 
@@ -1233,7 +1280,7 @@ class Watcher:
             return
         for o in orders:
             if o["kind"] == "manager":
-                o["sent_at"], o["resends"] = time.time(), 0
+                o["sent_at"], o["resends"], o["woken"] = time.time(), 0, True
             else:
                 o["closed"] = "superseded"
 
@@ -1367,7 +1414,9 @@ class Watcher:
             if d["agent"] in self.agents and d["msg_id"] not in known:
                 known.add(d["msg_id"])
                 order = {"msg_id": d["msg_id"], "kind": "manager", "text": d["text"], "sent_at": stamp(d.get("at"))}
-                self.roles[d["agent"]]["orders"].append({**order, "resends": 0, "acked_at": None, "closed": None})
+                self.roles[d["agent"]]["orders"].append(
+                    {**order, "resends": 0, "acked_at": None, "closed": None, "woken": False}
+                )
 
     def state(self, name, row):
         """K1's state: done (final), blocked (the row or line 1 says so), running (a row with a pid) or stopped."""

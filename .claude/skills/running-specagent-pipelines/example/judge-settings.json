@@ -22,6 +22,27 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"<checkout>/.claude/hooks/keep-cache-warm.py\" pretool",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"<checkout>/.claude/hooks/keep-cache-warm.py\" stop \"<run-dir>/judge.md\" \"STATUS: done\"",
+            "timeout": 300
+          }
+        ]
       }
     ]
   },

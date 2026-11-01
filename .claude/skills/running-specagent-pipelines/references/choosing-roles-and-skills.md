@@ -76,8 +76,10 @@ session for it.
 A brief carries one domain section: our process text stays, and the matching ECC text adds its checklist and review
 order (owner, 2026-10-29). `Spec: .claude/ecc/agents/<name>.md:<a>-<b>[, ...] — <why>` names the pinned copies
 and their line ranges, under 60 lines in all, or `Spec: none — <why>`. The example briefs hold the line and a launch
-slot; at launch the manager pastes the ranges word for word from the pinned copies into the run folder's brief, trimmed
-by the drop rules K1-K5 and M of `.claude/ecc/sources.md`, so a finding cites the same place in every run.
+slot; the manager chooses the ranges so the drop rules K1-K5 of `.claude/ecc/sources.md` leave nothing in them, and at
+launch `catalogue.py fill <run>` pastes them word for word from the pinned copies into the run folder's briefs, one
+`~~~ecc <file>:<a>-<b>` block each, a subagent's `tools:` or `model:` line dropped (rule M), so a finding cites the same
+place in every run; preflight's `briefs` check refuses a run brief whose slot or pasted text is not so.
 Every critic and verifier finding cites its item (`Checklist: <file>:<line>`, `example/common.md`); the measurement
 page counts findings per item; an item that fired in no finding over three runs leaves the brief, and an item behind a
 missed defect moves to the top. `catalogue.py briefs <dir>` checks every brief's section.

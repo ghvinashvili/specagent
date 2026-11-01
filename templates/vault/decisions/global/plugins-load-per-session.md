@@ -5,7 +5,7 @@ scope: global
 kind: order
 template: yes
 status: verified
-updated: 2026-10-31
+updated: 2026-11-01
 audience: [main]
 sources: []
 decided: 2026-10-30

@@ -13,7 +13,7 @@ cd <repo> && claude --name <role> --add-dir <run-dir> <more dirs> --strict-mcp-c
 - Settings per role (see `example/*-settings.json`): allow `SendMessage`, `ListAgents`, `ToolSearch` and what the role
   uses; deny `Agent`, `EnterWorktree`, `AskUserQuestion` and git commands that rewrite or move branches; add
   `"crossSessionInbound": "accept"` (it did not stop holds of the main session's messages when passed through
-  `--settings`, 2026-10-09); add the compaction override of the next item; set `"model"` by the role's class
+  `--settings`, 2026-10-09); add the compaction override of the next item; add the two hooks of `.claude/hooks/keep-cache-warm.py` (`pretool` on Bash refuses a foreground call that may hold the turn past 210 s; `stop` on the role's record continues a session whose record is not final after 200 s with a keep-alive, up to an hour: the cache is kept warm by rule, not by the role, owner 2026-11-01; `example/*-settings.json`); set `"model"` by the role's class
   (specification, judgment or mechanical: the rule row "Models are set per role" of `SKILL.md`; the launch table's
   message names the models, no file a role reads does) and keep the effort max; add `"includeCoAuthoredBy": false`
   (the default `Co-Authored-By` trailer of a commit names the model, which no role may know; the pre-flight's `blind`
@@ -32,6 +32,10 @@ cd <repo> && claude --name <role> --add-dir <run-dir> <more dirs> --strict-mcp-c
 - A builder's lane after its `STATUS: done`: its agent entry carries a `final_check` (`open_ids.py <run> --kind V,R
   --cause code --tasks <the lane's tasks>`), so the verifier's later (code) findings revive it instead of waiting for
   the manager (a project's run of 2026-11-01: ten hours twice).
+- The ECC texts in the briefs: `scripts/manager/catalogue.py fill <run>` pastes each run brief's `Spec:` ranges from the
+  pinned copies in place of its launch slot, before the packs are built; preflight's `briefs` check refuses a brief
+  whose slot is still there or whose pasted text differs from the pinned copy (a project's run of 2026-11-01 launched
+  every role with the slot unfilled).
 - One frozen pack per lane in the system prompt: `_pack-<role>.md` holds `_common.md`, the role's assignment,
   `_first-pass-rules.md`, `_handoff-rule.md` and the "Read first" section of lessons.md, is built by
   `scripts/make_pack.py --no-note` before the lane's first launch, and the agent's own `extra_prompt` passes it with

@@ -14,8 +14,8 @@ that. The checks, in their order:
 - `cache`: the config's `common` carries `--autocompact 235000`, `--exclude-dynamic-system-prompt-sections` and
   `--system-prompt-snapshot on`, and its `handoff_at` and `cap` lie above the compaction point (about 197k); the role
   has its own `extra_prompt` whose pack is a file of the run folder holding its mark; its settings keep
-  `CLAUDE_CODE_PROMPT_CACHE_TTL` at `5m`, the empty compaction override and a `model` (one model per lane; owner,
-  2026-11-01, `launch.md`).
+  `CLAUDE_CODE_PROMPT_CACHE_TTL` at `5m`, the empty compaction override, a `model` (one model per lane; owner,
+  2026-11-01, `launch.md`) and the hooks of `keep-cache-warm.py`: `pretool` on Bash and `stop` on the role's record.
 - `blind`: each role's settings deny the ten rules that keep it blind to transcripts, the control files, the hand-overs
   and the processes and away from the credentials file `~/.claude/.credentials.json`; a sandboxed role also fails closed
   and hides the same four paths from reading. An `Edit` or `Write` deny rule with one leading slash (`Edit(/x)`) fails
@@ -32,6 +32,8 @@ that. The checks, in their order:
 - `worktree`: each role's directory exists, is a git checkout and, with a `pyproject.toml`, has its `.venv` (`uv sync`
   once per worktree).
 - `waiters`: every waiter a brief names is a file in the run folder, with no placeholder left.
+- `briefs`: `catalogue.py briefs <run>`: every run brief's domain section is in form, its launch slot is gone and each
+  `Spec:` range is pasted word for word (`catalogue.py fill <run>` does it).
 - `formats`: `scripts/check_formats.py <run-dir>` exits 0.
 - `monitor`: `monitor_records.py status <run-dir>` reports the request-line watch armed (its `watch` command starts it).
 - `disk`: at least `--min-free-mb` (512) MiB free in the run folder, the temporary directory and each worktree.
