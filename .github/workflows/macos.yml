@@ -1,0 +1,34 @@
+name: macOS
+# Runs the template on a real Mac: the tests, a new project made the way the README's Quick start makes it,
+# and that project's own checks. Only in the public repository, where GitHub's macOS runners are free.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  macos:
+    if: github.repository == 'ghvinashvili/specagent'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install -g @anthropic-ai/claude-code@2.1.281
+      - run: pip install uv
+      - run: uv sync
+      - run: uv run pytest -q
+      - run: uv run harness validate
+      - name: Make a new project (Quick start)
+        run: python3 ops/new-project.py "$RUNNER_TEMP/demo" repo_name=demo org=example --container
+      - name: The new project's doctor (reports what a Mac lacks)
+        continue-on-error: true
+        working-directory: ${{ runner.temp }}/demo/demo
+        run: git init -q && uv run harness doctor
+      - name: The new project validates
+        working-directory: ${{ runner.temp }}/demo/demo
+        run: uv run harness validate
