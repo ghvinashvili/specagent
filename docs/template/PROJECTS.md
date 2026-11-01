@@ -32,7 +32,9 @@
    folder that is not empty is refused, and the project with it. `harness doctor` checks both paths. After the owner's
    yes, `python3 ops/contribute.py <vault-page> [<evidence> ...] [--dry-run]` offers a global decision or concept to
    the commons by pull request and refuses private material in code (`wiki/decisions/the-shared-knowledge-base.md`).
-2. In the new directory: `git init`, `uv run harness validate`, `just catalog`, then the first commit.
+2. In the new directory: `git init` and `git config core.hooksPath .githooks` (the project is made before its
+   repository, so the setup could not set the graph hooks), `uv run harness validate`, `just catalog`, then the first
+   commit.
 3. Add the project's packages under `packages/` beside `harness`, its source material under `context/` and its pages
    under `wiki/` (the template ships none: owner, 2026-10-29).
 4. Decide the open questions the template leaves to a human (owners in `.github/CODEOWNERS`, budgets, the version pin).

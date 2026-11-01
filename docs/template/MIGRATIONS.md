@@ -14,6 +14,9 @@ lines do; uncommitted changes count as the commit in the making). Exempt: this f
 `docs/template/README.md`) the test skips.
 
 ## Unreleased (after 1.8.0; written with each change; the release moves it under its number)
+- 2026-11-01, `NOTICE` (new: the author's attribution, kept by every copy under Apache-2.0): a project keeps the template's `NOTICE` beside its own. (479c7b3)
+- 2026-11-01, `.github/workflows/macos.yml` and `.github/workflows/windows.yml` (new: the tests, `harness validate` and a new project made by the Quick start, on macOS and in Ubuntu under WSL; they run only in `ghvinashvili/specagent`): a project takes nothing, the `if:` keeps them off its runners. (07e0d6f, 533856d, 5377d38)
+- 2026-11-01, `ops/pyyaml_or_uv.py` and `ops/tests/test_pyyaml_or_uv.py` (new), `ops/new-project.py`, `ops/new-vault.py`, `ops/contribute.py`: on a `python3` without PyYAML (a fresh macOS, found by the macOS workflow) the script runs itself again under uv with PyYAML instead of stopping at `import yaml`; a project copies the four files. `README.md` (Quick start: `cd <dir>/<name> && git init && git config core.hooksPath .githooks`; read, not copied) and `docs/template/PROJECTS.md` (step 2 sets the hooks path; a project copies it).
 - 2026-10-31, after 1.8.0 (8f8e450 and this commit): `ops/sync-vault-globals.py` (the INDEX hook of a quoted title drops its YAML quotes), `ops/tests/test_sync_vault_globals.py`, `templates/vault/INDEX.md` (regenerated, two hooks) and `templates/vault/decisions/global/` (checks-once-each, writers-no-web-material-only: the `why:` value quoted so the frontmatter loads as YAML; vault 8eb095f); a project copies the four paths. Checks: `uv run pytest -q ops/tests/test_sync_vault_globals.py ops/tests/test_new_vault.py`.
 - 2026-10-31, `CLAUDE.md` (the map's first line and the Commands line) and `docs/roles/manager-chat.md`: a project's work runs as a SpecAgent pipeline run through the skill, never as `harness launch` stages unless the owner names a harness run for it (a project's manager chat of 2026-10-31 read the map line that named the harness first and ran a day's work stage by stage); new `ops/tests/test_pipeline_choice.py` keeps the sentence. A project copies the three files (`CLAUDE.md` keeps its own title line). (6c8b2c4)
 - 2026-10-31, the pipeline skill's pre-flight (`scripts/manager/preflight.py`, `PAIRS`): the `launch` check refuses a critic with no planner in the table; `docs/roles/manager-chat.md` guards 3 and 4 (every role in the table from the start, a missing role asked for at once, the manager does no role's work) and `references/preflight-and-capacity.md`; test in `scripts/tests/test_preflight.py`. A project copies the four files. (f3a4b9b)
@@ -24,12 +27,13 @@ lines do; uncommitted changes count as the commit in the making). Exempt: this f
 - 2026-10-31, `CLAUDE.md` shortened to its 4,000-byte limit (`test_surface_pruning`; 3bbdc6a and the commit after it), the same two map lines and the Commands line: a project copies it, its title line kept.
 - 2026-10-31, `README.md` and `docs/assets/banner.svg`: the name on GitHub is SpecAgent Pro Template, a project template, not a plugin (owner, 2026-10-31); read, not copied.
 - 2026-10-31, `docs/assets/` (the README's five pictures and their `src/` on one 1320 px canvas): read, not copied, unless the project keeps the template's README, then copy the folder (fbfbbf5, merged as 08b496b).
-- 2026-11-01, token-optimizer removed (owner: it gave no result and is not needed): ce4ff80, a055324, 067071c and
-  90058f2 reverted in this commit, every path they changed back as at 9836e31: `plugins/.claude-plugin/marketplace.json`
-  and `.claude/settings.json` (the plugin's entry), `docs/roles/extensions.yaml` and `docs/roles/need-to-know.yaml`,
-  `ops/bootstrap.py` and its tests, `packages/harness/` (`access.py`, `test_access.py`), the skill's
-  `scripts/watch_agents.py`, its tests and `references/launch.md` (no machine launch file is read), the token-optimizer
-  decision pages with their `wiki/index.md` and `wiki/log.md` lines. A project that took those changes reverts its copies.
+- 2026-11-01, token-optimizer removed (owner: it gave no result and is not needed): c414bfc, 793ccc0, e4ebdc6,
+  0bca801, 41683d5, 30d6897, 3d50fbc and 7850980 reverted in this commit, every path they changed back as at 069ef60:
+  `plugins/.claude-plugin/marketplace.json` and `.claude/settings.json` (the plugin's entry), `docs/roles/extensions.yaml`
+  and `docs/roles/need-to-know.yaml`, `ops/bootstrap.py` and its tests, `packages/harness/` (`access.py`, `test_access.py`),
+  the skill's `scripts/watch_agents.py`, its tests and `references/launch.md` (no machine launch file is read), the
+  token-optimizer decision pages with their `wiki/index.md` and `wiki/log.md` lines. A project that took those changes
+  reverts its copies.
 - 2026-11-01, the cache and the context of a role's session (owner): a session compacts near 197k instead of handing
   over, one frozen pack per lane in the system prompt, the 5m TTL with waiters back within 3.5 minutes, one model per
   lane, facts into the record as the work goes. `.claude/skills/running-specagent-pipelines/` (the watcher's own
@@ -48,7 +52,7 @@ lines do; uncommitted changes count as the commit in the making). Exempt: this f
 - 2026-11-01, `LICENSE`: the template is licensed under Apache-2.0 (owner); `docs/template/variables.yaml` omits
   `LICENSE` from a new project, which chooses its own license: nothing to copy; a project keeps its own `LICENSE`.
 - 2026-11-01, `README.md` (the table of two measured runs of 2026-10-30 removed, owner: it predated the cache rules);
-  30b1398 and 070f116 (the Small contexts sentence, the note on that table) are named here too;
+  d04d893 and 696e14c (the Small contexts sentence, the note on that table) are named here too;
   and `docs/the-end-of-a-run.md` (its pointer to that table): read, not copied.
 - 2026-11-01, a builder's lane after its `STATUS: done` (owner): `.claude/skills/running-specagent-pipelines/`
   (`scripts/watch_agents.py`: an agent's `final_check`; `scripts/open_ids.py`: `--cause code` and `--tasks`; their tests,

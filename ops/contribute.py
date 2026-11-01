@@ -26,7 +26,13 @@ import sys
 import tempfile
 from pathlib import Path
 
-import yaml
+try:
+    import yaml
+except ModuleNotFoundError:  # a fresh python3 has no PyYAML: run again under uv with it (ops/pyyaml_or_uv.py)
+    import runpy
+
+    runpy.run_path(str(Path(__file__).resolve().parent / "pyyaml_or_uv.py"))["ensure_pyyaml"]()
+    raise
 
 ROOT = Path(__file__).resolve().parent.parent
 COMMONS_URL = "https://github.com/ghvinashvili/aftpro-commons.git"  # the public commons (spec 11.3); doctor.py too

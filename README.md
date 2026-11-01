@@ -313,6 +313,7 @@ coordinate by files and polling, and the manager cannot steer a role mid-turn.
 
 ```bash
 python3 ops/new-project.py <dir> repo_name=<name> org=<org> [vault_path=<path>] --container   # a project of your own
+cd <dir>/<name> && git init && git config core.hooksPath .githooks   # its repository and the graph hooks
 uv run harness doctor         # the machine, the vault and the commons: prints the fix for what is missing
 uv run harness validate       # configuration, stage tables, access table, extensions
 claude                        # a chat in the checkout: ask it for a pipeline run
@@ -320,7 +321,7 @@ claude                        # a chat in the checkout: ask it for a pipeline ru
 
 `ops/new-project.py` copies the template, sets it up with `ops/bootstrap.py` (`just`, the git hooks,
 the sandbox, the first code graph) and makes your vault when it is missing
-(`docs/template/PROJECTS.md`); in a plain clone the first session runs `ops/bootstrap.py` in the background after the
+(`docs/template/PROJECTS.md`); a `python3` without PyYAML runs it again under uv (`ops/pyyaml_or_uv.py`); in a plain clone the first session runs `ops/bootstrap.py` in the background after the
 trust dialog. A run never lives in the checkout: `runs/`, `experiments/` and
 `docs/handoff/` sit beside it, your vault (`~/vault`) and the commons clone (`~/aftpro-commons`) outside;
 `git clone https://github.com/ghvinashvili/specagent.git <dir>/template && python3 <dir>/template/ops/container.py`

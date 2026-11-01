@@ -16,7 +16,13 @@ import subprocess
 import sys
 from pathlib import Path
 
-import yaml
+try:
+    import yaml
+except ModuleNotFoundError:  # a fresh python3 has no PyYAML: run again under uv with it (ops/pyyaml_or_uv.py)
+    import runpy
+
+    runpy.run_path(str(Path(__file__).resolve().parent / "pyyaml_or_uv.py"))["ensure_pyyaml"]()
+    raise
 
 OPTIONS = {"--no-setup", "--container"}
 RUNS_MARKER = ".harness-runs"  # harness state.RUNS_MARKER: the file that makes a runs/ folder the runs root
