@@ -1038,7 +1038,7 @@ class Watcher:
             # a note that answers the watcher's own hand-over order launches unchecked: it may come mid-unit
             if name not in self.pending and self.agents[name].get("work_check"):
                 waits, last = self.work_check(name)
-                if not waits:
+                if not waits and not self.wake_orders(name, row):  # an order waiting for it is work to take now
                     self.tell(name, f"idle {name}: nothing to take ({last})")
                     if row.get("id"):  # R6: a session left live would wake on a waiter or a message, past any cap
                         self.stop_session(name, row)

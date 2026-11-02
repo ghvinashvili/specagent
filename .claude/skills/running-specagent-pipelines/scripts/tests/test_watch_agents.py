@@ -1391,6 +1391,20 @@ NOTHING = [sys.executable, "-c", "raise SystemExit(3)"]  # a work_check that rep
 FLAG = "import os, sys; sys.exit(0 if os.path.exists(sys.argv[1]) else 3)"  # work waits once the file exists
 
 
+def test_a_note_of_a_dead_session_with_an_order_waiting_launches_fresh_with_the_order_in_the_same_round(p):
+    """A run of 2026-11-02: the note of an agent's dead session met a waiting manager order, the work check found
+    nothing, and the order went out a round later; the order is work to take now."""
+    p.config["agents"]["t/builder"]["work_check"] = NOTHING
+    p.transcript()
+    note(p)
+    p.watch("--order", "t/builder", "Answer V7 in Task 3.")
+    p.rounds([row(state="stopped", status=None, pid=None)])
+    r = p.watch(rounds=1)
+    assert "idle t/builder" not in r.stdout, r.stdout + r.stderr
+    [launch] = p.launches()
+    assert "--resume" not in launch["argv"] and "Answer V7 in Task 3." in launch["argv"][-1]
+
+
 def test_a_note_with_nothing_to_take_logs_idle_and_launches_nothing(p):
     p.config["agents"]["t/builder"]["work_check"] = NOTHING
     p.transcript()
