@@ -68,6 +68,13 @@ the ones above, run in this order:
    copies 0, a lower cost per unit and escaped 0; a fall in findings per unit is explained on that page. A cell is
    `n/a` when its source is missing (the transcripts for the cost and the cache write, `_watch.log` or
    `_control/watch.out` for the copies).
+7b. `scripts/lessons_report.py <run-dir> [<earlier run-dir> ...] --transcript <the manager's transcript>`: each lesson's
+   recurrences (findings that name it with `Lesson:` or cite it as `Checklist:` and are not its sources) per 10 units,
+   the lessons broken twice (made code next, vault a-rule-broken-twice-becomes-code), the carried classes' recurrences
+   per 10 units (the measured effect of earlier runs and the vault on the roles), the lessons no finding names
+   (unmeasured, never reported as working), across runs one row per lesson, and the vault pages the manager read. Every
+   change with a `measure:` line in the template's MIGRATIONS gets its after-number beside the before; a claimed gain
+   without a number is written as unmeasured (vault measure-the-effect-of-every-improvement).
 8. Every number, with the command that produced it, goes into `<vault>/context/measurements/<date>-<run>.md`, committed
    before the owner's summary or any page cites it; `ops/check_pages.py` runs in the vault after every commit and
    prints 0 problems.

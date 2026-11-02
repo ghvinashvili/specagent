@@ -20,7 +20,9 @@ of `_common.md` (`Request-line bound: <m> minutes`, 15 when absent; the age from
 `--state`, else from the file's mtime, a lower bound) are errors. A `Merged: <marker> at <sha>` line of lessons.md
 (code spans skipped) needs a hex sha that is an ancestor of HEAD in the merged-into builder's checkout (`x->y`:
 builder-y's; `a+b+c+d`: any named builder's), or for another target (`main->plan`) a commit of `--repo` or of a builder
-checkout; with `--repo`, a lane marker whose named checkouts are all gone needs a commit of `--repo`. A waiter (each
+checkout; with `--repo`, a lane marker whose named checkouts are all gone needs a commit of `--repo`. A finding's
+`Lesson: <file>:<line>` (the lesson it breaks; lessons.md and other relative paths from the run folder) names a line
+that exists. A waiter (each
 line of the run folder's `_*.py` and `*.sh`, each code span and fenced line of its `_*.md`)
 may not count the marker with `grep -c`. A ticked duty of `_control/duties.md` carries its UTC time. The agents come
 from the configs in `CONFIGS` order: `_control/_agents.json`, `_agents.json`, `_agents-active.json`.
@@ -233,6 +235,24 @@ def cause_errors(run: pathlib.Path) -> list[str]:
         for ident, line, body in sections(read(run / name))
         if ident.startswith("V") and not CAUSE.search(body)
     ]
+
+
+LESSON = re.compile(r"^Lesson:\s*`?([^`\s]+):(\d+)", re.MULTILINE)
+
+
+def lesson_errors(run: pathlib.Path) -> list[str]:
+    """4b. A finding's `Lesson: <file>:<line>` that names no line of an existing file (owner, 2026-11-02: each finding
+    names the lesson it breaks, so the lesson's recurrences are counted, lessons_report.py)."""
+    out = []
+    for name in ("critique.md", "verify.md", "verify-kb.md", "judge.md"):
+        for ident, line, body in sections(read(run / name)):
+            for path, n in LESSON.findall(body):
+                file = pathlib.Path(path).expanduser()
+                file = file if file.is_absolute() else run / file
+                count = len(read(file).splitlines()) if file.is_file() else 0
+                if not 1 <= int(n) <= count:
+                    out.append(f"{name}:{line}: #### {ident} names Lesson {path}:{n}, which is no line of a file")
+    return out
 
 
 def done_lines(run: pathlib.Path, repo: str | None) -> tuple[list[str], list[str]]:
@@ -471,6 +491,7 @@ def main(argv: list[str] | None = None) -> int:
         *found["errors"],
         *twice_errors(run),
         *cause_errors(run),
+        *lesson_errors(run),
         *done_errors,
         *handoff_errors(run),
         *request_errs,

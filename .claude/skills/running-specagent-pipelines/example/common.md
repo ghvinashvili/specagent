@@ -58,7 +58,10 @@ Every finding of the critic and the verifier also cites, on a line of its own, t
 `Checklist: <file>:<line>` — a line of a pinned copy the brief's `Spec:` line names
 (`.claude/ecc/agents/<name>.md:<line>`), a `lessons.md` "Known error classes" line, or a spec line (an
 acceptance check is a spec line). The run's measurement page counts findings per cited item, so the same text is cited
-by the same place in every run.
+by the same place in every run. When the defect breaks a rule already written down (a `lessons.md` item of any
+section, or a rule your brief quotes), the finding also names it on a line of its own: `Lesson: <file>:<line>`
+(`lessons.md` relative to the run folder). `scripts/lessons_report.py` counts each lesson's recurrences from these
+lines; a rule broken twice becomes code.
 
 ## Messages
 Messages from the sessions named in your assignment (`<project>/planner`, `<project>/plan-fixer`, `<project>/critic`,

@@ -614,3 +614,26 @@ def test_the_module_docstring_states_the_repo_rule_of_a_lane_marker():
     """R13: the usage text at the top states J7's rule as merged_error's docstring and docs/check_formats.md do."""
     doc = " ".join(ast.get_docstring(ast.parse(SCRIPT.read_text(encoding="utf-8"))).split())
     assert "with `--repo`, a lane marker whose named checkouts are all gone needs a commit of `--repo`" in doc
+
+
+def test_a_finding_s_lesson_must_name_a_line_of_an_existing_file(run):  # owner, 2026-11-02
+    write(run, "lessons.md", "STATUS: open\n# Lessons\n- A test list is no task.\n")
+    write(
+        run,
+        "verify.md",
+        """
+        STATUS: verified through Task 1
+        ## Task 1
+        #### V1 — (code) the rule broken again
+        Lesson: lessons.md:3
+        #### V2 — (code) a line past the file
+        Lesson: lessons.md:30
+        #### V3 — (code) a file that does not exist
+        Lesson: nowhere.md:1
+        """,
+    )
+    code, out = check(run)
+    lessons = [e for e in out["errors"] if "names Lesson" in e]
+    assert code == 1 and len(lessons) == 2, out["errors"]
+    assert any("V2 names Lesson lessons.md:30" in e for e in lessons)
+    assert any("V3 names Lesson nowhere.md:1" in e for e in lessons)

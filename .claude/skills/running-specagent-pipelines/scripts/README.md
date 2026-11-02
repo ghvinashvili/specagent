@@ -36,6 +36,7 @@ which).
 - [`startup_report.py`](docs/startup_report.md): the start-up cost per session
 - [`check_formats.py`](docs/check_formats.md): the format check of a run folder
 - [`findings_report.py`](docs/findings_report.md): findings per kind and the escape table
+- [`lessons_report.py`](docs/lessons_report.md): each lesson's recurrences, the ones to make code, the carried classes
 - [`audit_read_first.py`](docs/audit_read_first.md): the "Read first" audit
 - [`replay_cases.py`](docs/replay_cases.md): replay cases from findings
 - [`make_pack.py`](docs/make_pack.md): a role's startup pack
