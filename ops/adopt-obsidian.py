@@ -4,8 +4,9 @@ pages (wiki/decisions/the-checkout-is-a-claude-obsidian-vault.md).
   ops/adopt-obsidian.py [--apply] [--root PATH]   declare, install, adopt, ignore, check; without --apply a dry run
   ops/adopt-obsidian.py cli [--dir]                print the installed plugin's CLI (or its directory)
   ops/adopt-obsidian.py lint | doctor              run the plugin's check on this checkout
-Steps, each skipped when it is done: 1. declare: the plugin in plugins/.claude-plugin/marketplace.json (a github
-source, so `ops/bootstrap.py` installs the latest version from git) and in .claude/settings.json (enabledPlugins, and
+Steps, each skipped when it is done: 1. declare: the plugin in plugins/.claude-plugin/marketplace.json (a git source
+over HTTPS, so `ops/bootstrap.py` installs the latest version from git on a machine without an SSH key for GitHub, which
+a `github` source needs; an entry of that form is moved to it) and in .claude/settings.json (enabledPlugins, and
 CLAUDE_OBSIDIAN_SESSION_CONTEXT=1, so every session starts with wiki/hot.md); docs/roles/extensions.yaml and
 need-to-know.yaml are reviewed by hand, `harness validate` compares them. 2. install: bootstrap's install_plugins, project
 scope, never the user scope. 3. adopt: the plugin's dry run, then the same plan applied with its hash
@@ -29,11 +30,12 @@ UPSTREAM = "claude-obsidian"  # the plugin's own name and repository
 REPO = "AgriciDaniel/claude-obsidian"
 ENTRY = {
     "name": PLUGIN,
-    "source": {"source": "github", "repo": REPO},
+    "source": {"source": "url", "url": f"https://github.com/{REPO}.git"},
     "description": "Source-cited Obsidian vault: adoption, journaled writes, lint, retrieval and provenance ledgers for wiki/",
     "category": "knowledge",
     "tags": ["obsidian", "wiki", "knowledge-base"],
 }
+SSH_SOURCE = {"source": "github", "repo": REPO}  # cloned as git@github.com: refused without a key (the macOS workflow)
 CONTEXT_ENV = "CLAUDE_OBSIDIAN_SESSION_CONTEXT"
 IGNORE = """# ── Obsidian (the checkout is the claude-obsidian vault, wiki/ its pages): only the shared settings are committed;
 # workspace*.json, the rest of .obsidian/ and the plugin's transaction journal stay local
@@ -112,10 +114,15 @@ def declare(root: Path) -> list[str]:
     changed = []
     market_path = root / "plugins" / ".claude-plugin" / "marketplace.json"
     market = json.loads(market_path.read_text(encoding="utf-8"))
-    if not any(p.get("name") == PLUGIN for p in market.get("plugins", [])):
+    entry = next((p for p in market.get("plugins", []) if p.get("name") == PLUGIN), None)
+    if entry is None:
         market.setdefault("plugins", []).append(ENTRY)
         _write_json(market_path, market)
-        changed.append(f"{market_path.relative_to(root)}: {PLUGIN} from github:{REPO}")
+        changed.append(f"{market_path.relative_to(root)}: {PLUGIN} from {ENTRY['source']['url']}")
+    elif entry.get("source") == SSH_SOURCE:
+        entry["source"] = ENTRY["source"]
+        _write_json(market_path, market)
+        changed.append(f"{market_path.relative_to(root)}: {PLUGIN} from {ENTRY['source']['url']}, not over SSH")
     settings_path = root / ".claude" / "settings.json"
     settings = json.loads(settings_path.read_text(encoding="utf-8"))
     key = f"{PLUGIN}@{market['name']}"

@@ -285,6 +285,19 @@ def vault_item(root: Path) -> dict:
     )
 
 
+def trust_item(root: Path) -> dict:
+    """Whether Claude Code trusts the checkout. Optional: no step of the human's records it, the first `claude` in the
+    checkout asks for it and the launcher records it before `claude --bg` (ADR-0013); as a required item it failed the
+    setup of every new project on a machine where Claude Code had run before (the macOS workflow)."""
+    return _item(
+        "the repository is a trusted workspace",
+        trust.trusted(root),
+        fix="the next `harness launch` or `harness resume` records it, the flag alone (harness/trust.py); "
+        "`claude --bg` refuses an untrusted directory, and Claude Code looks no higher than the repository's root",
+        required=False,
+    )
+
+
 def check(root: Path) -> dict:
     items = []
     settings = json.loads((root / ".claude" / "settings.json").read_text(encoding="utf-8"))
@@ -318,14 +331,7 @@ def check(root: Path) -> dict:
         )
     )
     items.append(code_intel(root))
-    items.append(
-        _item(
-            "the repository is a trusted workspace",
-            trust.trusted(root),
-            fix="the next `harness launch` or `harness resume` records it, the flag alone (harness/trust.py); "
-            "`claude --bg` refuses an untrusted directory, and Claude Code looks no higher than the repository's root",
-        )
-    )
+    items.append(trust_item(root))
     items.append(service_environment())
     items.append(vault_item(root))
     items += optional_items()

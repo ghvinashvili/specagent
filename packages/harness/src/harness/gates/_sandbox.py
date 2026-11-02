@@ -12,6 +12,7 @@ own sandbox does. Where no sandbox starts the command is not run: `problem` says
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import sys
@@ -34,9 +35,74 @@ def toolchain(root: Path) -> tuple[list[Path], list[Path]]:
         paths = access.load_policy(root)["defaults"].get("toolchain") or {}
     except (OSError, access.AccessError):
         paths = {}
-    read = [Path(p).expanduser() for p in [*paths.get("read", []), *GIT_CONFIG]] + [Path(sys.prefix)]
+    read = [Path(p).expanduser() for p in [*paths.get("read", []), *GIT_CONFIG]] + interpreter_paths()
     write = [Path(p).expanduser() for p in paths.get("write", [])]
     return [p for p in read if p.exists() and p not in write], [p for p in write if p.exists()]
+
+
+def interpreter_paths(limit: int = 40) -> list[Path]:
+    """What the gating python needs open, and no more: its environment, the interpreter it was made from (the folder
+    the venv's pyvenv.cfg names as python's home, and the resolved one), and the folder of each link from the python to
+    the file it runs. A venv made by uv names uv's minor-version folder (`cpython-3.12-…`), a link to the patch release:
+    with the release alone open, bubblewrap found no python (`execvp …/.venv/bin/python: No such file or directory`,
+    the WSL2 workflow). A linked folder on the way is never opened whole (V2 of the macos-windows run: `~/code` linked to
+    a Windows folder opened every project in it), a link's folder only inside the venv or the interpreter, and a path
+    that would open the home directory or a hidden folder is left out (`_hides`; V3: a python installed with the prefix
+    $HOME), and of an installation only its `bin` and `lib` are opened (`_opened`: a pyvenv.cfg naming `~/code/bin`
+    would open `~/code`; V5: a python installed with the prefix ~/.local opened `~/.local/share`): the gate then fails
+    on python's own error, never opens more."""
+    home = venv_home(Path(sys.prefix))
+    found = [Path(sys.prefix), Path(sys.base_prefix), *([home.parent] if home is not None else [])]
+    roots = list(dict.fromkeys(p for root in dict.fromkeys(found) if not _hides(root) for p in _opened(root)))
+    steps, path = [], Path(sys.executable)
+    for _ in range(limit):
+        steps.append(path.parent)
+        if not path.is_symlink():
+            break
+        target = Path(os.readlink(path))
+        path = target if target.is_absolute() else path.parent / target
+    # a step's folder only inside the venv or the interpreter: a link through `~/bin/python3` would open `~/bin` whole
+    return list(dict.fromkeys([*roots, *(step for step in steps if _inside(step, roots))]))
+
+
+def _inside(folder: Path, roots: list[Path]) -> bool:
+    """Whether the folder, as given or resolved, lies in one of the roots, as given or resolved."""
+    return any(
+        f == r or r in f.parents for f in {folder, folder.resolve()} for root in roots for r in {root, root.resolve()}
+    )
+
+
+def _opened(folder: Path) -> list[Path]:
+    """What of the folder is opened: a venv (its pyvenv.cfg) whole; of a python installation (`lib/python3.*` and a
+    python in `bin`) the `bin` and `lib` that getpath and the loader read, never its `share` or `state`; else nothing."""
+    if (folder / "pyvenv.cfg").is_file():
+        return [folder]
+    libs = (folder / "lib").glob("python3*") if (folder / "lib").is_dir() else ()
+    bins = (folder / "bin").glob("python3*") if (folder / "bin").is_dir() else ()
+    if any(p.is_dir() for p in libs) and any(p.is_file() for p in bins):
+        return [folder / "bin", folder / "lib"]
+    return []
+
+
+def venv_home(prefix: Path) -> Path | None:
+    """The `home` a venv's pyvenv.cfg names (the folder of the python it was made from), or None outside a venv."""
+    try:
+        lines = (prefix / "pyvenv.cfg").read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return None
+    for line in lines:
+        key, sep, value = line.partition("=")
+        if sep and key.strip() == "home" and value.strip():
+            return Path(value.strip())
+    return None
+
+
+def _hides(folder: Path) -> bool:
+    """Whether opening the folder would open what the sandbox hides: the home directory, a folder of HIDDEN, or a folder
+    above one (a linked `/home` or home directory on the way to python opened them whole)."""
+    shut = {Path(h) for h in HIDDEN} | {Path.home()}
+    shut |= {h.resolve() for h in shut}
+    return any(f == h or f in h.parents for f in {folder, folder.resolve()} for h in shut)
 
 
 def environment(root: Path, tmp: str = "/tmp") -> dict[str, str]:
@@ -87,11 +153,19 @@ def _quote(path: Path) -> str:
 
 def profile(root: Path, tree: Path, tmp: Path) -> str:
     """The Seatbelt profile of macOS: no network, no write but the checkout, the private temporary folder and the
-    writable toolchain paths, no read of the home directory but the toolchain, the git configuration and `.git`."""
+    writable toolchain paths, no read of the home directory but the toolchain, the git configuration and `.git`.
+
+    Seatbelt matches a path as the kernel resolves it (`/var/folders/…` is `/private/var/folders/…`), and reading a
+    link is reading the link's own path, so every path stands as given and as resolved; and a program that resolves its
+    own path (python's `realpath` of its folder, seen on the macOS runner:
+    `Operation not permitted`) reads the metadata of each folder above it, which is allowed for those folders alone."""
     read, write = toolchain(root)
     gd = git_dir(tree)
-    opened = " ".join(f"(subpath {_quote(p)})" for p in [*read, *write, *([gd] if gd else []), tree, tmp])
-    writable = " ".join(f"(subpath {_quote(p)})" for p in [*write, tree, tmp])
+    given = [*read, *write, *([gd] if gd else []), tree, tmp]
+    opened_paths = list(dict.fromkeys(q for p in given for q in (p.absolute(), p.resolve())))  # a link, and its target
+    opened = " ".join(f"(subpath {_quote(p)})" for p in opened_paths)
+    writable = " ".join(f"(subpath {_quote(p.resolve())})" for p in [*write, tree, tmp])
+    above = " ".join(f"(literal {_quote(p)})" for p in dict.fromkeys(a for p in opened_paths for a in p.parents))
     return "\n".join(
         [
             "(version 1)",
@@ -99,8 +173,9 @@ def profile(root: Path, tree: Path, tmp: Path) -> str:
             "(deny network*)",
             "(deny file-write*)",
             f'(allow file-write* {writable} (literal "/dev/null") (regex #"^/dev/(tty|fd/)"))',
-            f"(deny file-read* (subpath {_quote(Path.home())}))",
+            f"(deny file-read* (subpath {_quote(Path.home().resolve())}))",
             f"(allow file-read* {opened})",
+            f"(allow file-read-metadata {above})",
         ]
     )
 

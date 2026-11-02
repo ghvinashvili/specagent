@@ -536,6 +536,17 @@ class Repo:
         self.git("commit", "-qm", message)
         self.git("checkout", "-q", "main")
 
+    def commit_names_and_return_to_main(self, names: list[bytes], message: str) -> None:
+        """Commit files under these exact names, as git stores them, past the file system: macOS's folds `.CLAUDE/`
+        into the `.claude/` that is there and refuses a name that is not UTF-8 (the macOS workflow)."""
+        run = ["git", "-C", str(self.root), "-c", "core.ignorecase=false"]
+        blob = subprocess.run([*run, "hash-object", "-w", "--stdin"], input=b"{}\n", capture_output=True, check=True)
+        for name in names:
+            info = b"100644," + blob.stdout.strip() + b"," + name
+            subprocess.run([*run, "update-index", "--add", "--cacheinfo", info], check=True, capture_output=True)
+        self.git("commit", "-qm", message)
+        self.git("checkout", "-q", "-f", "main")
+
 
 def report_of(repo: Repo, branch: str = "work-1") -> str:
     """What a writer states about its work: the commits of its branch and an entry per task."""
@@ -720,7 +731,7 @@ def test_a_branch_that_moves_a_closed_file_out_is_refused(repo, run):
 def test_a_closed_path_is_found_however_git_spells_it(repo, run, path):
     """git quotes a name with an unusual character, and a file system that ignores case reads `.CLAUDE/` as
     `.claude/`: the scope check compares the names git gives with -z, in lower case."""
-    repo.commit_and_return_to_main({path: "{}\n"}, "feat: config")
+    repo.commit_names_and_return_to_main([path.encode()], "feat: config")
     scope = _common.scope_check(repo.root, run, res(role_type="writer"), "work-1")
     assert not scope["passed"] and path in scope["detail"]
 
@@ -728,9 +739,7 @@ def test_a_closed_path_is_found_however_git_spells_it(repo, run, path):
 def test_a_closed_name_that_is_no_utf_8_is_found(repo, run):
     """A file name git stores as bytes that are not UTF-8 is read all the same, and refused under `.claude/`."""
     name = b".claude/skills/\xff/SKILL.md"
-    (repo.root / ".claude/skills/\udcff").mkdir(parents=True)  # the same bytes, as Python spells them
-    (repo.root / ".claude/skills/\udcff/SKILL.md").write_text("x\n", encoding="utf-8")
-    repo.commit_and_return_to_main({}, "feat: skill")
+    repo.commit_names_and_return_to_main([name], "feat: skill")
     scope = _common.scope_check(repo.root, run, res(role_type="writer"), "work-1")
     assert not scope["passed"] and name.decode("utf-8", "surrogateescape") in _common.changed_files(repo.root, "work-1")
 

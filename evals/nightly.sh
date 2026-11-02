@@ -6,4 +6,10 @@ cap="${HARNESS_EVAL_MAX_USD:-20}"
 need="$(uv run python -c 'from pathlib import Path; from harness.evals import suite_minutes; print(suite_minutes(Path("."), "regression"))')"
 minutes=$((need + 10))
 echo "nightly: cap \$$cap, timeout $minutes min" >&2
-HARNESS_EVAL_MAX_USD="$cap" timeout -k 10 "${minutes}m" uv run harness eval --suite regression --threshold 1.0
+limited() {  # macOS has no timeout(1): Homebrew's gtimeout, or ops/timeout.py, which does the same
+  if command -v timeout >/dev/null; then timeout "$@"
+  elif command -v gtimeout >/dev/null; then gtimeout "$@"
+  else python3 -I ops/timeout.py "$@"; fi
+}
+export HARNESS_EVAL_MAX_USD="$cap"
+limited -k 10 "${minutes}m" uv run harness eval --suite regression --threshold 1.0

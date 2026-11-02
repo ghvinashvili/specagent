@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -249,3 +251,28 @@ def test_the_nightly_script_runs_the_suite_under_its_minutes_and_the_cap(tmp_pat
     assert measure.startswith(f"{ROOT}|{cap or ''}|run python -c ") and "suite_minutes" in measure
     assert timeout == "-k 10 125m uv run harness eval --suite regression --threshold 1.0"
     assert run == f"{ROOT}|{shown}|run harness eval --suite regression --threshold 1.0"
+
+
+def test_the_nightly_script_runs_where_the_system_has_no_timeout(tmp_path):
+    """macOS has no timeout(1): ops/timeout.py takes its place, with the same limit."""
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    (bin_dir / "uv").write_text(FAKE_UV, encoding="utf-8")
+    (bin_dir / "uv").chmod(0o755)
+    for tool in ("bash", "env", "dirname"):
+        (bin_dir / tool).symlink_to(shutil.which(tool))
+    (bin_dir / "python3").symlink_to(sys.executable)
+    env = {k: v for k, v in os.environ.items() if k != "HARNESS_EVAL_MAX_USD"}
+    env |= {"PATH": str(bin_dir), "NIGHTLY_LOG": str(tmp_path / "calls.log")}
+    proc = subprocess.run(
+        [shutil.which("bash"), str(ROOT / "evals" / "nightly.sh")],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    measure, run = (tmp_path / "calls.log").read_text(encoding="utf-8").splitlines()
+    assert (proc.returncode, proc.stderr) == (3, "nightly: cap $20, timeout 125 min\n")
+    assert "suite_minutes" in measure
+    assert run == f"{ROOT}|20|run harness eval --suite regression --threshold 1.0"

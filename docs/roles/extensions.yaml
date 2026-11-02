@@ -21,7 +21,7 @@ extensions:
     serves: "run state as tools, for the manager; no role type is given it"
   obsidian-vault@example-repo-plugins:
     form: plugin
-    source: "github:AgriciDaniel/claude-obsidian"
+    source: "https://github.com/AgriciDaniel/claude-obsidian.git"
     version: "3.0.1"
     serves: "the checkout as a source-cited Obsidian vault: adoption, journaled writes, lint, the hot cache at session start, retrieval; the owner's second brain and the roles' navigation (wiki/decisions/the-checkout-is-a-claude-obsidian-vault.md)"
     brings:

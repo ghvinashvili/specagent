@@ -3,6 +3,8 @@
 # SpecAgent Pro Template
 
 [![Linux](https://github.com/ghvinashvili/specagent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ghvinashvili/specagent/actions/workflows/ci.yml)
+[![macOS](https://github.com/ghvinashvili/specagent/actions/workflows/macos.yml/badge.svg?branch=main)](https://github.com/ghvinashvili/specagent/actions/workflows/macos.yml)
+[![Windows (WSL2)](https://github.com/ghvinashvili/specagent/actions/workflows/windows.yml/badge.svg?branch=main)](https://github.com/ghvinashvili/specagent/actions/workflows/windows.yml)
 
 **SpecAgent Pro Template: a project template, not a plugin. Special agents for hard software, every role a full session.** An agentic system of its own design for
 hard, multi-package projects, built by its own pipeline and measured run by run. You talk to one manager chat; it runs
@@ -355,9 +357,12 @@ the workspace, the plugins and the language servers set themselves up, pinned an
 and `socat` (in `~/.local/bin`) and user namespaces for bubblewrap, as this user where the kernel allows, else with one
 password; native Windows has no sandbox, so the repository runs in WSL2. `just` and `gh` are optional.
 
-**Platforms:** Linux, fully exercised (every measured run in this README); Windows and macOS documented, untested
-(`docs/runbooks/server-windows.md`, `ops/machine-setup.py`). The sandbox is Linux's bubblewrap; on Windows and macOS it
-is a different mechanism, which the template does not set up today.
+**Platforms:** Linux, macOS and Windows through WSL2, each tested on every push to `main` by its own workflow
+(`.github/workflows/ci.yml`, `macos.yml`, `windows.yml`), each running the whole test suite; on macOS and in WSL2 the
+workflow also makes a new project by the Quick start and runs its `harness doctor` and `harness validate`. In WSL2 the
+job runs as a user who is not root, and the doctor starts a sandboxed command. The workflows run no role session (they have no Claude Code login); every measured run in
+this README ran on Linux. The sandbox is bubblewrap on Linux and in WSL2, and Seatbelt (`sandbox-exec`, part of macOS) on
+macOS; native Windows has none, so the repository runs in WSL2 (`docs/runbooks/server-windows.md`).
 
 ## What every role session is told
 

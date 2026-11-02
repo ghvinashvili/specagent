@@ -6,7 +6,8 @@
 For each `#### V<n>` section of verify.md and `#### J<n>` section of judge.md that records a shell command, its
 output and a commit, it writes `<out>/<id>/task.yaml` (the fields of the checkout's `evals/*/task.yaml`) and
 `<out>/<id>/grader.sh`: `sh grader.sh before` takes the paths the command reads from the checkout at the sha before
-the fix (`git archive`), runs the command there and passes (exit 0) when the recorded output appears; `sh grader.sh
+the fix (`git archive`), runs the command there for at most 60 s (timeout(1), or Python's where the system has none,
+as macOS) and passes (exit 0) when the recorded output appears; `sh grader.sh
 fix` passes when it does not appear at the fix sha; a second argument names another sha (`HEAD`: still fixed?).
 `<out>/index.md` lists the cases, and every other section with its reasons. A reused heading (`#### V29, round 2`)
 is a case of its own, `<out>/V29-2/`.
@@ -182,6 +183,17 @@ head = r"(?<!\w)" if re.match(r"\w", needle) else ""
 tail = r"(?!\w)" if re.search(r"\w$", needle) else ""
 sys.exit(0 if re.search(head + body + tail, text) else 1)"""
 
+# timeout(1)'s 124 past the limit, for a system that has none (macOS); the command's process group is killed.
+LIMIT = r"""import os, signal, subprocess, sys
+proc = subprocess.Popen(sys.argv[2:], start_new_session=True)
+try:
+    code = proc.wait(float(sys.argv[1]))
+except subprocess.TimeoutExpired:
+    os.killpg(proc.pid, signal.SIGKILL)
+    proc.wait()
+    sys.exit(124)
+sys.exit(code if code >= 0 else 128 - code)"""
+
 GRADER = """#!/bin/sh
 @MARK@ from @SOURCE@: run it again rather than edit this file.
 # @TITLE@
@@ -209,8 +221,11 @@ if [ "$#" -gt 0 ]; then
     { echo "cannot take $* at $SHA from $REPO" >&2; exit 2; }
 fi
 cd "$WORK/checkout" || exit 2
+if command -v timeout >/dev/null 2>&1; then set -- timeout 60
+elif command -v gtimeout >/dev/null 2>&1; then set -- gtimeout 60
+else set -- python3 -I -c '@LIMIT@' 60; fi  # macOS has no timeout(1)
 env -i PATH="$PATH" HOME="$WORK/home" LANG=C.UTF-8 LC_ALL=C.UTF-8 TMPDIR="$WORK" \\
-  timeout 60 sh -c "$COMMAND" </dev/null >"$WORK/output" 2>&1
+  "$@" sh -c "$COMMAND" </dev/null >"$WORK/output" 2>&1
 [ "$?" -ne 124 ] || { echo "the command ran past 60 s at $SHA" >&2; exit 2; }
 python3 -I -c '@MATCH@' "$NEEDLE" "$WORK/output"
 case "$WANT $?" in
@@ -606,6 +621,7 @@ def grader(case: dict, repo: str) -> str:
         "@NEEDLE@": shlex.quote(case["needle"]),
         "@PATHS@": " ".join(shlex.quote(p) for p in case["paths"]),
         "@MATCH@": MATCH,
+        "@LIMIT@": LIMIT,
     }
     return re.sub("|".join(values), lambda m: values[m.group(0)], GRADER)
 

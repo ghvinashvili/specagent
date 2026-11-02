@@ -4,11 +4,14 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider scripts/tests
 """
 
 import collections
+import importlib.util
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
 import textwrap
+import time
 
 import pytest
 
@@ -444,6 +447,55 @@ def test_no_command_of_a_finding_runs_without_try(run, repo, tmp_path):
     p = replay(run, repo, tmp_path / "out", env=env)
     assert p.returncode == 0, p.stderr
     assert not (tmp_path / "ran.log").exists()
+
+
+def test_a_grader_runs_where_the_system_has_no_timeout(run, repo, tmp_path):
+    """macOS has no timeout(1): the command never ran there and every before grader failed (the macOS workflow)."""
+    write(
+        run,
+        "verify.md",
+        """
+        STATUS: verified through Task 1
+        ## Task 1
+        #### V1 — data.txt has no gamma (minor, code)
+        - Command: `grep -c gamma data.txt`
+        - Output: `0`.
+        """,
+    )
+    write(run, "build-log.md", f"Task 1: done — {repo.a[:7]}\nV1: fixed — {repo.b[:7]}\n")
+    out = tmp_path / "out"
+    assert replay(run, repo, out).returncode == 0
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    for tool in ("sh", "env", "mktemp", "rm", "mkdir", "git", "tar", "tail", "grep"):
+        (bin_dir / tool).symlink_to(shutil.which(tool))
+    (bin_dir / "python3").symlink_to(sys.executable)
+    env = {**GIT_ENV, "PATH": str(bin_dir), "TMPDIR": str(tmp_path)}
+    for mode in ("before", "fix"):
+        done = subprocess.run(
+            [shutil.which("sh"), str(out / "V1" / "grader.sh"), mode],
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=60,
+            check=False,
+        )
+        assert done.returncode == 0, done.stderr
+
+
+def test_the_limit_without_timeout_stops_a_command_with_124():
+    t = time.monotonic()
+    limit = [sys.executable, "-I", "-c", replay_cases().LIMIT]
+    done = subprocess.run([*limit, "0.5", "sleep", "30"], timeout=30, check=False)
+    assert done.returncode == 124 and time.monotonic() - t < 10
+    assert subprocess.run([*limit, "5", "sh", "-c", "exit 3"], timeout=30, check=False).returncode == 3
+
+
+def replay_cases():
+    spec = importlib.util.spec_from_file_location("replay_cases", SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def test_try_runs_each_grader_once_and_records_the_result(run, repo, tmp_path):

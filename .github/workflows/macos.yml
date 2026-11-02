@@ -22,17 +22,17 @@ jobs:
       - run: git config --global user.name ci && git config --global user.email ci@example.invalid
       - run: pip install uv
       - run: uv sync
-      - name: Tests (11 of 2,049 failed on the first macOS run; the steps below run anyway)
-        continue-on-error: true
-        run: uv run pytest -q
+      - run: uv run pytest -q
       - run: uv run harness validate
-      - name: Make a new project (Quick start; it exits 1 while it names what this runner cannot set up)
-        continue-on-error: true
+      - name: Make a new project (Quick start)
+        id: new
         run: python3 ops/new-project.py "$RUNNER_TEMP/demo" repo_name=demo org=example --container
-      - name: The new project's doctor (reports what a Mac lacks)
-        continue-on-error: true
+      - name: The new project's setup log
+        if: failure() && steps.new.outcome == 'failure'
+        run: cat "$RUNNER_TEMP/demo/demo/.claude/bootstrap.log"
+      - name: The new project's doctor
         working-directory: ${{ runner.temp }}/demo/demo
-        run: git init -q && uv run harness doctor
+        run: git init -q && git config core.hooksPath .githooks && uv run harness doctor
       - name: The new project validates
         working-directory: ${{ runner.temp }}/demo/demo
         run: uv run harness validate

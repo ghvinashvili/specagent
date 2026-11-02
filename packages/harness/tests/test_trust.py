@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 
 import pytest
-from harness import launch, state, trust
+from harness import doctor, launch, state, trust
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "docs" / "roles" / "stages.yaml").is_file())
 
@@ -128,3 +128,16 @@ def test_a_background_session_is_checked_with_the_path_of_the_background_service
     machine_with_a_sandbox(tmp_path, "bg")
     machine_with_a_sandbox(tmp_path, "print")
     assert seen == ["/service/bin", None]
+
+
+def test_the_doctor_names_a_missing_trust_without_failing_the_setup(tmp_path: Path, monkeypatch):
+    """The macOS workflow: a new project on a machine where Claude Code had run is not trusted yet, and the setup of
+    `ops/new-project.py` exited 1 for it, although the launcher records the trust by itself (ADR-0013)."""
+    home = tmp_path / "home"
+    home.mkdir()
+    (home / ".claude.json").write_text(json.dumps({"projects": {}}), encoding="utf-8")
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(home))
+    item = doctor.trust_item(tmp_path / "repo")
+    assert (item["ok"], item["required"]) == (False, False) and "harness launch" in item["fix"]
+    trust.record(tmp_path / "repo")
+    assert doctor.trust_item(tmp_path / "repo")["ok"]

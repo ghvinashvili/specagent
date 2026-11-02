@@ -24,7 +24,8 @@ TEST = re.compile(
     r"((\S*/)?python3?(\.\d+)?\s+-m\s+)?(\S*/)?pytest\b[^;&|<>]*$"
 )
 WRAP = (
-    'f=$(mktemp "${HARNESS_STAGE_DIR:-/nonexistent}/logs/test-XXXXXX" 2>/dev/null) || f=$(mktemp); '
+    'f=$(mktemp "${HARNESS_STAGE_DIR:-/nonexistent}/logs/test-XXXXXX" 2>/dev/null) || '
+    'f=$(mktemp "${TMPDIR:-/tmp}/test-XXXXXX"); '  # a bare mktemp on macOS ignores TMPDIR
     '( {cmd}\n) > "$f" 2>&1; rc=$?; '
     'if [ "$(wc -l < "$f")" -le 60 ]; then cat "$f"; else '
     'grep -A 12 -E \'(FAILED|ERROR|Error|error:)\' "$f" | head -150; tail -n 5 "$f"; fi; '

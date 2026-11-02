@@ -20,8 +20,8 @@
     {
       "name": "obsidian-vault",
       "source": {
-        "source": "github",
-        "repo": "AgriciDaniel/claude-obsidian"
+        "source": "url",
+        "url": "https://github.com/AgriciDaniel/claude-obsidian.git"
       },
       "description": "Source-cited Obsidian vault: adoption, journaled writes, lint, retrieval and provenance ledgers for wiki/",
       "category": "knowledge",

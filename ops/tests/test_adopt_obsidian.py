@@ -50,10 +50,24 @@ def test_declare_adds_the_plugin_once(tmp_path):
     assert m.declare(root) and not m.declare(root)
     market = json.loads((root / FILES[0]).read_text(encoding="utf-8"))
     entry = next(p for p in market["plugins"] if p["name"] == m.PLUGIN)
-    assert entry["source"] == {"source": "github", "repo": m.REPO}
+    assert entry["source"] == {"source": "url", "url": f"https://github.com/{m.REPO}.git"}  # HTTPS: no SSH key needed
     settings = json.loads((root / FILES[1]).read_text(encoding="utf-8"))
     assert settings["enabledPlugins"][f"{m.PLUGIN}@{market['name']}"] is True
     assert settings["env"][m.CONTEXT_ENV] == "1"
+
+
+def test_declare_moves_a_github_source_to_https(tmp_path):
+    """The macOS workflow: a `github` source is cloned as git@github.com and refused on a machine without an SSH key
+    (`Permission denied (publickey)`); a checkout declared before keeps its entry, its source moved to HTTPS."""
+    m = load()
+    root = checkout_without_the_plugin(tmp_path, m)
+    market_path = root / FILES[0]
+    market = json.loads(market_path.read_text(encoding="utf-8"))
+    market["plugins"].append({**m.ENTRY, "source": {"source": "github", "repo": m.REPO}})
+    market_path.write_text(json.dumps(market), encoding="utf-8")
+    assert any("not over SSH" in line for line in m.declare(root))
+    entry = next(p for p in json.loads(market_path.read_text(encoding="utf-8"))["plugins"] if p["name"] == m.PLUGIN)
+    assert entry["source"] == m.ENTRY["source"] and not any("marketplace" in line for line in m.declare(root))
 
 
 def test_ignore_lines_replace_the_old_vault_once(tmp_path):
