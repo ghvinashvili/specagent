@@ -750,6 +750,12 @@ class Watcher:
         for key, field in () if self.check else (("session_id", "sessionId"), ("job_id", "id")):
             row = next((r for r in rows if entry[key] and r.get(field) == entry[key]), None)
             if row:
+                live = None if row.get("pid") else self.live_namesake(name, rows, row)
+                if live:  # a session launched beside a finished recorded one (by hand) is the agent's (2026-11-02)
+                    entry["job_id"], entry["session_id"] = live.get("id"), None
+                    bind(entry, live)
+                    log(f"adopted {name} {live.get('id')} by name: live beside its recorded {row.get('id')}")
+                    return live
                 bind(entry, row)
                 return row
         floor = self.yes_floor() if entry["launched_at"] is None else entry["launched_at"] - 5
@@ -767,6 +773,24 @@ class Watcher:
             bind(entry, found)
             log(f"adopted {name} {found.get('id')} by name")
         return found
+
+    def live_namesake(self, name, rows, recorded):
+        """The newest row with a process, of the agent's name in its cwd, started after the recorded row: a session the
+        manager launched by hand while the watcher still held a finished one (a project's run of 2026-11-02: two more sessions
+        of an on-demand role were launched beside a busy hand-launched one)."""
+        home = os.path.realpath(self.agents[name]["cwd"])
+        since = recorded.get("startedAt") or 0
+        live = [
+            r
+            for r in rows
+            if r.get("name") == name
+            and r.get("pid")
+            and isinstance(r.get("cwd"), str)
+            and r.get("cwd")
+            and os.path.realpath(r["cwd"]) == home
+            and (r.get("startedAt") or 0) > since
+        ]
+        return max(live, key=lambda r: r.get("startedAt") or 0, default=None)
 
     def yes_floor(self):
         """Rule 3's floor before the first launch (J5): the earliest `Yes:` line of _launch.md, minus 5 s. The
@@ -852,7 +876,9 @@ class Watcher:
                 for order in self.roles[name]["orders"]:
                     if order["kind"] != "manager":
                         order["closed"] = order["closed"] or "final"
-        if self.demand(name, row, events):
+        if not self.check and row is not None and self.copies(name, rows, events):
+            pass  # two live copies: the copies rule acts before any launch (2026-11-02)
+        elif self.demand(name, row, events):
             pass  # an on-demand agent launched or stopped: nothing else this turn
         elif row is None:
             self.say(name, "no session")
@@ -861,7 +887,7 @@ class Watcher:
                 self.say(name, f"no action (final: {first_line(self.run / self.agents[name]['status'])})")
         elif self.check:
             self.decide(name, row, events, budget)
-        elif not self.copies(name, rows, events) and not self.decide(name, row, events, budget):
+        elif not self.decide(name, row, events, budget):
             self.unit_end(name, row)
             self.send_due(name, row, events)
         if not self.check:

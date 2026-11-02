@@ -56,7 +56,11 @@ Each round, for every agent whose STATUS line (line 1 of its `status` file) does
 - the match: an agent's row is the one whose `sessionId` is the session id recorded at its launch, else the one whose
   `id` is the job id `--bg` printed (`claude stop <id>`), else the newest row with its name whose real `cwd` is the
   agent's, started at or after its launch or, before the watcher's first launch, after the first `Yes:` line of
-  `_launch.md` minus 5 s (`adopted <agent> <id> by name`; J5); a renamed session stays the agent's, a namesake with
+  `_launch.md` minus 5 s (`adopted <agent> <id> by name`; J5); when the recorded row has no process and a row of the
+  agent's name in its cwd, started after it, has one, that live row is the agent's (`adopted <agent> <id> by name:
+  live beside its recorded <old>`): a session the manager launched by hand with the agent's `--name` in its cwd is
+  taken, and no demand or wake launches beside it; the copies rule runs before any launch. A renamed session stays
+  the agent's, a namesake with
   another id or in another folder (an earlier run's) is not. `copies` still counts live namesakes in any folder.
 - copies: two or more live rows of one agent (its name, its job id or one of its session ids) give
   `copies <agent>: <ids>` and exit code 0; nothing else is done for that agent in that round. A row the watcher

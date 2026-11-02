@@ -1920,3 +1920,28 @@ def test_a_dead_session_without_its_pack_is_never_resumed_even_when_not_final(p,
     [launch] = p.launches()
     assert "--resume" not in launch["argv"] and "--append-system-prompt-file" in launch["argv"], r.stdout + r.stderr
     assert ("Answer V7 in Task 3." in launch["argv"][-1]) == ordered
+
+
+def test_a_live_session_of_the_agent_s_name_beside_a_finished_recorded_one_is_adopted_and_nothing_launches(p):
+    """A project's run of 2026-11-02: the registry held a finished job while a session launched by hand ran busy; the watcher
+    took the role for done and launched two more beside it. A live row of its name in its cwd, newer than the recorded
+    one, is the agent's."""
+    seed_registry(p)
+    p.write("build-log.md", "STATUS: building Task 3\n")
+    p.transcript()
+    p.transcript(sid=SID2)
+    cwd = p.config["agents"]["t/builder"]["cwd"]
+    p.rounds([row(state="done", status=None, pid=None, age=7200), row(sid=SID2, age=600, cwd=cwd)])
+    r = p.watch(rounds=1)
+    assert f"adopted t/builder {SID2[:8]} by name: live beside its recorded {SID[:8]}" in r.stdout, r.stdout + r.stderr
+    assert p.launches() == [] and registry(p)["roles"]["t/builder"]["job_id"] == SID2[:8]
+
+
+def test_a_live_namesake_in_another_folder_or_older_than_the_recorded_row_is_not_adopted(p):
+    seed_registry(p)
+    p.write("build-log.md", "STATUS: building Task 3\n")
+    p.transcript()
+    cwd = p.config["agents"]["t/builder"]["cwd"]
+    p.rounds([row(state="done", status=None, pid=None, age=600), row(sid=SID2, age=7200, cwd=cwd)])
+    r = p.watch(rounds=1)
+    assert "adopted t/builder" not in r.stdout, r.stdout + r.stderr
