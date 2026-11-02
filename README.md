@@ -145,13 +145,18 @@ A hand-over note (at most 40 lines of facts, [hand-over rule][handoff]) is writt
 ### The knowledge layer
 
 The wiki is compiled from `context/`; a run's lessons become decision pages in `wiki/decisions/`, written with the work.
+A run's `lessons.md` is measured, not trusted: `scripts/lessons_report.py` of the [skill] counts which rule was broken
+again, and whether the session that broke it had the rule in its context when it did (on a project's run of 2026-11-02,
+43 of 53 findings mapped to a rule, 18 of them a rule broken again).
 The checkout is a claude-obsidian vault ([decision][vault]): `ops/obsidian-ingest.py` ingests each page through the
 plugin into its claim ledgers, and the plugin injects `wiki/hot.md` (at most 500 words) into every session. A session
 then reads `wiki/index.md`, the page it needs, the code graph before any whole directory, then files
 (`docs/architecture/knowledge.md`); git hooks refresh the graph from the repository at each commit (`just graph` in
 full), layered in `wiki/graph/`, never committed
 ([decision](wiki/decisions/the-code-graph-is-generated-layered-and-refreshed-by-hooks.md)). A decision for every project
-goes to your private vault, and so do each run's numbers ([how](docs/economy.md#the-measurements)); it is read on need,
+goes to your private vault, and so do each run's numbers ([how](docs/economy.md#the-measurements)); the template ships
+that vault's form (`templates/vault/`) with the owner rules every project starts from: a template change counts only
+after an independent verifier passes it, every improvement names the number it moves, every order gives its reason; it is read on need,
 never written by a role, and where they differ, a brief wins over it
 ([decision](wiki/decisions/the-owners-vault-is-read-on-need.md)). With your yes for one page, `ops/contribute.py`
 refuses a private path, a secret, a name or a letter of the Unicode blocks it lists, naming the class, writing nothing;
@@ -169,7 +174,7 @@ changed decision is a new page ([decision](wiki/decisions/decisions-are-written-
 vault has its source: on 2026-10-30, 40 decision pages, 40 captured sources, 170 claims ([decision][vault]).
 `score_run.py` measures every run the same way: findings per task by kind, sessions and hand-overs per role, cost per
 task and per role ([decision][score]). The template checks itself: 1,840 tests passed at the merge gate of 2026-10-30
-(`uv run pytest -q`), with `harness validate`, `docs-check`, `claude plugin validate ./plugins` and the vault's lint.
+and 2,455 on 2026-11-02 (`uv run pytest -q`), with `harness validate`, `docs-check`, `claude plugin validate ./plugins` and the vault's lint.
 Every file is English, and `harness validate` refuses a letter of
 the Unicode blocks it lists ([decision](wiki/decisions/the-template-is-english-only.md)).
 
@@ -301,6 +306,18 @@ you after 3 rounds per counter or 5 starts of `write` ([why]). One judge reads t
 once, last; 19 regression cases check the roles ([evals],
 [ADR-0028](docs/decisions/0028-pipeline-evals.md)). The cost is a second session per unit and the records on disk: the
 verifier took $10.10 of the $35.57 and $21.98 of the $43.01 above (the same pages).
+
+Before the build, `scripts/task_lint.py` of the [skill] reads each task file as the builder will: a Step 0 with the
+count of `Expected:` lines, an `Expected:` line after every command, python fences under the repository's ruff; on a
+project's finished plan it found 30 problems in 18 task files. After the build, the same checks run on this template:
+on 2026-11-02 a verifier read 24 of its commits, found 24 defects (4 major: a watcher that stopped watching after an
+order, a waiter that released a task early, a guard and a lint that passed what they should refuse), each fixed and
+re-checked, for about $1 per checked commit plus the re-checks. What reaches this repository is a verified batch,
+one commit each, and each change's line in `docs/template/MIGRATIONS.md` carries a `measure:` line: the number it
+moves, before and after. Measured across one project's five runs (2026-10-09 to 2026-11-02): the plan defects left for
+the critic fell from 10-12 per task to 5.4, the defects that passed the verifier to the judge from 0.46 to 0.13-0.16
+per task; the code defects per task showed no trend, and faults on the live site after a merge were counted once (9
+after one merge). The next step is the row each run writes at its end, so the trend is read, not argued.
 
 [Check it yourself](ARCHITECTURE.md#check-it-yourself), with and without Claude.
 
