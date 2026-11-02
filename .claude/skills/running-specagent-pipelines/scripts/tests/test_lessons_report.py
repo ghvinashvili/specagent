@@ -56,7 +56,7 @@ def test_a_finding_that_names_a_lesson_and_is_not_its_source_is_a_recurrence_and
 
 def test_the_markdown_names_the_lessons_to_make_code_and_the_unmeasured(tmp_path):
     r = report(str(run_folder(tmp_path)))
-    assert "make code (broken twice): lessons.md:5, lessons.md:8, lessons.md:9" in r.stdout
+    assert "then one or more recurrences): lessons.md:5, lessons.md:8, lessons.md:9" in r.stdout
     assert "unmeasured (no finding names them): 1 of 4" in r.stdout
 
 

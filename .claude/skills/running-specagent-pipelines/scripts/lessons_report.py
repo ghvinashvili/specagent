@@ -144,7 +144,10 @@ def markdown(runs: list[dict], pages: dict[str, int]) -> str:
         c = r["carried"]
         out += [
             "",
-            f"make code (broken twice): {', '.join(f'lessons.md:{n}' for n in r['make_code']) or 'none'}",
+            (
+                f"make code (broken twice: its first break is its source, or an earlier run for a carried class; "
+                f"then one or more recurrences): {', '.join(f'lessons.md:{n}' for n in r['make_code']) or 'none'}"
+            ),
             (
                 f"carried classes (earlier runs and the vault): {c['classes']}, broken again {c['recurrences']} times, "
                 f"{c['per_10_units']} per 10 units"
