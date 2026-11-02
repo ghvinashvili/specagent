@@ -145,9 +145,8 @@ A hand-over note (at most 40 lines of facts, [hand-over rule][handoff]) is writt
 ### The knowledge layer
 
 The wiki is compiled from `context/`; a run's lessons become decision pages in `wiki/decisions/`, written with the work.
-A run's `lessons.md` is measured, not trusted: `scripts/lessons_report.py` of the [skill] counts which rule was broken
-again, and whether the session that broke it had the rule in its context when it did (on a project's run of 2026-11-02,
-43 of 53 findings mapped to a rule, 18 of them a rule broken again).
+`scripts/lessons_report.py` of the [skill] counts which rule of `lessons.md` was broken again, and whether the session
+that broke it had read it.
 The checkout is a claude-obsidian vault ([decision][vault]): `ops/obsidian-ingest.py` ingests each page through the
 plugin into its claim ledgers, and the plugin injects `wiki/hot.md` (at most 500 words) into every session. A session
 then reads `wiki/index.md`, the page it needs, the code graph before any whole directory, then files
@@ -307,17 +306,13 @@ once, last; 19 regression cases check the roles ([evals],
 [ADR-0028](docs/decisions/0028-pipeline-evals.md)). The cost is a second session per unit and the records on disk: the
 verifier took $10.10 of the $35.57 and $21.98 of the $43.01 above (the same pages).
 
-Before the build, `scripts/task_lint.py` of the [skill] reads each task file as the builder will: a Step 0 with the
-count of `Expected:` lines, an `Expected:` line after every command, python fences under the repository's ruff; on a
-project's finished plan it found 30 problems in 18 task files. After the build, the same checks run on this template:
-on 2026-11-02 a verifier read 24 of its commits, found 24 defects (4 major: a watcher that stopped watching after an
-order, a waiter that released a task early, a guard and a lint that passed what they should refuse), each fixed and
-re-checked, for about $1 per checked commit plus the re-checks. What reaches this repository is a verified batch,
-one commit each, and each change's line in `docs/template/MIGRATIONS.md` carries a `measure:` line: the number it
-moves, before and after. Measured across one project's five runs (2026-10-09 to 2026-11-02): the plan defects left for
-the critic fell from 10-12 per task to 5.4, the defects that passed the verifier to the judge from 0.46 to 0.13-0.16
-per task; the code defects per task showed no trend, and faults on the live site after a merge were counted once (9
-after one merge).
+Before the build, `scripts/task_lint.py` of the [skill] checks each task file for what the builder needs: a Step 0 with
+the count of `Expected:` lines, an `Expected:` line after every command, python fences under the repository's ruff.
+A change reaches this repository only as a verified batch (on 2026-11-02 a verifier read 24 commits and found 24
+defects, 4 major, each fixed and re-checked), and each change's line in `docs/template/MIGRATIONS.md` carries a
+`measure:` line, the number it moves. Across one project's five runs (2026-10-09 to 2026-11-02) the plan defects left
+for the critic fell from 10-12 per task to 5.4 and the defects that reached the judge from 0.46 to 0.13-0.16 per task;
+the code defects per task showed no trend.
 
 [Check it yourself](ARCHITECTURE.md#check-it-yourself), with and without Claude.
 

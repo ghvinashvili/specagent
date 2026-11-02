@@ -14,6 +14,7 @@ lines do; uncommitted changes count as the commit in the making). Exempt: this f
 `docs/template/README.md`) the test skips.
 
 ## Unreleased (after 1.8.0; written with each change; the release moves it under its number)
+- 2026-11-02, `README.md`: the entries of 2026-11-02 cut to the updates that matter (the lessons report, the task lint, the verified batch and its `measure:` line, the measured trend), run-level numbers dropped (owner: only important updates in the README). (this commit)
 - 2026-11-02, `README.md` (How it keeps quality): the sentence on a trend row each run would write is removed, because the README states only what is built. (this commit)
 - 2026-11-02, `README.md` (The knowledge layer: the lessons report and the vault form the template ships; How it keeps quality: the task lint before the build, the verifier's numbers of 2026-11-02, the `measure:` line, the measured trend of a project's five runs; Why it is good: the test count): read, not copied. (b7a4922)
   measure: the README names the batch's checks (`grep -c -e task_lint -e lessons_report -e templates/vault -e 'measure:' README.md`); before: 0 of 4; after: 4 of 4
