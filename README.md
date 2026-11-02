@@ -317,7 +317,7 @@ one commit each, and each change's line in `docs/template/MIGRATIONS.md` carries
 moves, before and after. Measured across one project's five runs (2026-10-09 to 2026-11-02): the plan defects left for
 the critic fell from 10-12 per task to 5.4, the defects that passed the verifier to the judge from 0.46 to 0.13-0.16
 per task; the code defects per task showed no trend, and faults on the live site after a merge were counted once (9
-after one merge). The next step is the row each run writes at its end, so the trend is read, not argued.
+after one merge).
 
 [Check it yourself](ARCHITECTURE.md#check-it-yourself), with and without Claude.
 
