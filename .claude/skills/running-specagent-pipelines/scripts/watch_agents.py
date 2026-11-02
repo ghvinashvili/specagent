@@ -62,9 +62,10 @@ slash):
 - unit end: a new line 1 in the agent's record while its last call is over `handoff_at` tokens gives a `unit-end`
   order (the `unit_end_order` text): hand over now, once the line is `unit_end_grace` seconds old; a note before then
   starts the fresh session as usual. In the middle of a unit nothing is ordered. A session that started without its lane's pack (an `extra_prompt` whose mark its transcript lacks) gets the same
-  hand-over order at its next unit end at any context (`unit end <agent>: its session lacks the pack`), and a final
-  one revived by its `final_check` or woken by an order starts fresh with the pack instead of a resume (owner,
-  2026-11-01: a resume never gets the pack).
+  hand-over order at its next unit end at any context (`unit end <agent>: its session lacks the pack`), and a dead
+  one (no process: its cache is cold anyway), revived or woken by an order, final or not, starts fresh with the pack
+  and its open orders instead of a resume (owner, 2026-11-01: a resume never gets the pack; a run's shared extra prompt
+  keeps the resume rule).
 - orders: the watcher's (`handoff`, `unit-end`, `reload`) and the manager's (`--order`) reach a session by a stop
   (when it has a process) and a resume whose prompt is each order's text and its line `Order <msg_id>: append the line
   `ACK <msg_id>` to <record> before anything else.`; a line `ACK <msg_id>` at the start of a line of the record closes
@@ -1010,7 +1011,7 @@ class Watcher:
             return ordered  # False: the order waits for send_due() in this round, before waiting() may supersede it
         if name in self.pending:
             return self.waiting(name, row, role, events)
-        if self.wake_orders(name, row) and self.line_final(name) and self.packless(name, sid):
+        if self.wake_orders(name, row) and self.packless(name, sid):  # never a resume without the pack (2026-11-02)
             self.launch_fresh(
                 name, row, self.fresh_text(role), f"fresh {name}: woken by an order, with its pack", events
             )
@@ -1149,7 +1150,7 @@ class Watcher:
                 self.not_revived[name] = sid
                 self.tell(name, f"demand {name}: done, not revived")
             return True
-        if self.line_final(name) and self.packless(name, sid):  # a final_check revival: its unit is done, so fresh
+        if self.packless(name, sid):  # a dead session's cache is cold anyway: fresh with the pack, not a resume
             self.launch_fresh(
                 name, row, self.fresh_text(name.split("/")[-1]), f"fresh {name}: revived with its pack", events
             )
@@ -1249,7 +1250,7 @@ class Watcher:
     def packless(self, name, sid):
         """The agent has a pack of its own (`extra_prompt`) and its session `sid` started without its mark: a resume
         would go on without the pack for the rest of the session's life (owner, 2026-11-01)."""
-        own = self.extras.get(name)
+        own = self.agents[name].get("extra_prompt")  # the lane's own pack; a run's shared one keeps the resume rule
         return bool(own and sid and not self.transcripts.head_has(sid, own["mark"]))
 
     def line_final(self, name):

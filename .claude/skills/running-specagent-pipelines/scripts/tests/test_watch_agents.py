@@ -704,7 +704,8 @@ def test_a_lanes_own_extra_prompt_replaces_the_runs_and_the_others_keep_the_runs
 
 def test_a_resume_that_started_with_the_lanes_own_mark_keeps_its_own_pack(p):
     """The resume rule reads the lane's own mark, not the run's: a session whose transcript carries the builder pack's
-    mark is resumed with that pack, and one with only the run's mark is not."""
+    mark is resumed with that pack, and a dead one with only the run's mark is not resumed but started fresh with its
+    lane's pack (2026-11-02: a resume never gets the pack)."""
     mark, own = "Extra voice is on for this whole session", "Your standing orders: the builder lane's pack"
     p.write("_extra.md", f"# {mark}\n")
     p.write("_pack-builder.md", f"# {own}\n")
@@ -720,7 +721,9 @@ def test_a_resume_that_started_with_the_lanes_own_mark_keeps_its_own_pack(p):
     assert r.returncode == 1, r.stdout + r.stderr
     by_name = {c["argv"][c["argv"].index("--name") + 1]: c["argv"] for c in p.launches()}
     assert by_name["t/builder"][-4:-2] == ["--append-system-prompt-file", str(p.run / "_pack-builder.md")]
-    assert "--append-system-prompt-file" not in by_name["t/verifier"]
+    assert by_name["t/builder"][:2] == ["--resume", SID]
+    assert "--resume" not in by_name["t/verifier"]
+    assert by_name["t/verifier"][-4:-2] == ["--append-system-prompt-file", str(p.run / "_pack-builder.md")]
 
 
 def test_a_lanes_pack_changed_during_the_run_exits_4_instead_of_launching(p):
@@ -1900,3 +1903,20 @@ def test_an_order_to_a_final_agent_without_its_pack_starts_it_fresh_with_the_pac
     [launch] = p.launches()
     assert "--resume" not in launch["argv"] and "Fix V12 in Task 3." in launch["argv"][-1]
     assert "--append-system-prompt-file" in launch["argv"]
+
+
+@pytest.mark.parametrize("ordered", [True, False])
+def test_a_dead_session_without_its_pack_is_never_resumed_even_when_not_final(p, ordered):
+    """A run of 2026-11-02: a plan fixer at `STATUS: fixing` whose session predated the pack was resumed for an order,
+    and its first call rewrote 157k tokens without the pack. A dead session's cache is cold anyway: it starts fresh with
+    the pack, its open orders in its prompt."""
+    own_pack(p)
+    p.write("build-log.md", "STATUS: building Task 3\n")
+    if ordered:
+        p.watch("--order", "t/builder", "Answer V7 in Task 3.")
+    p.transcript()
+    p.rounds([row(state="stopped", status=None, pid=None)])
+    r = p.watch(rounds=1)
+    [launch] = p.launches()
+    assert "--resume" not in launch["argv"] and "--append-system-prompt-file" in launch["argv"], r.stdout + r.stderr
+    assert ("Answer V7 in Task 3." in launch["argv"][-1]) == ordered

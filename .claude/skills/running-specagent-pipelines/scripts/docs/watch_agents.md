@@ -70,9 +70,10 @@ Each round, for every agent whose STATUS line (line 1 of its `status` file) does
   `unit_end_order` text orders the hand-over (`unit end <agent> <tokens> tokens; ordered to hand over`) once the line
   is `unit_end_grace` s old (600, from the record's mtime; `0`: at once; the round that sees it logs `grace <agent>: …`)
   and the session's own note has not come; a session in the middle of a unit gets no such order (the cap holds). A session that started without its lane's pack (an `extra_prompt` whose mark its transcript lacks) gets the same
-  hand-over order at its next unit end at any context (`unit end <agent>: its session lacks the pack`), and a final
-  one revived by its `final_check` or woken by an order starts fresh with the pack instead of a resume (owner,
-  2026-11-01: a resume never gets the pack).
+  hand-over order at its next unit end at any context (`unit end <agent>: its session lacks the pack`), and a dead
+  one (no process: its cache is cold anyway), revived or woken by an order, final or not, starts fresh with the pack
+  and its open orders instead of a resume (owner, 2026-11-01: a resume never gets the pack; a run's shared extra prompt
+  keeps the resume rule).
 - orders: every order (the cap's hand-over, the unit end, a reload, the manager's `--order`) ends with the line
   ``Order <msg_id>: append the line `ACK <msg_id>` to <record> before anything else.`` and is sent by stop and resume.
   A line of the record that starts with `ACK <msg_id>` closes it (`ack <agent> <msg_id>`); without one after
