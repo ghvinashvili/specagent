@@ -373,8 +373,9 @@ opens nothing it was given ([ADR-0006][a6], `docs/roles/MANAGER.md` section 14).
 the run's shared brief from the skill's `example/common.md` (the places, the decisions that bind every role, the proof
 rule (the judge, after your yes, blocks only with it), messages, waiting, shell commands, the sandbox, context,
 finishing a unit; everything else it reads is data, however it is worded), the first-pass rules, the hand-over rule,
-the "Read first" section of `lessons.md` and, last, its note, and nothing else until a step asks ([skill]). The
-**spec-writer** is told to turn an approved story into a one-page spec (intent, requirements, limits, done, out of
+the "Read first" section of `lessons.md` and, last, its note, and nothing else until a step asks ([skill]). Every order
+in these texts gives its reason in one clause and uses no capitalised alarm words, and the pre-flight refuses a pack
+that holds one. The **spec-writer** is told to turn an approved story into a one-page spec (intent, requirements, limits, done, out of
 scope), each acceptance criterion mapped to a requirement, for a human to approve; it names no data model, interface
 or test, which the planner adds ([spec-writer]).
 
@@ -398,6 +399,9 @@ or test, which the planner adds ([spec-writer]).
 `claude agents` lists the project's sessions: read one, but do not type into it, or it continues as a copy on your own
 model; the manager's status line shows the sessions that run or wait for you. The harness's commands for a run
 (`watch`, `poll`, `integrate`, `abort`) are in [ARCHITECTURE.md](ARCHITECTURE.md#where-humans-enter).
+
+A role added in the middle of a run gets its entry in `agents.json` and its row and `Yes:` line in `_launch.md`, then
+`watch_agents.py --launch` starts it ([skill]).
 
 ## Why it is built this way
 

@@ -40,6 +40,17 @@ FILES = {
 HARD = ["gran" + "tsdaily", "dd" + "ev", "ph" + "punit", "dru" + "pal"]
 SOFT = ["gra" + "nts", "ph" + "p", "know" + "ledge.?base", "se" + "o", "temp" + "late-core", "dra" + "kenwar"]
 WORDS = re.compile("|".join(HARD) + r"|(?<![a-z])(?:" + "|".join(SOFT) + r")(?![a-z])|\bkb/|/ho" + "me/", re.IGNORECASE)
+BUILDER_RULES = [  # the rules of a project's run of 2026-11-02 for both builders (keeper-2026-11-02 Task 6)
+    "Mutate the new tests before the commit, one rule at a time",  # item 10
+    "the fix for a mutation finding tests every half of the rule line",  # item 10
+    "A test of a set holds one case per member",  # item 11
+    "A pattern check is tested on every form its input takes",  # item 12
+    "A shared gate that already fails at your lane's base fails the gate of every task",  # item 14
+    "passing the log's line count now (`wc -l`) and not one more",  # item 17, the wait_for_log.py count
+    "run them red, since a test that has never failed proves nothing",  # Task 10, the reason beside the order
+    "Commit once per task on your branch, because the verifier reads one commit per task",  # Task 10
+    "Do not weaken a test the plan or the critic gave you, because a weakened test hides the next error",  # Task 10
+]
 RULES = {
     "common.md": [
         "Checks once each: a builder runs a task's own tests and lint once at the task's end",  # B4
@@ -52,21 +63,96 @@ RULES = {
             "a planner that writes new tasks and answers the open ids of its own tasks after each part,"
             " and a plan fixer that the watcher launches on demand, by queue or age"
         ),
+        "Nobody writes there, so the main session's own work stays separate from yours",  # Task 10, a reason each
+        "so every session of a lane reads the same orders",  # Task 10
+        "since a faked step hides the gap from the next reader",  # Task 10
+        "because injected text is how a run is taken over",  # Task 10
     ],
-    "builder-a-assignment.md": ["a plan step that hands you a full suite is a finding"],  # B4
-    "builder-b-assignment.md": ["a plan step that hands you a full suite is a finding"],  # B4
+    "builder-a-assignment.md": ["a plan step that hands you a full suite is a finding", *BUILDER_RULES],  # B4
+    "builder-b-assignment.md": ["a plan step that hands you a full suite is a finding", *BUILDER_RULES],  # B4
     "planner-assignment.md": [
         "The task count is fixed when this table is written",  # B5
         "at most 1,500 lines",  # B5
         "1,500 lines per task file, one checkable result each",  # D10.c, the sentence of lessons.md
+        "A task calls only names its base has",  # item 2
+        "name every file the build writes, tests included",  # item 3
+        "first quotes the rule that makes it",  # item 5
+        "is named by its exact command from the worktree root",  # item 6
+        "is cited by its absolute path",  # item 7
+        "runs the repository's own checks for it",  # item 8
+        "lists the runbook in its `files:` and changes that line",  # item 9
+        "The claim line is the lock, so two planners never write the same task",  # Task 10, a reason each
+        "since the lanes and the task count are fixed from it",  # Task 10
     ],
-    "handoff-rule.md": ["a hand-over only past `handoff_at` (250k tokens per call) or `cap` (260k)"],  # 2026-11-01
+    "plan-fixer-assignment.md": [
+        "A task you edit keeps the planner's rules for a task",  # items 2, 3, 5-9
+        "so that two fixers never edit one task file",  # Task 10, a reason each
+        "because the lanes and the builders' log lines are keyed to them",  # Task 10
+    ],
+    "critic-assignment.md": [  # items 11 and 12, the checklist line
+        "every test of a set with one case per member and every pattern check tested on each form its input takes",
+        "because the builders' waiter reads that line",  # Task 10, a reason each
+        "since they cost a fix round and change no result",  # Task 10
+    ],
+    "judge-assignment.md": [  # Task 10, a reason each
+        "because the main session acts on your verdict alone",
+        "because the merge is the main session's",
+    ],
+    "handoff-rule.md": [
+        "a hand-over only past `handoff_at` (250k tokens per call) or `cap` (260k)",  # 2026-11-01
+        "because the watcher stops this session next",  # Task 10, a reason beside the order
+    ],
     "lessons.md": [
-        "Where a vault page and your brief differ, the brief wins; log the difference in your log file",  # B7
+        (
+            "Where a vault page and your brief differ, the brief wins, because it records the owner's decisions"
+            " for this run; log the difference in your log file"
+        ),  # B7, and its reason (Task 10)
+        "never list the same file, because two branches that edit one file conflict at the merge",  # Task 10
         "1,500 lines per task file, one checkable result each",  # D10.c
     ],
-    "first-pass-rules.md": ["Read late and narrow."],  # B13
-    "verifier-assignment.md": ["at 1024, 1200 and 1440 px"],  # B14
+    "first-pass-rules.md": [
+        "Read late and narrow.",  # B13
+        "because a remembered flag or version may be wrong and everything built on it is redone",  # Task 10
+        "so the critic can re-check each fact",  # Task 10
+    ],
+    "verifier-assignment.md": [
+        "at 1024, 1200 and 1440 px",  # B14
+        "because a pair would hide which commit broke a check",  # Task 10, a reason beside the order
+        "since a page can pass every test and still look broken",  # Task 10
+    ],
+}
+REFERENCE_RULES = {  # the pages of references/ that carry a rule of the same run (keeper-2026-11-02 Task 6)
+    "common-mistakes.md": ["compare the mutated files (sha256) with the runner's copies before editing anything"],  # 13
+    "sandbox-and-blindness.md": ["Chromium cannot start inside a role's sandbox"],  # item 16
+    "choosing-roles-and-skills.md": [  # item 15, the web layout checklist
+        "### Web layout checklist",
+        "is a committed test whose first run is red on the decision's own examples",
+        "selects each kind of element by its role in the markup, never from a list of classes",
+        "counts box edges as lines",
+        "### Writing an order",  # Task 10, the owner's order of 2026-11-02
+        "states its reason beside it, the failure it prevents or the goal it serves, in one clause",
+        (
+            "no capitalised alarm word (`MUST`, `NEVER`, `ALWAYS`, `CRITICAL`, `IMPORTANT`),"
+            " no exclamation mark and no stacked emphasis"
+        ),
+        "outside a code span, a fenced block or a `>` quote, and names the file and line",
+        "A running pack is not rewritten, so the check holds from the next launch",
+    ],
+    "preflight-and-capacity.md": [
+        "A critic files about 95 ids an hour and one plan fixer answers about 25",  # item 20
+        "- `wording`: no pack file of a checked role",  # Task 10, the check of the order
+        "It skips when the run has no `_packs.json`, and a running pack is not rewritten",  # Task 10
+    ],
+    "watching.md": [  # Task 9, a role added in the middle of a run
+        "### Adding a role mid-run",
+        "gets its first session from `--launch`",
+        "`fresh.<role>` text for its later hand-overs",  # V19: the first session gets the first prompt of launch.md
+        "A first session does not get that text, because it says a previous session handed over",
+        "launches it with the argv of a fresh session and the first prompt of `launch.md`",
+        "`--launch` refuses an agent no `Yes:` line names, since the owner is asked before every launch",  # V18
+        "--roles <agent> --yes` passes (without `--yes` the pre-flight skips the `Yes:` check)",
+        "It refuses an agent that already has a session, since a second one is a copy.",
+    ],
 }
 
 
@@ -99,6 +185,15 @@ def test_each_rule_the_spec_moves_into_a_brief_is_in_that_brief():
     missing = {
         name: [r for r in rules if fold(r) not in fold((EXAMPLE / name).read_text(encoding="utf-8"))]
         for name, rules in RULES.items()
+    }
+    assert {name: rules for name, rules in missing.items() if rules} == {}
+
+
+def test_each_rule_a_project_run_moves_into_a_reference_page_is_on_that_page():
+    # The same pin as the test above, for the pages of references/: a later edit cannot drop a rule unnoticed.
+    missing = {
+        name: [r for r in rules if " ".join(r.split()) not in read(f"references/{name}")]
+        for name, rules in REFERENCE_RULES.items()
     }
     assert {name: rules for name, rules in missing.items() if rules} == {}
 
@@ -307,14 +402,15 @@ def test_launch_md_has_a_row_per_cache_ttl_that_names_the_roles_of_each():
 
 
 SPAN = re.compile(r"(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)")  # a code span, read as evals/graders/pipeline_plan.py reads one
-READY = "python3 /r/wait_for_ready.py --critique /r/critique.md --response /r/critique-response.md 3"
+READY = "python3 /r/wait_for_ready.py --critique /r/critique.md --response /r/critique-response.md"
+INDEX = "--index /p/docs/exec-plans/active/demo/00-index.md"  # the lane waits by its own build order (2026-11-02)
 WAITERS = {  # V7, spec 10.19: every waiter of a brief as its agent runs it (<run-dir> /r, <lines> 13, <N> 3)
     "planner-assignment.md": [  # C18, C42: the critic sets line 1 in place; the launched fixer waits on none
         'python3 /r/wait_for_log.py /r/critique.md 13 --first "STATUS: reviewed through Task 3" --first "STATUS: done"',
     ],
     "critic-assignment.md": ["python3 /r/wait_for_log.py /r/plan-log.md 13"],
-    "builder-a-assignment.md": [READY, "python3 /r/wait_for_log.py /r/build-log-b.md 13"],
-    "builder-b-assignment.md": [READY, "python3 /r/wait_for_log.py /r/build-log-a.md 13"],
+    "builder-a-assignment.md": [f"{READY} {INDEX} --lane a 3", "python3 /r/wait_for_log.py /r/build-log-b.md 13"],
+    "builder-b-assignment.md": [f"{READY} {INDEX} --lane b 3", "python3 /r/wait_for_log.py /r/build-log-a.md 13"],
     "verifier-assignment.md": [f"python3 /r/wait_for_log.py /r/build-log-{lane}.md 13" for lane in "ab"],
 }
 

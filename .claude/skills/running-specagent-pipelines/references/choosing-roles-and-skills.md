@@ -84,6 +84,32 @@ Every critic and verifier finding cites its item (`Checklist: <file>:<line>`, `e
 page counts findings per item; an item that fired in no finding over three runs leaves the brief, and an item behind a
 missed defect moves to the top. `catalogue.py briefs <dir>` checks every brief's section.
 
+### Web layout checklist
+A plan that touches templates or CSS adds this list to the domain section of the builder and verifier briefs, beside
+the pinned ECC text, because a layout decision checked by eye holds only until the next edit (a project's run of
+2026-11-02, V114, V122):
+- The browser check of a layout decision is a committed test whose first run is red on the decision's own examples,
+  because a check that never failed does not show that it can; the browser runs are the main session's, as Chromium
+  does not start in a role's sandbox (`references/sandbox-and-blindness.md`).
+- The test selects each kind of element by its role in the markup, never from a list of classes, because a class list
+  names only the kinds that exist today and a new kind passes unchecked.
+- The test counts box edges as lines, because a border draws the same line as a separator element does.
+
+### Writing an order
+Every text an agent reads as an order (an assignment, a pack file, a brief, a role file, a skill, a message to a
+running session, a waiter's text) follows two rules (owner, 2026-11-02):
+- Each order that is not self-evident states its reason beside it, the failure it prevents or the goal it serves, in
+  one clause, because a model that knows why applies the rule to the cases the text does not name.
+- The wording is plain: no capitalised alarm word (`MUST`, `NEVER`, `ALWAYS`, `CRITICAL`, `IMPORTANT`), no exclamation
+  mark and no stacked emphasis, because such typography makes a current model apply the rule to cases it was not
+  written for; an order gets its weight from its reason and from a check that enforces it.
+
+A quoted log line, error message or third party's file that is not an order stays as it was. Preflight's `wording`
+check fails a launch whose pack files (the files `_packs.json` freezes, and the frozen sections of the lessons file)
+hold one of those words or an exclamation mark outside a code span, a fenced block or a `>` quote, and names the file
+and line; a text that lists the words, as this one does, keeps them in code spans so that the check passes it. A
+running pack is not rewritten, so the check holds from the next launch.
+
 ### Ours or ECC's
 No fixed preference: for each role and job, compare both texts side by side (ours: the type contract, the agent file,
 the example brief; ECC's pinned copy) by the checklist's fit to the work and by earlier runs' findings per item and

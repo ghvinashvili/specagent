@@ -28,6 +28,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python3 \"<checkout>/.claude/hooks/guard-bash.py\" relative_cd",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "python3 \"<checkout>/.claude/hooks/keep-cache-warm.py\" pretool",
             "timeout": 10
           }

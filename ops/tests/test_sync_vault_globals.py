@@ -523,3 +523,81 @@ def test_an_entry_for_a_page_that_is_refused_goes_too(tmp_path: Path):
     assert "carried salt-late (dropped from Related: pepper)" in done.stdout.splitlines()
     assert "refused pepper: " in done.stdout
     assert check(form).returncode == 0
+
+
+# ---- a `Related:` sentence that ends a line of prose (V17): the vault writes the closing sentence both ways ----
+
+PROSE = BODY.rstrip("\n")  # the paragraph the closing sentence ends
+
+
+@pytest.mark.parametrize("end", [".", "!", "?"])
+def test_a_related_sentence_that_ends_a_line_of_prose_is_read_as_the_closing_paragraph(tmp_path: Path, end: str):
+    prose = PROSE[:-1] + end  # the sentence before `Related:` may end in any of the three marks
+    related = " Related: [[pepper]] (what to grind), [[personal]] (a private page), [[lime]].\n"
+    pages = {
+        "salt-late": render(body=prose + related),
+        "pepper": render(title="Pepper"),
+        "lime": render(title="Lime"),
+        "personal": render(title="Personal", template="no"),
+    }
+    vault, form = make_vault(tmp_path, pages), copy_form(tmp_path)
+    done = sync(vault, form)
+    assert done.returncode == 0 and last(done) == "3 carried, 0 refused, 1 skipped", done.stdout
+    assert "carried salt-late (dropped from Related: personal)" in done.stdout.splitlines()
+    copy = (form / "decisions" / "global" / "salt-late.md").read_text(encoding="utf-8")
+    assert copy.endswith(f"{prose}\n\nRelated: [[pepper]] (what to grind), [[lime]].\n")  # a paragraph of its own
+    assert "personal" not in copy and "private page" not in copy
+    assert check(form).returncode == 0
+
+
+def test_a_related_sentence_whose_entries_start_on_the_next_line_is_read_the_same(tmp_path: Path):
+    pages = {
+        "salt-late": render(body=PROSE + " Related:\n[[personal]], [[pepper]].\n"),
+        "pepper": render(title="Pepper"),
+        "personal": render(title="Personal", template="no"),
+    }
+    vault, form = make_vault(tmp_path, pages), copy_form(tmp_path)
+    done = sync(vault, form)
+    assert done.returncode == 0 and last(done) == "2 carried, 0 refused, 1 skipped", done.stdout
+    assert "carried salt-late (dropped from Related: personal)" in done.stdout.splitlines()
+    copy = (form / "decisions" / "global" / "salt-late.md").read_text(encoding="utf-8")
+    assert copy.endswith(f"{PROSE}\n\nRelated: [[pepper]].\n")
+    assert check(form).returncode == 0
+
+
+def test_a_closing_related_sentence_left_with_no_entry_goes_and_the_prose_stays(tmp_path: Path):
+    text = render(body=PROSE + " Related:\n[[personal]], [[nowhere]].\n")
+    vault = make_vault(tmp_path, {"salt-late": text, "personal": render(title="Personal", template="no")})
+    form = copy_form(tmp_path)
+    done = sync(vault, form)
+    assert done.returncode == 0 and last(done) == "1 carried, 0 refused, 1 skipped", done.stdout
+    assert "carried salt-late (dropped from Related: personal, nowhere)" in done.stdout.splitlines()
+    want = render().replace(f"sources: [{STATEMENT}]", "sources: []")
+    assert (form / "decisions" / "global" / "salt-late.md").read_text(encoding="utf-8") == want
+
+
+def test_a_closing_related_sentence_whose_entries_all_travel_is_copied_byte_for_byte(tmp_path: Path):
+    text = render(body=PROSE + " Related: [[pepper]] (a gloss that\nwraps), [[lime]].\n")
+    pages = {"salt-late": text, "pepper": render(title="Pepper"), "lime": render(title="Lime")}
+    vault, form = make_vault(tmp_path, pages), copy_form(tmp_path)
+    assert sync(vault, form).returncode == 0
+    want = text.replace(f"sources: [{STATEMENT}]", "sources: []")
+    assert (form / "decisions" / "global" / "salt-late.md").read_text(encoding="utf-8") == want
+
+
+def test_a_related_sentence_that_holds_more_than_entries_is_prose_and_its_links_must_resolve(tmp_path: Path):
+    text = render(body=PROSE + " Related: see [[personal]] for the other cases.\n")
+    pages = {"salt-late": text, "personal": render(title="Personal", template="no")}
+    vault, form = make_vault(tmp_path, pages), copy_form(tmp_path)
+    done = sync(vault, form)
+    assert done.returncode == 1 and last(done) == "0 carried, 1 refused, 1 skipped", done.stdout
+    assert "refused salt-late: link [[personal]] does not resolve" in done.stdout
+
+
+def test_the_word_related_inside_a_sentence_opens_no_closing_paragraph(tmp_path: Path):
+    text = render(body=PROSE + " For the rest see Related: [[personal]].\n")
+    pages = {"salt-late": text, "personal": render(title="Personal", template="no")}
+    vault, form = make_vault(tmp_path, pages), copy_form(tmp_path)
+    done = sync(vault, form)
+    assert done.returncode == 1 and last(done) == "0 carried, 1 refused, 1 skipped", done.stdout
+    assert "refused salt-late: link [[personal]] does not resolve" in done.stdout

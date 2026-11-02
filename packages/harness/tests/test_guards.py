@@ -328,3 +328,115 @@ def test_the_verdict_and_the_lane_list_on_line_2_change_as_the_status_line_does(
     plain = tmp_path / "verify.md"  # no other record has a line 2 that may change
     plain.write_text(f"STATUS: x\n{second}\n## Task 1\n", encoding="utf-8")
     assert run_hook("guard-records.py", record_call(plain, "Edit", old_string=second, new_string="x"), {}) == "deny"
+
+
+@pytest.fixture()
+def linked(tmp_path: Path) -> dict:
+    """A main checkout with the rules and a linked worktree of it (`git worktree add`), with a `packages` folder."""
+    root, tree = tmp_path / "repo", tmp_path / "wt"
+    (root / ".claude/hooks").mkdir(parents=True)
+    shutil.copy(HOOKS / "guard-bash.json", root / ".claude/hooks/guard-bash.json")
+    git = ["git", "-c", "user.name=t", "-c", "user.email=t@t", "-C", str(root)]
+    subprocess.run([*git, "init", "-q"], check=True)
+    subprocess.run([*git, "add", ".claude/hooks/guard-bash.json"], check=True)  # the worktree reads its own rules
+    subprocess.run([*git, "commit", "-q", "-m", "base"], check=True)
+    subprocess.run([*git, "worktree", "add", "-q", "--detach", str(tree)], check=True)
+    (tree / "packages" / "harness").mkdir(parents=True)
+    env = {"CLAUDE_PROJECT_DIR": str(tree), "HOME": str(tmp_path)}
+    return {"root": root, "tree": tree, "env": env}
+
+
+def cd_answer(b: dict, command: str, cwd: Path, *checks: str, env: dict | None = None) -> str:
+    payload = {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": str(cwd)}
+    res = subprocess.run(
+        [sys.executable, str(HOOKS / "guard-bash.py"), *checks],
+        input=json.dumps(payload),
+        capture_output=True,
+        text=True,
+        check=False,
+        env={"PATH": "/usr/bin:/bin", **(env or b["env"])},
+    )
+    if res.returncode:
+        return f"exit {res.returncode}: {res.stderr}"
+    return json.loads(res.stdout)["hookSpecificOutput"]["permissionDecision"] if res.stdout.strip() else "allow"
+
+
+@pytest.mark.parametrize("command", ["cd packages", "cd ./packages && ls", "pushd packages/harness", "cd -P packages"])
+def test_a_relative_cd_into_a_subfolder_of_a_linked_worktree_is_refused(linked, command):
+    """A project's run of 2026-11-02: a bare cd into a worktree subfolder made the sandbox lay /dev/null stubs there."""
+    assert cd_answer(linked, command, linked["tree"], "relative_cd") == "deny"
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cd {tree}/packages",
+        "cd {tree}/packages/harness",
+        "cd {tree}/./packages",
+        "cd {tree}/packages/../packages",
+        "pushd {tree}/packages",
+        "cd -P {tree}/packages",
+        "cd ~/wt/packages",
+    ],
+)
+def test_an_absolute_or_home_cd_into_a_subfolder_of_a_linked_worktree_is_refused_as_a_relative_one_is(linked, command):
+    """V13 of the verifier: the shell stands in the folder the call starts in, whatever form of `cd` put it there, and
+    the sandbox lays its stubs in that folder; `cd <tree>/packages` was let through as an absolute path. The home folder
+    of the test is the folder above the worktree `wt`."""
+    command = command.format(tree=linked["tree"])
+    assert cd_answer(linked, command, linked["tree"], "relative_cd") == "deny"
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cd /tmp",
+        'cd "$X"',
+        "cd $X/packages",
+        "cd `pwd`/packages",
+        "cd -",
+        "cd -P /tmp",
+        "cd",
+        "cd ~",
+        "cd ..",
+        "cd .",
+        "ls packages",
+        "cd {tree}",
+        "cd {tree}/.",
+        "cd {root}",
+        "cd ~/elsewhere",
+        "cd ~nosuchuser/packages",
+    ],
+)
+def test_a_cd_outside_the_worktree_to_its_root_or_to_a_path_the_hook_cannot_resolve_passes(linked, command):
+    """The root, a folder outside the worktree, `-`, a variable, a command substitution (the hook cannot resolve it) and
+    a home folder that does not exist (the shell cannot enter it either) are no subfolder of the worktree. An option
+    before the target (`cd -P /tmp`) is no folder: read as the target, `-P` would be a name inside the worktree (V14
+    of the verifier: two rules of `relative_cd` that every test passed without)."""
+    command = command.format(tree=linked["tree"], root=linked["root"])
+    assert cd_answer(linked, command, linked["tree"], "relative_cd") == "allow"
+
+
+def test_the_reason_of_the_refusal_steers_to_the_root_or_to_absolute_paths_in_commands_not_to_an_absolute_cd():
+    """V13 of the verifier: the reason said `cd only to an absolute path or the worktree's root`, which sent a role to
+    the form that lets the stubs in."""
+    rules = json.loads((HOOKS / "guard-bash.json").read_text(encoding="utf-8"))["deny"]
+    reason = next(rule["reason"] for rule in rules if rule.get("check") == "relative_cd")
+    assert "worktree's root" in reason and "absolute paths" in reason
+    assert "cd only to an absolute path" not in reason
+
+
+def test_a_cd_back_to_the_root_passes_and_the_main_checkout_or_a_main_session_is_not_held(linked):
+    sub = linked["tree"] / "packages"
+    assert cd_answer(linked, "cd ..", sub, "relative_cd") == "allow"  # back to the worktree's root
+    assert cd_answer(linked, "cd harness", sub, "relative_cd") == "deny"
+    assert cd_answer(linked, "cd .", sub, "relative_cd") == "allow"  # where it already stands
+    assert cd_answer(linked, "git add -A", linked["tree"], "relative_cd") == "allow"  # only the named check runs
+    bare = {**linked["env"], "CLAUDE_PROJECT_DIR": str(linked["root"].parent)}  # no rules file there
+    assert cd_answer(linked, "cd packages", linked["tree"], "relative_cd", env=bare) == "allow"
+    assert cd_answer(linked, "cd packages", linked["tree"], env=bare).startswith("exit 2")  # the full guard refuses
+    (linked["root"] / "packages").mkdir()
+    assert cd_answer(linked, "cd packages", linked["root"], "relative_cd") == "allow"  # not a linked worktree
+    assert cd_answer(linked, "cd packages", linked["tree"]) == "allow"  # a main session: `when: role`
+    role = {**linked["env"], "HARNESS_RUN_DIR": str(linked["root"].parent / "runs" / "r1")}
+    assert cd_answer(linked, "cd packages", linked["tree"], env=role) == "deny"  # a harness role session

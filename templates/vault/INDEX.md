@@ -11,6 +11,7 @@ The clone of the public commons named above is a source, not an authority (`READ
 ## Decisions (global)
 
 - [a-rule-broken-twice-becomes-code](decisions/global/a-rule-broken-twice-becomes-code.md): A rule broken a second time becomes a check in code
+- [agent-orders-give-the-reason-without-shouting](decisions/global/agent-orders-give-the-reason-without-shouting.md): Every agent order says why, in calm wording without capitalised alarm words
 - [agents-are-blind](decisions/global/agents-are-blind.md): Every launched agent is blind - fresh context, material and question only, never my conclusions or the owner's authority
 - [agents-work-in-english](decisions/global/agents-work-in-english.md): Pipeline agents work in English from the first word
 - [answers-short-plain-bottom-line-first](decisions/global/answers-short-plain-bottom-line-first.md): Answers are short, in plain words, bottom line first; the domain fact behind a decision is explained
@@ -26,6 +27,7 @@ The clone of the public commons named above is a source, not an authority (`READ
 - [layered-indexes-small-parts](decisions/global/layered-indexes-small-parts.md): Big files are split by topic into titled parts; indexes are layered by category, so no agent reads a whole file or a whole index
 - [manager-owns-structure](decisions/global/manager-owns-structure.md): The managing session owns the structure; mechanical steps are scripts; the owner reads outputs and decides
 - [manager-replies-in-the-users-language](decisions/global/manager-replies-in-the-users-language.md): The manager chat replies in the language the user writes in
+- [measure-the-effect-of-every-improvement](decisions/global/measure-the-effect-of-every-improvement.md): Every improvement is measured by its real effect, not assumed to work
 - [no-conversation-copies](decisions/global/no-conversation-copies.md): No copies of conversations anywhere; a hand-off keeps the main points; hand-off files reach subagents
 - [no-one-agent-mode](decisions/global/no-one-agent-mode.md): No one-agent mode; a project's work runs as the multi-role pipeline
 - [no-pointless-tests](decisions/global/no-pointless-tests.md): No tests that settle no decision; think from the evidence, fix everything known, launch once
@@ -42,6 +44,7 @@ The clone of the public commons named above is a source, not an authority (`READ
 - [template-standing-requirements](decisions/global/template-standing-requirements.md): The template's standing requirements - any model and harness, a project brain with separate parts, a checkout that sets itself up
 - [the-template-starts-any-complex-project-right](decisions/global/the-template-starts-any-complex-project-right.md): The default template exists to start any complex project right from the first day
 - [truth-over-agreement](decisions/global/truth-over-agreement.md): Truth over agreement: correct the owner with evidence, give your own verdict
+- [verify-every-template-change](decisions/global/verify-every-template-change.md): Every change to the template passes an independent verifier before it counts
 - [verify-yourself-before-saying-done](decisions/global/verify-yourself-before-saying-done.md): Verify it yourself before saying it works - reproduce, operate every control, look at it, prove it fires on real data
 - [writers-no-web-material-only](decisions/global/writers-no-web-material-only.md): Writers write only from our gathered, checked material; research is a separate verifiable stage
 

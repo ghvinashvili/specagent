@@ -26,6 +26,8 @@ mistake, appended the moment the mistake is found:
 - `<n>` is the item's number, never reused; `<trigger>` is what happened; `<rule>` is what the manager does instead.
 - `<cost>` is the measured cost with its number and unit: minutes waited, sessions without a commit, tokens, dollars.
 - `<record>` is the file and line that show the mistake, such as `<run>/lessons.md:147`.
+- A number not measured or a record not kept is said so: `cost unmeasured`, `no record`; `lessons` counts them as
+  `unmeasured: <n>`, never as a cost of 0.
 - The same mistake again: append `; <YYYY-MM-DD>, <record>` to its item; it keeps its number.
 - An item that fired in no run for three runs moves under `## Below the fold` with its number.
 - The page stays under 8,000 bytes, about 2,000 tokens. After each edit, and for the run's measurement page (the items

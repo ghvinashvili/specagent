@@ -5,6 +5,27 @@ All notable changes are recorded here, grouped by release, generated from Conven
 ## [Unreleased]
 
 ### Added
+- The template steps of 2026-11-02, from a project's run of that day and the owner's orders: `lessons_report.py` takes
+  `--repo <checkout>` (and `--projects`) and counts a recurrence only when the session that made the error held the
+  lesson (the commit's `Role-Session:` trailer names the session; a lesson dated `added <ISO>` after that session's
+  start makes the repeat `not_held`, and no recurrence; a session or lesson date unknown makes it `held_unknown`, which
+  still counts), and the builder briefs end each commit with `Role-Session: $CLAUDE_CODE_SESSION_ID`;
+  `measure_manager.py lessons` accepts `cost unmeasured` and a firing's `no record` and prints
+  `unmeasured: <n> (items …)`; `scripts/task_lint.py` checks a task's `Step 0` count, its `Expected:` lines and its
+  python under the repository's own ruff before the planner writes `Task N: written`; guard-bash's `relative_cd` check
+  refuses a relative `cd` or `pushd` into a subfolder of a linked worktree, where the sandbox lays `/dev/null` stubs;
+  `wait_for_ready.py --index <00-index.md> --lane <a|b>` releases a builder's task by its own lane and the index's
+  build order, so the other lane's open ids no longer hold it. The skill's briefs and references carry the rules that
+  run taught, each with its reason and pinned by a test: seven task rules for the planner and the plan fixer, the
+  builders' mutation, set, pattern and base-gate rules, the `wait_for_log.py` count, one line in the critic's
+  checklist, the missing Chromium of a role's sandbox, a web layout checklist and the plan fixer's capacity (Task 6).
+  The vault form gains the owner's orders `measure-the-effect-of-every-improvement`, `verify-every-template-change` and
+  `agent-orders-give-the-reason-without-shouting` (Task 7). The warm cache by rule and the frozen pack per lane carry a
+  `measure:` line with their numbers before and after (Task 8). `watch_agents.py --launch <agent> [--dry-run]
+  <config>` starts the first session of a role added in the middle of a run, which the watcher then adopts by name
+  (Task 9). Every order in a brief gives its reason in one clause and none shouts, and the pre-flight's `wording` check
+  refuses a pack whose files hold a capitalised alarm word or an exclamation mark outside a code span, a fenced block
+  or a quote (Task 10). The README and `references/measuring.md` say so (Task 11).
 - The run's own gaps of 2026-11-01, closed at the template so a new project starts right: the watcher delivers an
   order to a role with no process or a final record (once, no hand resume, no second copy); `catalogue.py fill`
   pastes each brief's ECC ranges and the pre-flight refuses an unfilled brief; `.claude/hooks/keep-cache-warm.py`

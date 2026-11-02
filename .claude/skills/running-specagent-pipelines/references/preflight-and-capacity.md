@@ -35,6 +35,11 @@ that. The checks, in their order:
 - `waiters`: every waiter a brief names is a file in the run folder, with no placeholder left.
 - `briefs`: `catalogue.py briefs <run>`: every run brief's domain section is in form, its launch slot is gone and each
   `Spec:` range is pasted word for word (`catalogue.py fill <run>` does it).
+- `wording`: no pack file of a checked role (the files `_packs.json` freezes into its pack, and the frozen sections of
+  the lessons file) holds a capitalised alarm word (`MUST`, `NEVER`, `ALWAYS`, `CRITICAL`, `IMPORTANT`) or an
+  exclamation mark outside a code span, a fenced block or a `>` quote, because such typography makes a model
+  over-apply an order; a hit names the file and line, and the rule is in `choosing-roles-and-skills.md`, "Writing an
+  order". It skips when the run has no `_packs.json`, and a running pack is not rewritten.
 - `formats`: `scripts/check_formats.py <run-dir>` exits 0.
 - `monitor`: `monitor_records.py status <run-dir>` reports the request-line watch armed (its `watch` command starts it).
 - `disk`: at least `--min-free-mb` (512) MiB free in the run folder, the temporary directory and each worktree.
@@ -71,6 +76,11 @@ and appends one reading to `<run-dir>/_control/usage.json`: `taken_at`, `source`
 100% before the window resets or the run ends (`--hours`, 5), whichever comes first. `--scale` is the run's rate
 against the measured one: 2 when the launch doubles the sessions. A launch that fails here waits for the reset or
 starts fewer roles.
+
+A critic files about 95 ids an hour and one plan fixer answers about 25 (a project's run of 2026-11-02), so the
+launch table lists a plan fixer from the start and its `Yes:` line allows one more for every ten ids still open,
+because an id left unanswered holds the builders' waiters and a fixer the table does not name needs its own question
+to the owner.
 
 ### Timeouts
 A suite's timeout comes from its cases, never from a guess: `python3 -I scripts/manager/preflight.py timeout

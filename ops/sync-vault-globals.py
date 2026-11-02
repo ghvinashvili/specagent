@@ -14,8 +14,9 @@ prose untouched and two frontmatter lines rewritten: `sources:` keeps the public
 travel, `proof:` keeps the measurement pages that travel (an order's `proof:` line that keeps none is dropped, a lesson
 with none is refused). A measurement page travels with the page that cites it when it is a file of
 context/measurements/ and holds nothing the template refuses. A page's closing `Related:` paragraph (links to go on
-to, no rule) loses the entries whose page does not travel, and goes when none is left; the report names each entry
-dropped. Any other link of a page must resolve in the form, or the page is refused.
+to, no rule; it starts a line, or follows the last sentence of the prose on the same line) loses the entries whose page
+does not travel, and goes when none is left; the report names each entry dropped. Any other link of a page must resolve
+in the form, or the page is refused.
 
 The template refuses, in a page's name and text, a letter of a refused script (Georgian), a model name and an owner
 marker (a project, a name, an e-mail address, a path under /home), and whatever the form's own ops/check_pages.py
@@ -55,6 +56,9 @@ OWNER = re.compile(
 ITEM = re.compile(r"[^\[\],\s]+")  # one entry of a one-line list, as check_pages.py reads `sources:` and `proof:`
 ENTRY = re.compile(r"\[\[([^\]|#]+)[^\]]*\]\](?:\s*\([^()]*\))?")  # a link, as check_pages.py reads it, and its gloss
 WRAP = 120  # the width a `Related:` paragraph is written again at when an entry goes
+# where a `Related:` paragraph begins: at the start of a line, or after the sentence of prose that ends the line before it
+# (the vault writes the closing sentence both ways, as its wrapping falls)
+CLOSING = re.compile(r"(?:^|(?<=[.!?])[ \t]+)(?=Related:)")
 MEASUREMENT = re.compile(r"context/measurements/[^/]+\.md")
 PROBLEM = re.compile(r"decisions/global/([^/:\s]+)\.md(?::(\d+))?: (.*)")  # a page's problem line of check_pages.py
 SUMMARY = re.compile(r"\d+ pages checked, \d+ problems")
@@ -156,20 +160,24 @@ def trim_related(text: str, travelling: set[str]) -> tuple[str, list[str]]:
     """The page without the entries of its `Related:` paragraph whose page does not travel, and the pages they named.
     The paragraph is a list of links, each with an optional gloss in parentheses, for the reader to go on to: it holds
     no rule, so an entry that leads nowhere in the template goes with its gloss, and a paragraph left with no entry goes
-    with its blank line. The other entries keep their order; a paragraph that holds anything but entries, and every
-    other link of the page, stay as they are."""
+    with its blank line. It begins at a line that starts with `Related:`, or at a `Related:` that follows the sentence
+    ending a line of prose (the vault writes the closing sentence both ways); the prose before it stays untouched, and
+    the entries left stand as a paragraph of their own. The other entries keep their order; a paragraph that holds
+    anything but entries, and every other link of the page, stay as they are."""
     head = re.match(r"---\n.*?\n---\n", text, re.DOTALL)
     start = head.end() if head else 0
     lines, out, dropped, i = text[start:].split("\n"), [], [], 0
     while i < len(lines):
-        if not lines[i].startswith("Related:"):
+        found = CLOSING.search(lines[i])
+        if not found:
             out.append(lines[i])
             i += 1
             continue
         end = i
         while end + 1 < len(lines) and lines[end + 1].strip():
             end += 1
-        paragraph, i = "\n".join(lines[i : end + 1]), end + 1
+        block, prose, i = lines[i : end + 1], lines[i][: found.start()], end + 1
+        paragraph = "\n".join([block[0][found.end() :], *block[1:]])
         flat = " ".join(paragraph.split())  # one line, so that a gloss the writer wrapped is one piece
         entries = list(ENTRY.finditer(flat))
         if (
@@ -177,10 +185,12 @@ def trim_related(text: str, travelling: set[str]) -> tuple[str, list[str]]:
             or ENTRY.sub("", flat.removeprefix("Related:")).strip(" ,;.")
             or all(m.group(1) in travelling for m in entries)
         ):
-            out += paragraph.split("\n")  # prose, or every entry travels: as it was
+            out += block  # prose, or every entry travels: as it was
             continue
         dropped += [m.group(1) for m in entries if m.group(1) not in travelling]
         kept = [m.group(0) for m in entries if m.group(1) in travelling]
+        if prose:
+            out += [prose, ""] if kept else [prose]
         if kept:
             rebuilt = "Related: " + ", ".join(kept) + ("." if flat.endswith(".") else "")
             out += textwrap.fill(rebuilt, width=WRAP, break_long_words=False, break_on_hyphens=False).split("\n")

@@ -101,7 +101,7 @@ and skills` section holds a `Spec:` line and a `Skills:` line ([Choosing roles a
 - Read states with `claude agents --json --all` (`state`, `status`, `pid`, `sessionId`) and print only those fields.
 
 ## Changing orders
-- A rule every agent follows from its next task: add it to `lessons.md`, which planner and builder read before each
+- A rule every agent follows from its next task: add it to `lessons.md` dated `added <UTC ISO>`, which planner and builder read before each
   task (step 2 of the ladder, Briefs).
 - Anything else: a message from the main session (bypass mode) to an agent in auto mode is held and expires. Use
   `python3 -I scripts/watch_agents.py --order <agent> <text> <agents.json>`: the running watcher delivers it by stop
@@ -120,6 +120,6 @@ and skills` section holds a `Spec:` line and a `Skills:` line ([Choosing roles a
 - [Blind to models and authors, inside the sandbox](references/sandbox-and-blindness.md): no role knows a model or an
   author; the sandbox's mounts, protected paths, request lines, `example/sim_bwrap.py`.
 - [Choosing roles and skills](references/choosing-roles-and-skills.md): the catalogue, the prefix
-  bounds, the selection criteria, lanes, the `Spec:` and `Skills:` lines.
+  bounds, the selection criteria, lanes, the `Spec:` and `Skills:` lines, how to write an order.
 - [Watcher, monitor and collector](references/watching.md): the watcher's rounds, orders, registry and exit codes; the
   monitor, the duty list, the collector.

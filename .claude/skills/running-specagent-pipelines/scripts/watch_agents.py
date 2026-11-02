@@ -12,6 +12,11 @@ loss. Run it in the background from the orchestrating session:
   python3 watch_agents.py --order <agent> <text> <config>
                                                 (appends one order to orders.jsonl beside the registry and prints the
                                                  prompt to send; runs no claude command; rounds is ignored)
+  python3 watch_agents.py --launch <agent> [--dry-run] <config>
+                                                (starts the first session of an agent the config gained in the middle
+                                                 of a run, with the argv the watcher builds for a fresh session, and
+                                                 records the launch in the registry; --dry-run prints that command and
+                                                 runs nothing; rounds is ignored)
 
 A round of version 3, in its order: the rows of `claude agents --json --all`; each agent's row, matched by the
 session id recorded at its launch, then by the job id its `--bg` launch printed (`claude stop <id>`), then by name
@@ -75,7 +80,8 @@ slash):
   a final line 1 is delivered by the watcher at once, once (`woke <agent> with order <msg_id>`); while it is open the
   agent is not final.
 - registry: `<run_dir>/<registry>` (default `_control/registry.json`), written whole with `os.replace` at the end of
-  every round and when the watcher returns (never with --check, --order or on exit 2): per agent its lane and settings
+  every round and when the watcher returns (never with --check, --order or on exit 2; --launch adds its agent's entry
+  and leaves the rest as it is): per agent its lane and settings
   (from the first table of `_launch.md` with role, lane and settings columns), record, unit, state, session ids,
   context, calls, cost, revivals, pending hand-over, idle note and orders. It is read once at start
   (`registry: <agent> revivals=<n> orders=<open ids>`), so a restarted watcher keeps the orders, the revivals and the
@@ -85,6 +91,18 @@ Exit codes: 0 an event (a failed or blocked agent, `blocked` on line 1 of a `blo
 one agent, an order with no ACK line after its resends, every STATUS final); 1 after the last round; 2 a config error
 at start (nothing is run); 3 a budget; 4 a settings file or an extra prompt file (a lane's pack) changed, or a brief was removed (a
 changed brief is reloaded).
+`--launch <agent> [--dry-run]` starts the first session of an agent the config gained in the middle of a run (a round
+launches a fresh session only for an agent it has a session for; the watcher then adopts the new one). The settings
+file, the pack (named in the config) and the cwd the command names must exist, and a `Yes:` line of `_launch.md`
+stamped no later than now must name the agent, as the pre-flight reads it, because the owner is asked before every
+launch (else a config error, exit 2); `claude agents --json --all`
+must be readable and list no session of the agent, matched as a round matches (else exit 1 and nothing is launched).
+Then `claude` runs from the agent's cwd with the argv of a fresh session, whose prompt is the first prompt of
+references/launch.md (a session with no previous one is told to follow its pack, not that one handed over) and
+the agent's open manager orders (`first session of <agent> | <output>`), and the registry gets the agent's entry with
+the job id the launch printed, the other entries and the running watcher's block as they were (a missing registry is
+written whole). Exit 0 and `launched <agent>: job <id>`; a launch that printed no job id records nothing: exit 1.
+`--dry-run` prints `(cd <cwd> && claude <argv>)` and runs and writes nothing. Exit 4 as for a round.
 Safety: at start the SHA-256 of every control file is recorded: the config, the settings files, the extra prompt files
 and the `_*` files of the run folder that its texts name (the briefs). At the start of each round a config whose
 SHA-256 changed is read and checked again: a valid one replaces the old one and logs `config reloaded: <name>` (the
@@ -190,6 +208,8 @@ UNBLOCK = (
     "way that needs no approval (reading with sed -n or python3; writing your own files with python3); if there is "
     "none, record the step as open in your log and go on with your work. Work in English only."
 )
+# the first session of a role (--launch) starts as the manual first launch of references/launch.md does: from its pack
+FIRST = "Your system prompt holds this lane's pack, your assignment included: follow it. Start now."
 FRESH = {  # pack-aware since 2026-11-01 (owner): a lane's pack in the system prompt holds the files they name
     "planner": (
         "You are a fresh planner session; the previous one handed over (a model change or a stuck session). Your "
@@ -305,7 +325,8 @@ ACK = re.compile(r"(?m)^ACK ([0-9a-f]{8})\b")  # a role's answer to an order: a 
 JOB = re.compile(r"claude stop ([0-9a-f]{8})\b")  # the job id a `--bg` launch prints
 COPY = re.compile(r"a copy as ([0-9a-f]{8})\b")  # a resume of a session that still runs starts a copy
 ORIGINAL = re.compile(r"claude attach ([0-9a-f]{8})\W+opens the original")
-YES = re.compile(r"(?m)^Yes: (\d{4}-\d\d-\d\dT\d\d:\d\dZ) — ")  # the pre-flight's yes line in _launch.md (preflight.py)
+# the pre-flight's yes line in _launch.md (preflight.py has the same pattern; group 1 is its time, group 2 the roles)
+YES = re.compile(r"(?m)^Yes: (\d{4}-\d\d-\d\dT\d\d:\d\dZ) — (.*)$")
 ORDER_KEYS = ("msg_id", "kind", "text", "sent_at", "resends", "acked_at", "closed", "woken")  # an order in the registry
 PRICED = ("input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")  # PRICE's order
 
@@ -801,8 +822,23 @@ class Watcher:
             text = (self.run / "_launch.md").read_text(encoding="utf-8", errors="ignore")
         except OSError:
             return None
-        times = [t for t in map(stamp, YES.findall(text)) if t is not None]
+        times = [t for t in (stamp(m.group(1)) for m in YES.finditer(text)) if t is not None]
         return min(times) - 5 if times else None
+
+    def said_yes(self, name):
+        """Whether the owner has said yes to the agent: a `Yes:` line of `_launch.md` that names it and is stamped no
+        later than now, read as the pre-flight reads it (preflight.py yes_problems): a time that is no time or lies
+        ahead, and a longer name (`t/critic-2`, `xt/critic`), count for nothing."""
+        try:
+            text = (self.run / "_launch.md").read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            return False
+        named = re.compile(rf"(?<![\w-]){re.escape(name)}(?![\w-])")
+        now = time.time()
+        return any(
+            (when := stamp(m.group(1))) is not None and when <= now and named.search(m.group(2))
+            for m in YES.finditer(text)
+        )
 
     def note_from(self, path, row):
         """The note was written while the agent's latest session was active (its transcript's time span, plus slack)."""
@@ -1327,11 +1363,17 @@ class Watcher:
         for line in lines[1:]:
             log(line)
 
-    def launch_fresh(self, name, row, text, why, events):
-        """A fresh session (6k): its prompt carries the agent's open manager orders; the watcher's are superseded."""
+    def fresh_prompt(self, name, text):
+        """A fresh session's prompt (6k): `text` and each open manager order of the agent as `order_text` writes it (the
+        wake line when line 1 is final, then its Order line), and the open orders the launch settles (the watcher's own
+        are superseded, the manager's are sent with it)."""
         orders = [] if self.check else [o for o in self.roles[name]["orders"] if o["closed"] is None]
         manager = [o for o in orders if o["kind"] == "manager"]
-        prompt = text + "".join(f"\n\n{o['text']}\n\n{self.order_line(name, o['msg_id'])}" for o in manager)
+        return orders, text + "".join(f"\n\n{self.order_text(name, o)}" for o in manager)
+
+    def launch_fresh(self, name, row, text, why, events):
+        """A fresh session (6k): its prompt carries the agent's open manager orders; the watcher's are superseded."""
+        orders, prompt = self.fresh_prompt(name, text)
         if self.act(name, row, prompt, why, events) is None:
             return
         for o in orders:
@@ -1554,6 +1596,10 @@ class Watcher:
             },
             "roles": {name: self.entry(name) for name in self.agents},
         }
+        self.store_registry(data)
+
+    def store_registry(self, data):
+        """The registry file replaced whole: `data` in a temporary file of its folder, moved over the old one."""
         temporary = self.registry.with_name(f".{self.registry.name}.tmp")
         try:
             self.registry.parent.mkdir(parents=True, exist_ok=True)
@@ -1562,9 +1608,9 @@ class Watcher:
         except OSError as e:
             log(f"registry not written: {e}")
 
-    def restore(self):
-        """The fields K1 restores, from the registry an earlier watcher of this run wrote (6c); a missing file or one
-        that is no version 1 object restores nothing."""
+    def restore(self, names=None):
+        """The fields K1 restores, from the registry an earlier watcher of this run wrote (6c), for every agent or for
+        `names`; a missing file or one that is no version 1 object restores nothing."""
         try:
             data = json.loads(self.registry.read_text(encoding="utf-8"))
         except (OSError, ValueError):
@@ -1572,7 +1618,7 @@ class Watcher:
         roles = data.get("roles") if isinstance(data, dict) and data.get("version") == 1 else None
         if not isinstance(roles, dict):
             return
-        for name in self.agents:
+        for name in names or self.agents:
             saved, entry = roles.get(name), self.roles[name]
             if not isinstance(saved, dict):
                 continue
@@ -1638,6 +1684,81 @@ class Watcher:
         print(f"order {msg_id} {agent}\n{text}\n\n{self.order_line(agent, msg_id)}", flush=True)
         return 0
 
+    def ready(self, name):
+        """--launch: the files and the folder the command names, which claude would fail on after the launch was
+        reported (the pack is the one a role added in the middle of a run lacks until make_pack.py has built it), a
+        pack in the config because the first prompt points at it, and a `Yes:` line that names the agent, because
+        the pre-flight holds every launch of a run until the owner has said yes to each role it starts."""
+        a, own = self.agents[name], self.extras.get(name)
+        if not (self.run / a["settings"]).is_file():
+            raise ConfigError(f"{name}: settings file {a['settings']} does not exist")
+        if not own:
+            raise ConfigError(
+                f"{name}: no extra_prompt pack in the config; the first prompt tells the session to follow the pack "
+                "in its system prompt (make_pack.py builds it)"
+            )
+        if not (self.run / own["file"]).is_file():
+            raise ConfigError(f"{name}: pack {own['file']} does not exist; build it with make_pack.py first")
+        if not pathlib.Path(a["cwd"]).is_dir():
+            raise ConfigError(f"{name}: cwd {a['cwd']} is not a folder")
+        if not self.said_yes(name):
+            raise ConfigError(
+                f"no Yes: line names {name} in {self.run / '_launch.md'}; write one once the owner has said yes to it"
+            )
+
+    def first_launch(self, name, dry_run):
+        """--launch: the first session of an agent the config gained in the middle of a run. A watcher launches a fresh
+        session only for an agent it has a session for, so this starts one with the argv the watcher builds for a
+        fresh session (fresh_prompt(), command()) but for the prompt, which is FIRST (the role's `fresh` text says
+        that a previous session handed over) and the open manager orders, from the agent's cwd, and records it in the
+        registry; --dry-run prints the command and runs nothing. Returns 0 launched or printed, 1 not launched; a
+        ConfigError is exit 2 (main()) and Exit(4) a control file that changed."""
+        if name not in self.agents:
+            raise ConfigError(f"no agent {name}")
+        self.ready(name)
+        self.restore([name])  # an open manager order of the agent rides in its first prompt, as in any fresh launch
+        text = FIRST + self.lang  # not the role's `fresh` text: that one says a previous session handed over
+        if dry_run:
+            print(self.shell_line(name, self.command(name, self.fresh_prompt(name, text)[1])), flush=True)
+            return 0
+        rows = self.all_rows()
+        if rows is None:
+            print(f"cannot tell whether {name} has a session: claude agents --json --all failed", flush=True)
+            return 1
+        row = self.match(name, rows)  # as the watcher matches: by recorded session id, job id, then name in its cwd
+        if row:
+            print(
+                f"{name} already has a session ({row.get('id')}): nothing is launched, the watcher has it", flush=True
+            )
+            return 1
+        self.launch_fresh(name, None, text, f"first session of {name}", [])
+        job = self.roles[name]["job_id"]
+        if job is None:
+            print(f"{name}: claude printed no job id; nothing is recorded, see `claude agents` first", flush=True)
+            return 1
+        self.record_launch(name)
+        print(f"launched {name}: job {job}", flush=True)
+        return 0
+
+    def shell_line(self, name, argv):
+        """The command as one shell line to paste: the cwd in a subshell, every word of the argv quoted."""
+        return f"(cd {shlex.quote(str(self.agents[name]['cwd']))} && claude {shlex.join(argv)})"
+
+    def record_launch(self, name):
+        """--launch: the agent's entry joins the registry a running watcher keeps (it rewrites the whole at the end of
+        its round); the other entries and its own block stay as they are. A registry that is missing or no version 1
+        object is written whole, as a watcher would."""
+        try:
+            data = json.loads(self.registry.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            data = None
+        if not (isinstance(data, dict) and data.get("version") == 1 and isinstance(data.get("roles"), dict)):
+            self.write_registry()
+            return
+        data["written_at"] = utc(time.time())
+        data["roles"][name] = self.entry(name)
+        self.store_registry(data)
+
 
 def report(watcher):
     """--check: one round, then the decision per agent and the exit a run would take."""
@@ -1688,16 +1809,28 @@ def main(argv=None):
         metavar=("AGENT", "TEXT"),
         help="append an order for AGENT to the inbox and print its prompt; runs no session",
     )
+    mode.add_argument(
+        "--launch",
+        metavar="AGENT",
+        help="start AGENT's first session, a role added in the middle of a run, with the argv of a fresh session",
+    )
+    ap.add_argument("--dry-run", action="store_true", help="with --launch: print the command and run nothing")
     ap.add_argument("config")
     ap.add_argument("rounds", nargs="?", type=int, default=240)
     args = ap.parse_args(argv)
+    if args.dry_run and not args.launch:
+        ap.error("--dry-run goes with --launch")
     try:
         watcher = Watcher(args.config, check=args.check)
         if args.order:
             return watcher.add_manager_order(*args.order)
+        if args.launch:
+            return watcher.first_launch(args.launch, args.dry_run)
     except ConfigError as e:
         print(f"config error: {e}", flush=True)
         return 2
+    except Exit as e:
+        return e.code
     return report(watcher) if args.check else watch(watcher, args.rounds)
 
 

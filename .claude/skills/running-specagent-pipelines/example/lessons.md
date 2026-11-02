@@ -13,14 +13,14 @@ one-line rule under "Lessons from this run". The main session takes the rest (th
 2. Task size: at most 1,500 lines per task file, one checkable result each; the task count is fixed when the index is
    written; a task that grows gets a Deferred line, never a new task number.
 3. Two builders, disjoint files. The index gives every task `builder: a|b`, `depends_on:` and `files:`; two tasks of
-   different builders never list the same file. Shared files that both need are edited by one builder and the other
+   different builders never list the same file, because two branches that edit one file conflict at the merge. Shared files that both need are edited by one builder and the other
    depends on that task. The merge is the main session's: it merges both branches into `feat/<run-name>` after the
    verifier passes the tasks and writes `Merged: a+b at <sha>` here; the last task starts only after that line.
 4. Shell: no top-level `cd`; paths literal or `"${W:?}/x"`; long jobs inside `(ulimit -v 8388608; …)`; `timeout -k 10`.
    Each worktree needs its own `uv sync` once (the `.venv` is per worktree).
 5. The vault `<vault>` is read-only and read on need: open `INDEX.md` only when a step needs an owner rule, follow
    one link, read by ranges with `python3 <vault>/ops/outline.py <file>`. Where a vault page and your brief differ,
-   the brief wins; log the difference in your log file.
+   the brief wins, because it records the owner's decisions for this run; log the difference in your log file.
 6. Scratch: `<run-dir>/scratch/<role>/` with Write and Edit. Never a heredoc or `cp` under /tmp.
 7. Two plan roles: `<project>/planner` writes new tasks only; `<project>/plan-fixer` answers every C, A, B, `(plan)` R
    and V id and edits unbuilt task files. Messages about findings go to the fixer (and to the builder for `(code)`).
@@ -53,4 +53,5 @@ one-line rule under "Lessons from this run". The main session takes the rest (th
   pre-flight's `blind` check refuses it).
 
 ## Lessons from this run
-(planner and builders add one-line rules here, with the finding ids)
+(planner and builders add one-line rules here, with the finding ids and `added <UTC time, ISO>`: lessons_report.py
+counts a later break only against sessions that started after it)

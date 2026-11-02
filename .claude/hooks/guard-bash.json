@@ -44,6 +44,11 @@
       "check": "unreadable",
       "when": "role",
       "reason": "The command cannot be read (an open quote): write it as one plain command."
+    },
+    {
+      "check": "relative_cd",
+      "when": "role",
+      "reason": "In a worktree, cd only to the worktree's root, or give the command its absolute paths: a `cd` into a subfolder, relative or absolute, makes the sandbox lay /dev/null stubs (.mcp.json, .claude/) in that folder, which then show in git status."
     }
   ]
 }

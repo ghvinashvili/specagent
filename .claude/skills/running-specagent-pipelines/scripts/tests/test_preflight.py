@@ -211,6 +211,7 @@ class Run:
                 f"# Your standing orders (startup pack of demo/{role})\n", encoding="utf-8"
             )
         (self.run / "_common.md").write_text(self.common, encoding="utf-8")
+        self.packs({role: ["_common.md"] for role in ("planner", "builder-a", "judge")})
         (self.run / "_launch.md").write_text(LAUNCH, encoding="utf-8")
         self.usage(
             [
@@ -224,6 +225,10 @@ class Run:
         claude.write_text(FAKE_CLAUDE, encoding="utf-8")
         claude.chmod(0o755)
         self.sessions()
+
+    def packs(self, roles, **extra):
+        """`_packs.json`, the file `make_pack.py` reads: each role's files, frozen into its pack."""
+        self.write_json(self.run / "_packs.json", {"name": "demo", "roles": roles, **extra})
 
     def sessions(self, *rows):
         """The rows the fake `claude agents --json --all` prints (none by default)."""
@@ -324,7 +329,7 @@ def found(proc, check, agent=None):
     return [(s, d) for s, c, a, d in results(proc) if c == check and a == agent]
 
 
-def test_a_ready_run_passes_twenty_checks_writes_the_result_file_and_leaves_no_probe_mark(tmp_path):
+def test_a_ready_run_passes_twenty_one_checks_writes_the_result_file_and_leaves_no_probe_mark(tmp_path):
     r = Run(tmp_path)
     proc = preflight(*r.args(), env=r.env)
     assert proc.returncode == 0, proc.stdout + proc.stderr
@@ -340,7 +345,8 @@ def test_a_ready_run_passes_twenty_checks_writes_the_result_file_and_leaves_no_p
         )
     ]
     run_wide = [
-        ("PASS", c, None) for c in ("waiters", "briefs", "formats", "monitor", "disk", "usage", "live", "launch")
+        ("PASS", c, None)
+        for c in ("waiters", "briefs", "wording", "formats", "monitor", "disk", "usage", "live", "launch")
     ]
     assert [(s, c, a) for s, c, a, _ in results(proc)] == [
         ("PASS", "config", None),
@@ -348,10 +354,10 @@ def test_a_ready_run_passes_twenty_checks_writes_the_result_file_and_leaves_no_p
         *per_role,
         *run_wide,
     ]
-    assert proc.stdout.splitlines()[-1] == f"preflight: 20 passed, 0 failed, 0 skipped — {r.control}/preflight.json"
+    assert proc.stdout.splitlines()[-1] == f"preflight: 21 passed, 0 failed, 0 skipped — {r.control}/preflight.json"
     saved = json.loads((r.control / "preflight.json").read_text(encoding="utf-8"))
     assert saved["passed"] is True and saved["written_at"] == NOW and saved["roles"] == ["planner", "builder-a"]
-    assert saved["run_dir"] == str(r.run) and len(saved["results"]) == 20
+    assert saved["run_dir"] == str(r.run) and len(saved["results"]) == 21
     assert {k: saved["results"][2][k] for k in ("check", "agent", "status")} == {
         "check": "blind",
         "agent": "planner",
@@ -508,7 +514,7 @@ def test_without_bwrap_the_probe_fails_unless_it_is_skipped_on_purpose_and_unsan
     assert found(proc, "probe", "planner") == [("FAIL", "bwrap not on PATH")] and proc.returncode == 1
     proc = preflight(*args, "--no-sim", env=env)
     assert [s for s, _ in found(proc, "probe", "planner")] == ["SKIP"] and proc.returncode == 0
-    assert proc.stdout.splitlines()[-1].startswith("preflight: 14 passed, 0 failed, 1 skipped — ")
+    assert proc.stdout.splitlines()[-1].startswith("preflight: 15 passed, 0 failed, 1 skipped — ")
     r.edit(r.planner_settings, lambda s: s["sandbox"].update(enabled=False))
     proc = preflight(*r.args("--roles", "planner", "--unsandboxed", "planner"), env=r.env)
     assert [s for s, _ in found(proc, "probe", "planner")] == ["SKIP"]
@@ -542,6 +548,37 @@ def test_every_waiter_a_brief_names_is_a_file_in_the_run_folder_with_no_placehol
     brief.write_text("Then `python3 -I <run-dir>/_wait_for_task.py plan-log.md 4`.\n", encoding="utf-8")
     [(status, detail)] = found(preflight(*r.args("--no-sim"), env=r.env), "waiters")
     assert status == "FAIL" and "<run-dir>/_wait_for_task.py" in detail
+
+
+def test_the_briefs_check_fails_a_run_brief_with_its_launch_slot_open_and_passes_once_fill_has_pasted_its_ranges(
+    tmp_path,
+):  # V2 of the verifier: the ready run holds no brief, so a check that never looked at one passed every test
+    r = Run(tmp_path)
+    spec, skill = ".claude/ecc/agents/a.md", ".claude/skills/python-testing/SKILL.md"
+    for path, text in ((spec, "line\n" * 40), (skill, "---\nname: python-testing\n---\n")):
+        (r.checkout / path).parent.mkdir(parents=True, exist_ok=True)
+        (r.checkout / path).write_text(text, encoding="utf-8")
+    (r.run / "_planner-assignment.md").write_text(
+        "# Planner\n\n## Domain checklist and skills\n"
+        f"Spec: {spec}:1-10 — the checks of the role\n"
+        f"Skills: {skill} (before the first test)\n"
+        "<!-- launch: paste the Spec ranges here -->\n\n## Done when\nAll is written.\n",
+        encoding="utf-8",
+    )
+    open_slot = preflight(*r.args("--no-sim"), env=r.env)
+    assert found(open_slot, "briefs") == [
+        ("FAIL", f"exit 1: _planner-assignment.md: Spec range {spec}:1-10 is not pasted")
+    ]
+    assert open_slot.returncode == 1
+    fill = subprocess.run(
+        [sys.executable, "-I", str(PREFLIGHT.parent / "catalogue.py"), "fill", r.run, "--checkout", r.checkout],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert (fill.returncode, fill.stdout) == (0, "filled _planner-assignment.md\n")
+    assert found(preflight(*r.args("--no-sim"), env=r.env), "briefs") == [("PASS", "exit 0: ok: 1 briefs checked")]
 
 
 def test_formats_and_monitor_report_the_exit_and_the_last_line_of_their_script(tmp_path):
@@ -899,7 +936,7 @@ def test_with_yes_a_stamp_the_calendar_refuses_fails_the_launch_and_the_run_is_s
     assert found(proc, "launch") == [
         ("FAIL", f"a Yes: line has an impossible time: {line}; no Yes: line names planner, builder-a")
     ]
-    assert proc.stdout.splitlines()[-1] == f"preflight: 19 passed, 1 failed, 0 skipped — {r.control}/preflight.json"
+    assert proc.stdout.splitlines()[-1] == f"preflight: 20 passed, 1 failed, 0 skipped — {r.control}/preflight.json"
     saved = json.loads((r.control / "preflight.json").read_text(encoding="utf-8"))
     assert proc.returncode == 1 and saved["written_at"] == NOW and saved["passed"] is False
 
@@ -1208,6 +1245,37 @@ def test_the_cache_check_fails_a_role_on_another_class_than_its_own(tmp_path, wh
     assert status == "FAIL" and f"is not of the {word} class its role needs" in detail
 
 
+@pytest.mark.parametrize(
+    ("role", "cls", "own"),
+    [
+        ("spec-writer", "top", 0),
+        ("builder", "mid-size", 2),
+        ("plan-fixer", "large", 1),
+        ("planner", "large", 1),
+        ("critic", "large", 1),
+        ("verifier", "large", 1),
+        ("judge", "large", 1),
+    ],
+)
+def test_each_role_needs_the_model_of_its_own_class_and_no_other(preflight_module, role, cls, own):
+    """The seven rows of CLASSES, written out here and not read from it (vault models-per-role; the builder mid-size,
+    owner 2026-11-01): a row changed to another class would let a role launch on it with the pre-flight's PASS. `own` is
+    the class model's place in `MODELS`: top, large, mid-size, small."""
+    names = preflight_module.MODELS
+    wrong = [f"its model is not of the {cls} class its role needs (models-per-role)"]
+    for agent in (role, f"demo/{role}", f"demo/{role}-b"):
+        assert preflight_module.class_problems(agent, f"claude-{names[own]}-4") == []
+        assert preflight_module.class_problems(agent, f"CLAUDE-{names[own].upper()}-4") == []
+        for other in (i for i in range(len(names)) if i != own):
+            assert preflight_module.class_problems(agent, f"claude-{names[other]}-4") == wrong
+
+
+def test_a_role_of_no_listed_kind_or_with_no_model_is_not_checked_for_its_class(preflight_module):
+    small = preflight_module.MODELS[3]
+    assert preflight_module.class_problems("demo/manager", f"claude-{small}-4") == []
+    assert preflight_module.class_problems("demo/builder-a", "") == []
+
+
 def test_the_cache_check_fails_a_lane_without_the_warm_cache_hooks(tmp_path):  # owner, 2026-11-01
     r = Run(tmp_path)
     r.edit(r.planner_settings, lambda s: s.pop("hooks"))
@@ -1257,3 +1325,253 @@ def test_the_cache_check_fails_a_pack_outside_the_run_folder_or_without_its_mark
     [(_, builder)] = found(proc, "cache", "builder-a")
     assert "its pack ../_pack-out.md is not a file of the run folder" in planner
     assert "its pack _pack-builder-a.md does not hold its mark" in builder
+
+
+# Task 10 (owner order of 2026-11-02, "agent orders give the reason, without shouting"): the files a launch freezes into
+# a pack (`_packs.json`) hold no capitalised alarm word and no exclamation mark outside a code span, a fenced block or a
+# `>` quote, because a model told the rule loudly over-applies it. The alarm words are the owner's five.
+@pytest.fixture(scope="module")
+def preflight_module():
+    spec = importlib.util.spec_from_file_location("preflight", PREFLIGHT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.mark.parametrize(
+    "text, hits",
+    [
+        pytest.param("You MUST write the log.", [(1, "MUST")], id="must"),
+        pytest.param("NEVER push.", [(1, "NEVER")], id="never"),
+        pytest.param("ALWAYS wait.", [(1, "ALWAYS")], id="always"),
+        pytest.param("This is CRITICAL.", [(1, "CRITICAL")], id="critical"),
+        pytest.param("IMPORTANT: read first.", [(1, "IMPORTANT")], id="important"),
+        pytest.param("Stop now!", [(1, "!")], id="exclamation"),
+        pytest.param("one\ntwo MUST three\nfour NEVER five!", [(2, "MUST"), (3, "NEVER"), (3, "!")], id="lines"),
+        pytest.param("a `x` and ``y`` then MUST", [(1, "MUST")], id="after spans"),
+        pytest.param("a lone ` backtick, then MUST", [(1, "MUST")], id="a lone backtick opens no span"),
+        pytest.param("a `` MUST ` b", [(1, "MUST")], id="a span closes at a run of its own length"),
+        pytest.param("lone ` here\n\nMUST then ` there", [(3, "MUST")], id="a blank line ends a span"),
+        pytest.param("- lone ` here\n- MUST then ` there", [(2, "MUST")], id="a list item ends a span"),
+        pytest.param("1. lone ` here\n2) MUST then ` there", [(2, "MUST")], id="a numbered item ends a span"),
+        pytest.param("# lone ` here\nMUST then ` there", [(2, "MUST")], id="a heading ends a span"),
+        pytest.param("lone ` here\n## MUST then ` there", [(2, "MUST")], id="a heading starts a block"),
+        pytest.param("| lone ` | a |\n| MUST ` | b |", [(2, "MUST")], id="a table row ends a span"),
+        pytest.param("```\nx\n```\nMUST", [(4, "MUST")], id="after a backtick fence"),
+        pytest.param("~~~\nx\n~~~\nMUST", [(4, "MUST")], id="after a tilde fence"),
+        pytest.param("````\n```\nx\n````\nMUST", [(5, "MUST")], id="a longer fence closes at its own length"),
+        pytest.param("```\nx\n~~~\nNEVER", [], id="a tilde line does not close a backtick fence"),
+        pytest.param("```\nx\n``\nNEVER", [], id="a shorter run does not close a fence"),
+        pytest.param("```\nNEVER, and the fence is never closed!", [], id="a fence runs to the end"),
+        pytest.param("> quote\nMUST after", [(2, "MUST")], id="after a quote"),
+        pytest.param("```x``` MUST\nNEVER", [(1, "MUST"), (2, "NEVER")], id="a triple-backtick span is no fence"),
+        # Markdown bolds and italicises with underscores, and Python's `\b` counts `_` as a word character
+        pytest.param("__NEVER__ push the branch.", [(1, "NEVER")], id="bold in underscores"),
+        pytest.param("_IMPORTANT_: run the tests first.", [(1, "IMPORTANT")], id="italic in underscores"),
+        pytest.param("push _NEVER", [(1, "NEVER")], id="an underscore before the word"),
+        pytest.param("ALWAYS_ push", [(1, "ALWAYS")], id="an underscore after the word"),
+        pytest.param("the CRITICAL_PATH is long", [(1, "CRITICAL")], id="an identifier in prose is no code span"),
+        # the exemptions are narrow: an image's `!` and a quote that opens the line or follows list markers
+        pytest.param("see ![a diagram](d.png) MUST", [(1, "MUST")], id="an image exempts its mark and no word"),
+        pytest.param("Stop! [see below](x)", [(1, "!")], id="an exclamation mark before a space is no image"),
+        pytest.param("- a > b, MUST not", [(1, "MUST")], id="a later angle bracket in an item is no quote"),
+        pytest.param("-> MUST follow", [(1, "MUST")], id="an arrow is no list marker"),
+    ],
+)
+def test_the_scanner_names_the_line_of_each_alarm_word_and_exclamation_mark(preflight_module, text, hits):
+    assert preflight_module.shouting(text) == hits
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        pytest.param(
+            "Must, never, always, Critical and important; Never, Always, Important are plain words.", id="case"
+        ),
+        pytest.param("MUSTARD, NEVERTHELESS, UNIMPORTANT and ALWAYSON are other words.", id="whole words only"),
+        pytest.param("<!-- launch: planner -->", id="the html comment opener"),
+        pytest.param("Use `MUST` and `NEVER!` in a span.", id="a code span"),
+        pytest.param("Use ``ALWAYS ` CRITICAL!`` in a double span.", id="a double-backtick span"),
+        pytest.param("A span `that wraps\nIMPORTANT! in the middle` ends here.", id="a span across lines"),
+        pytest.param("- an item `that wraps\n  MUST in the middle` ends here.", id="a span across lines of an item"),
+        pytest.param("```\nCRITICAL in a fence!\n```", id="a backtick fence"),
+        pytest.param("```python\nMUST = 1  # NEVER!\n```", id="a fence with an info string"),
+        pytest.param("````text\n```\nMUST inside a longer fence\n````", id="a longer fence holds a shorter"),
+        pytest.param("~~~\nNEVER in a tilde fence!\n~~~", id="a tilde fence"),
+        pytest.param("  ```\nALWAYS in an indented fence!\n  ```", id="an indented fence"),
+        pytest.param("  ```\nfirst NEVER\n\nsecond MUST!\n  ```", id="an indented fence holds a blank line"),
+        pytest.param("```\nx\n```js inside\nNEVER still inside\n```", id="an info string does not close a fence"),
+        pytest.param("a stray ``` run, then `MUST` in a span", id="a backtick run with no partner ends no masking"),
+        pytest.param("> ALWAYS in a quote, as the log said!", id="a quote"),
+        pytest.param("  > IMPORTANT, a quote indented by two spaces!", id="an indented quote"),
+        pytest.param("MUST2 and 3NEVER are names, 4ALWAYS5 too.", id="digits make another word"),
+        pytest.param("The page shows ![a diagram](d.png) of the lanes.", id="image markup"),
+        pytest.param("- > error: MUST be set", id="a quote in a list item"),
+        pytest.param("1. > NEVER do this!", id="a quote in a numbered item"),
+        pytest.param("2) > ALWAYS!", id="a quote in an item numbered with a bracket"),
+        pytest.param("* - > IMPORTANT, a quote in an item of an item!", id="a quote in a nested item"),
+        pytest.param("", id="nothing"),
+    ],
+)
+def test_the_scanner_leaves_plain_case_whole_words_code_fences_quotes_and_the_comment_opener(preflight_module, text):
+    assert preflight_module.shouting(text) == []
+
+
+def test_the_scanner_numbers_lines_from_the_first_line_it_is_given(preflight_module):
+    assert preflight_module.shouting("a\nb MUST", first=7) == [(8, "MUST")]
+
+
+ORDERS = """Keep the record in the log.
+You MUST write the log.
+NEVER push.
+ALWAYS wait.
+This is CRITICAL.
+IMPORTANT: read first.
+Stop now!
+Must, never, always, Critical and important are plain words.
+"""
+
+
+def test_the_wording_check_fails_a_pack_file_with_an_alarm_word_or_an_exclamation_mark_and_names_file_and_line(
+    tmp_path,
+):
+    r = Run(tmp_path)
+    (r.run / "_orders.md").write_text(ORDERS, encoding="utf-8")
+    r.packs({"planner": ["_common.md", "_orders.md"], "builder-a": ["_common.md"], "judge": ["_common.md"]})
+    proc = preflight(*r.args(), env=r.env)
+    [(status, detail)] = found(proc, "wording")
+    assert proc.returncode == 1 and status == "FAIL"
+    for hit in ("2 MUST", "3 NEVER", "4 ALWAYS", "5 CRITICAL", "6 IMPORTANT", "7 !"):
+        assert f"_orders.md:{hit}" in detail, detail
+    assert "_orders.md:1 " not in detail and "_orders.md:8 " not in detail and "_common.md" not in detail
+    saved = json.loads((r.control / "preflight.json").read_text(encoding="utf-8"))
+    assert saved["passed"] is False
+    (r.run / "_orders.md").write_text("Keep the record: the next session reads it.\n", encoding="utf-8")
+    [(status, detail)] = found(preflight(*r.args(), env=r.env), "wording")
+    assert status == "PASS" and detail == "no capitalised alarm word or exclamation mark in 2 pack files"
+
+
+def test_the_wording_check_fails_underscore_emphasis_and_passes_an_image_and_a_quote_in_a_list_item(tmp_path):
+    r = Run(tmp_path)
+    (r.run / "_orders.md").write_text(
+        "Keep the record in the log.\n__NEVER__ push the branch.\n_IMPORTANT_: run the tests first.\n", encoding="utf-8"
+    )
+    r.packs({"planner": ["_common.md", "_orders.md"], "builder-a": ["_common.md"], "judge": ["_common.md"]})
+    [(status, detail)] = found(preflight(*r.args(), env=r.env), "wording")
+    assert status == "FAIL" and "_orders.md:2 NEVER" in detail and "_orders.md:3 IMPORTANT" in detail, detail
+    (r.run / "_orders.md").write_text(
+        "The page shows ![a diagram](d.png) of the lanes.\n- > error: MUST be set\n", encoding="utf-8"
+    )
+    [(status, detail)] = found(preflight(*r.args(), env=r.env), "wording")
+    assert status == "PASS" and detail == "no capitalised alarm word or exclamation mark in 2 pack files", detail
+
+
+def test_the_wording_check_reads_the_files_of_the_checked_roles_and_each_file_once(tmp_path):
+    r = Run(tmp_path)
+    (r.run / "_common.md").write_text(r.common + "NEVER guess.\n", encoding="utf-8")
+    (r.run / "_a.md").write_text("You MUST wait.\n", encoding="utf-8")
+    (r.run / "_b.md").write_text("ALWAYS wait.\n", encoding="utf-8")
+    r.packs({"planner": ["_common.md", "_a.md"], "builder-a": ["_common.md", "_b.md"], "judge": ["_common.md"]})
+    [(status, detail)] = found(preflight(*r.args(), env=r.env), "wording")
+    assert status == "FAIL" and detail.count("_common.md:2 NEVER") == 1
+    assert "_a.md:1 MUST" in detail and "_b.md:1 ALWAYS" in detail
+    [(status, detail)] = found(preflight(*r.args("--roles", "planner"), env=r.env), "wording")
+    assert status == "FAIL" and "_a.md:1 MUST" in detail and "_common.md:2 NEVER" in detail and "_b.md" not in detail
+
+
+def test_the_wording_check_names_a_word_repeated_on_one_line_once_and_shows_the_first_ten_hits(tmp_path):
+    r = Run(tmp_path)
+    (r.run / "_orders.md").write_text("You MUST read and MUST write!!\n", encoding="utf-8")
+    r.packs({"planner": ["_orders.md"], "builder-a": ["_orders.md"]})
+    [(status, detail)] = found(preflight(*r.args(), env=r.env), "wording")
+    assert status == "FAIL"
+    assert detail == "2 capitalised alarm words or exclamation marks in pack files: _orders.md:1 MUST, _orders.md:1 !"
+    shown = ", ".join(f"_orders.md:{n} NEVER" for n in range(1, 11))
+    for lines, rest in ((10, ""), (12, " and 2 more")):
+        (r.run / "_orders.md").write_text("NEVER wait.\n" * lines, encoding="utf-8")
+        [(status, detail)] = found(preflight(*r.args(), env=r.env), "wording")
+        assert status == "FAIL"
+        assert detail == f"{lines} capitalised alarm words or exclamation marks in pack files: {shown}{rest}"
+
+
+def test_the_wording_check_reads_the_frozen_sections_of_the_lessons_file_and_no_other(tmp_path):
+    r = Run(tmp_path)
+    (r.run / "lessons.md").write_text(
+        "# Lessons\n\n## Read first (main session, 2026-11-02)\n1. Wait.\n2. NEVER poll.\n\n"
+        "## Known error classes\n- Stop now!\n\n## Lessons from this run\n- IMPORTANT: this one is not frozen.\n",
+        encoding="utf-8",
+    )
+    [(status, detail)] = found(preflight(*r.args(), env=r.env), "wording")
+    assert status == "FAIL" and "lessons.md:5 NEVER" in detail and "lessons.md:8 !" in detail
+    assert "IMPORTANT" not in detail
+    r.packs({"planner": ["_common.md"], "builder-a": ["_common.md"]}, sections=["Read first"])
+    [(status, detail)] = found(preflight(*r.args(), env=r.env), "wording")
+    assert status == "FAIL" and "lessons.md:5 NEVER" in detail and "lessons.md:8" not in detail
+    r.packs({"judge": ["_common.md"]}, sections=["Read first"])
+    [(status, detail)] = found(preflight(*r.args("--roles", "planner"), env=r.env), "wording")
+    assert status == "SKIP", detail
+
+
+def test_the_wording_check_leaves_hand_over_notes_and_files_the_folder_lacks_to_make_pack(tmp_path):
+    r = Run(tmp_path)
+    (r.run / "handoff-planner.md").write_text("HANDOFF planner: you MUST continue!\n", encoding="utf-8")
+    r.packs({"planner": ["_common.md", "handoff-planner.md", "_missing.md"], "builder-a": ["_common.md"]})
+    [(status, detail)] = found(preflight(*r.args(), env=r.env), "wording")
+    assert status == "PASS" and detail == "no capitalised alarm word or exclamation mark in 1 pack files"
+
+
+def test_the_wording_check_skips_a_run_without_packs_json_or_a_checked_role_and_fails_an_unreadable_one(tmp_path):
+    r = Run(tmp_path)
+    (r.run / "_packs.json").unlink()
+    proc = preflight(*r.args(), env=r.env)
+    [(status, detail)] = found(proc, "wording")
+    assert status == "SKIP" and "_packs.json" in detail and proc.returncode == 0
+    (r.run / "_packs.json").write_text("{not json", encoding="utf-8")
+    proc = preflight(*r.args(), env=r.env)
+    [(status, detail)] = found(proc, "wording")
+    assert proc.returncode == 1 and status == "FAIL" and detail.startswith("cannot read ") and "_packs.json" in detail
+    (r.run / "_packs.json").write_text('{"roles": []}', encoding="utf-8")
+    [(status, detail)] = found(preflight(*r.args(), env=r.env), "wording")
+    assert status == "FAIL" and "has no `roles` object" in detail
+    r.packs({"other": ["_common.md"]})
+    proc = preflight(*r.args(), env=r.env)
+    [(status, detail)] = found(proc, "wording")
+    assert status == "SKIP" and "no checked role" in detail and proc.returncode == 0
+
+
+def wording_state(module, tmp_path, agents):
+    run = tmp_path / "run"
+    (run / "_control").mkdir(parents=True, exist_ok=True)
+    args = module.parser().parse_args(["check", str(run), "--checkout", str(tmp_path)])
+    st = module.State(args, str(run), str(tmp_path), str(run / "_control"), module.parse_time(NOW))
+    st.agents, st.roles = agents, list(agents)
+    return run, st
+
+
+def test_the_wording_check_finds_a_roles_files_by_its_agent_names_last_part_or_by_its_pack_file(
+    preflight_module, tmp_path
+):
+    agents = {"demo/builder-a": {}, "demo/writer": {"extra_prompt": {"file": "_pack-planner.md"}}}
+    run, st = wording_state(preflight_module, tmp_path, agents)
+    for name, word in (("_a.md", "MUST"), ("_b.md", "NEVER"), ("_c.md", "ALWAYS")):
+        (run / name).write_text(f"{word} wait.\n", encoding="utf-8")
+    roles = {"planner": ["_a.md"], "builder-a": ["_b.md"], "judge": ["_c.md"]}
+    (run / "_packs.json").write_text(json.dumps({"roles": roles}), encoding="utf-8")
+    result = preflight_module.check_wording(st)
+    assert result.status == "FAIL" and result.check == "wording" and result.agent is None
+    assert "_a.md:1 MUST" in result.detail and "_b.md:1 NEVER" in result.detail and "_c.md" not in result.detail
+
+
+def test_the_example_briefs_and_lessons_pass_the_wording_check(preflight_module, tmp_path):
+    """Task 10: the example's orders follow the owner's wording rule, as the pack check reads them."""
+    run, st = wording_state(preflight_module, tmp_path, {f"demo/{role}": {} for role in EXAMPLES})
+    roles = json.loads((SKILL / "example" / "packs.json").read_text(encoding="utf-8"))["roles"]
+    assert sorted(roles) == sorted(EXAMPLES)
+    for name in {name for files in roles.values() for name in files}:
+        shutil.copy(SKILL / "example" / name.removeprefix("_"), run / name)
+    shutil.copy(SKILL / "example" / "lessons.md", run / "lessons.md")
+    shutil.copy(SKILL / "example" / "packs.json", run / "_packs.json")
+    result = preflight_module.check_wording(st)
+    assert result.status == "PASS", result.detail
+    # ten brief files and lessons.md
+    assert result.detail == "no capitalised alarm word or exclamation mark in 11 pack files"

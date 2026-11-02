@@ -12,6 +12,7 @@ import json
 import os
 import pathlib
 import re
+import shlex
 import subprocess
 import sys
 import time
@@ -199,7 +200,7 @@ class Pipeline:
             "HOME": str(self.root / "home"),
             "STUB_DIR": str(self.stub),
         }
-        tail = [] if "--check" in args or "--order" in args else [str(rounds)]
+        tail = [] if {"--check", "--order", "--launch"} & set(args) else [str(rounds)]
         return subprocess.run(
             [sys.executable, "-I", str(SCRIPT), *args, str(config), *tail],
             capture_output=True,
@@ -1190,6 +1191,37 @@ def test_a_final_line_with_a_suffix_is_done(p):
     assert p.launches() == []
 
 
+@pytest.mark.parametrize("kind", ["reload", "handoff", "unit-end"])
+def test_a_final_line_with_a_suffix_closes_the_watcher_s_open_orders(p, kind):
+    """V1 of the verifier: the only assert of an order closed on a final line went when ad462fe kept manager orders open;
+    a handoff, unit-end or reload order that the agent's final line outlived is closed, not resent."""
+    seed_registry(p, orders=[order(MID2, kind, f"Orders from the watcher: a {kind} order.")])
+    p.write("build-log.md", "STATUS: done after Task 2\n")
+    p.rounds([row(state="stopped", status=None, pid=None)])
+    r = p.watch(rounds=1)
+    assert r.returncode == 0 and "every STATUS line is final" in r.stdout, r.stdout + r.stderr
+    [closed] = registry(p)["roles"]["t/builder"]["orders"]
+    assert (closed["kind"], closed["closed"]) == (kind, "final") and p.launches() == []
+
+
+@pytest.mark.parametrize("kind", ["reload", "handoff", "unit-end"])
+def test_a_manager_order_wakes_a_final_agent_and_the_watcher_s_open_order_is_closed_not_resent(p, kind):
+    """V1 of the verifier: ad462fe closes the watcher's own orders of a woken agent (its line 1 is final) and keeps the
+    manager's open; no test did either."""
+    seed_registry(p, orders=[order(), order(MID2, kind, f"Orders from the watcher: a {kind} order.")])
+    p.write("build-log.md", "STATUS: done after Task 2\n")
+    p.rounds([row(state="stopped", status=None, pid=None)])
+    r = p.watch(rounds=1)
+    assert r.returncode == 1, r.stdout + r.stderr
+    [launch] = p.launches()
+    prompt = launch["argv"][-1]
+    assert launch["argv"][:2] == ["--resume", SID]
+    assert prompt == f"Read critique.md again.\n\n{wake_line(p, 'build-log.md', MID)}\n\n{order_line(p, MID)}"
+    manager, closed = registry(p)["roles"]["t/builder"]["orders"]
+    assert (manager["kind"], manager["closed"], manager["resends"]) == ("manager", None, 0)
+    assert (closed["kind"], closed["closed"]) == (kind, "final") and MID2 not in prompt
+
+
 def wake_line(p: Pipeline, record: str, msg_id: str) -> str:
     return (
         f"Your record {p.run / record} is final on line 1. After the ACK, set line 1 to `STATUS: working on order "
@@ -1730,6 +1762,19 @@ def test_a_done_on_demand_fixer_is_stopped_when_its_demand_queue_is_empty(p):
     assert "demand t/plan-fixer: queue empty, stopped" in r.stdout
 
 
+def test_two_live_copies_of_a_done_on_demand_fixer_end_the_watch_and_its_full_queue_launches_no_third(p):
+    """V8 of the verifier: the copies rule acts before any launch (2026-11-02). With the demand rule first, a done fixer
+    that had two live copies and a full queue got a fresh session beside them."""
+    fixer(p, demand={"kinds": ["C"], "queue": 1})
+    p.write("fixer-log.md", "STATUS: done\n")
+    p.write("critique.md", critique("C1"))
+    p.rounds([row(), row(name="t/plan-fixer", sid=SID2, age=300), row(name="t/plan-fixer", sid=SID3, age=200)])
+    r = p.watch(rounds=1)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "copies t/plan-fixer: 66666666, aaaaaaaa" in r.stdout, r.stdout + r.stderr
+    assert p.launches() == [] and "demand t/plan-fixer" not in r.stdout
+
+
 ELSEWHERE = row(sid=SID2, state="stopped", status=None, pid=None, age=60, cwd="/elsewhere")  # an earlier run's
 
 
@@ -1895,7 +1940,8 @@ def test_a_final_builder_without_its_pack_is_revived_fresh_with_the_pack(p):
 def test_an_order_to_a_final_agent_without_its_pack_starts_it_fresh_with_the_pack_and_the_order(p):
     own_pack(p)
     p.write("build-log.md", "STATUS: done\n")
-    p.watch("--order", "t/builder", "Fix V12 in Task 3.")
+    o = p.watch("--order", "t/builder", "Fix V12 in Task 3.")
+    mid = re.fullmatch(r"order ([0-9a-f]{8}) t/builder", o.stdout.splitlines()[0]).group(1)
     p.transcript()
     p.rounds([row(state="stopped", status=None, pid=None)])
     r = p.watch(rounds=1)
@@ -1903,6 +1949,10 @@ def test_an_order_to_a_final_agent_without_its_pack_starts_it_fresh_with_the_pac
     [launch] = p.launches()
     assert "--resume" not in launch["argv"] and "Fix V12 in Task 3." in launch["argv"][-1]
     assert "--append-system-prompt-file" in launch["argv"]
+    # a verifier's finding (V5): the fresh prompt carries the order as a resume does, wake line included; without it
+    # line 1 stays final after the ACK, so the watcher counts the agent done and ends its watch during the order's work
+    order = f"Order {mid}: append the line `ACK {mid}` to {p.run / 'build-log.md'} before anything else."
+    assert launch["argv"][-1].endswith(f"\n\nFix V12 in Task 3.\n\n{wake_line(p, 'build-log.md', mid)}\n\n{order}")
 
 
 @pytest.mark.parametrize("ordered", [True, False])
@@ -1913,13 +1963,17 @@ def test_a_dead_session_without_its_pack_is_never_resumed_even_when_not_final(p,
     own_pack(p)
     p.write("build-log.md", "STATUS: building Task 3\n")
     if ordered:
-        p.watch("--order", "t/builder", "Answer V7 in Task 3.")
+        o = p.watch("--order", "t/builder", "Answer V7 in Task 3.")
+        mid = re.fullmatch(r"order ([0-9a-f]{8}) t/builder", o.stdout.splitlines()[0]).group(1)
     p.transcript()
     p.rounds([row(state="stopped", status=None, pid=None)])
     r = p.watch(rounds=1)
     [launch] = p.launches()
     assert "--resume" not in launch["argv"] and "--append-system-prompt-file" in launch["argv"], r.stdout + r.stderr
     assert ("Answer V7 in Task 3." in launch["argv"][-1]) == ordered
+    if ordered:  # line 1 is not final, so the order carries no wake line: the agent is at work and says so itself
+        order = f"Order {mid}: append the line `ACK {mid}` to {p.run / 'build-log.md'} before anything else."
+        assert launch["argv"][-1].endswith(f"\n\nAnswer V7 in Task 3.\n\n{order}")
 
 
 def test_a_live_session_of_the_agent_s_name_beside_a_finished_recorded_one_is_adopted_and_nothing_launches(p):
@@ -1937,11 +1991,350 @@ def test_a_live_session_of_the_agent_s_name_beside_a_finished_recorded_one_is_ad
     assert p.launches() == [] and registry(p)["roles"]["t/builder"]["job_id"] == SID2[:8]
 
 
-def test_a_live_namesake_in_another_folder_or_older_than_the_recorded_row_is_not_adopted(p):
+@pytest.mark.parametrize(
+    ("age", "elsewhere"),
+    [(7200, False), (60, True)],  # V8 of the verifier: the folder rule had no case of its own, the row was older
+    ids=["older-here", "newer-elsewhere"],
+)
+def test_a_live_namesake_in_another_folder_or_older_than_the_recorded_row_is_not_adopted(p, age, elsewhere):
     seed_registry(p)
     p.write("build-log.md", "STATUS: building Task 3\n")
     p.transcript()
-    cwd = p.config["agents"]["t/builder"]["cwd"]
-    p.rounds([row(state="done", status=None, pid=None, age=600), row(sid=SID2, age=7200, cwd=cwd)])
+    cwd = str(p.root / "elsewhere") if elsewhere else p.config["agents"]["t/builder"]["cwd"]
+    p.rounds([row(state="done", status=None, pid=None, age=600), row(sid=SID2, age=age, cwd=cwd)])
     r = p.watch(rounds=1)
     assert "adopted t/builder" not in r.stdout, r.stdout + r.stderr
+    assert registry(p)["roles"]["t/builder"]["job_id"] != SID2[:8]
+
+
+# --launch: the first session of a role added in the middle of a run. A project's run of 2026-11-02 added a visual
+# auditor at 04:28 UTC; the watcher launches a fresh session only for an agent it already has a session for, so that
+# launch was made by hand, and the watcher adopted the session by name afterwards.
+
+PACK_CRITIC = "Your standing orders: the critic lane's pack"
+FIRST = "Your system prompt holds this lane's pack, your assignment included: follow it. Start now."  # in launch.md
+JOB = "87654321"
+JOB_OUT = f"started | s {JOB}      show recent output\n  claude stop {JOB}      stop this session"
+SID_NEW = f"{JOB}-aaaa-bbbb-cccc-dddddddddddd"
+
+
+def yes_line(*agents: str, ago: int = 7200) -> str:
+    """A `Yes:` line of `_launch.md` as the pre-flight reads it: the UTC minute, the agents it names, what for. Two
+    hours back by default, before any session a test starts (rule 3 takes a row of the agent's name only if it
+    started after the run's first `Yes:` line)."""
+    stamp = time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime(time.time() - ago))
+    return f"Yes: {stamp} — {', '.join(agents)} — the role added in the middle of the run\n"
+
+
+def added_critic(p: Pipeline) -> None:
+    """t/critic is a role added to the config in the middle of a run: its own pack, its settings, a `fresh` text (for
+    its later hand-overs; a first session does not get it), a `Yes:` line that names it, and no session."""
+    p.write("_pack-critic.md", f"# {PACK_CRITIC}\n")
+    p.write("_launch.md", yes_line("t/builder", "t/critic"))
+    p.config["lang"] = ""
+    p.config["fresh"] = {"critic": "You are the critic. Read {run}/_critic-assignment.md, then start."}
+    p.config["agents"]["t/critic"] = {
+        **p.agent("critic", "critique.md"),
+        "extra_prompt": {"file": "_pack-critic.md", "mark": PACK_CRITIC},
+    }
+
+
+def critic_argv(p: Pipeline, prompt: str = FIRST) -> list[str]:
+    """The argv of a fresh session of t/critic: its name, the folders, the run's flags, its settings, its pack, the
+    prompt last (a first session's, by default)."""
+    return [
+        "--name",
+        "t/critic",
+        "--add-dir",
+        str(p.run),
+        "/elsewhere",
+        "--model",
+        "opus",
+        "--effort",
+        "max",
+        "--settings",
+        str(p.run / "_critic-settings.json"),
+        "--append-system-prompt-file",
+        str(p.run / "_pack-critic.md"),
+        "--bg",
+        prompt,
+    ]
+
+
+def printed_command(out: str) -> list[str]:
+    """The words of the one shell line `--launch --dry-run` prints: `(cd <cwd> && claude <argv>)`."""
+    start = out.index("(cd ")
+    line = out[start:].strip()
+    assert line.endswith(")"), out
+    return shlex.split(line[1:-1])
+
+
+def rows_down(p: Pipeline) -> None:
+    """`claude agents --json --all` prints JSON that is no list of rows."""
+    (p.stub / "rounds.json").write_text(json.dumps([{"rows": "down"}]), encoding="utf-8")
+
+
+def test_launch_starts_the_first_session_of_an_added_role_with_the_argv_of_a_fresh_one(p):
+    added_critic(p)
+    launch_out(p, JOB_OUT)
+    r = p.watch("--launch", "t/critic")
+    assert r.returncode == 0, r.stdout + r.stderr
+    [launch] = p.launches()
+    assert launch["argv"] == critic_argv(p) and launch["cwd"] == str(p.checkout)
+    assert p.stops() == []  # a first session replaces nothing
+    assert f"launched t/critic: job {JOB}" in r.stdout, r.stdout + r.stderr
+    assert "first session of t/critic | " in r.stdout, r.stdout + r.stderr  # the log line, as the watcher's own
+    data = registry(p)
+    assert data["version"] == 1 and data["roles"]["t/critic"]["job_id"] == JOB
+    assert abs(seconds(data["roles"]["t/critic"]["launched_at"]) - time.time()) < 60
+
+
+def test_launch_adds_its_role_to_the_registry_of_a_running_watcher_and_changes_nothing_else(p):
+    """The running watcher owns the registry: the other roles' entries and its own block stay as it wrote them."""
+    added_critic(p)
+    seed_registry(p, orders=[order()])
+    before = registry(p)
+    launch_out(p, JOB_OUT)
+    r = p.watch("--launch", "t/critic")
+    assert r.returncode == 0, r.stdout + r.stderr
+    after = registry(p)
+    assert after["roles"]["t/builder"] == before["roles"]["t/builder"]
+    assert after["watcher"] == before["watcher"] and after["run_dir"] == before["run_dir"]
+    assert after["roles"]["t/critic"]["job_id"] == JOB
+    assert seconds(after["written_at"]) > seconds(before["written_at"])  # readers judge the registry's age by it
+    assert "registry: t/builder" not in r.stdout, r.stdout + r.stderr  # the launch concerns its own agent only
+
+
+def test_launch_dry_run_prints_the_argv_and_starts_nothing(p):
+    """It asks claude nothing, so unreadable rows do not matter, and it writes no registry."""
+    added_critic(p)
+    rows_down(p)
+    r = p.watch("--launch", "t/critic", "--dry-run")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert printed_command(r.stdout) == ["cd", str(p.checkout), "&&", "claude", *critic_argv(p)]
+    assert p.calls() == [] and not (p.stub / "agents-calls").exists()
+    assert not (p.run / "_control").exists()
+
+
+def test_launch_dry_run_prints_the_argv_the_watcher_builds_for_a_fresh_session(p):
+    """The same command twice but for the prompt: `--launch --dry-run` of t/builder, and the watcher's launch after its
+    hand-over note. The watcher's prompt is the role's `fresh` text, which says that a previous session handed over; a
+    first session has none and gets the first prompt (V19 of the verifier)."""
+    p.config.update(lang="", fresh={"builder": "Start the builder lane from {run}."})
+    own_pack(p)
+    p.write("_launch.md", yes_line("t/builder"))
+    dry = p.watch("--launch", "t/builder", "--dry-run")
+    assert dry.returncode == 0, dry.stdout + dry.stderr
+    p.transcript()
+    note(p)
+    assert p.watch(rounds=1).returncode == 1
+    [launch] = p.launches()
+    assert launch["argv"][-1] == f"Start the builder lane from {p.run}."
+    assert printed_command(dry.stdout) == ["cd", str(p.checkout), "&&", "claude", *launch["argv"][:-1], FIRST]
+
+
+@pytest.mark.parametrize("live", [True, False])
+def test_launch_refuses_an_agent_that_already_has_a_session(p, live):
+    """A second session of one name is a copy, which the watcher answers with an exit event."""
+    added_critic(p)
+    stopped = {} if live else {"state": "stopped", "status": None, "pid": None}
+    p.rounds([row(), row(name="t/critic", sid=SID2, **stopped)])
+    r = p.watch("--launch", "t/critic")
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert f"t/critic already has a session ({SID2[:8]}): nothing is launched" in r.stdout, r.stdout + r.stderr
+    assert p.launches() == [] and not (p.run / "_control").exists()
+
+
+def test_launch_ignores_a_namesake_of_another_folder(p):
+    """A session of the same name in another folder belongs to an earlier run: the cwd decides, as in the watcher."""
+    added_critic(p)
+    p.rounds([row(), row(name="t/critic", sid=SID2, cwd="/elsewhere")])
+    launch_out(p, JOB_OUT)
+    r = p.watch("--launch", "t/critic")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert len(p.launches()) == 1
+
+
+def test_launch_without_readable_rows_launches_nothing(p):
+    """Whether the agent has a session is not known, and a second one would be a copy."""
+    added_critic(p)
+    rows_down(p)
+    r = p.watch("--launch", "t/critic")
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "cannot tell whether t/critic has a session" in r.stdout, r.stdout + r.stderr
+    assert p.launches() == [] and not (p.run / "_control").exists()
+
+
+@pytest.mark.parametrize("kind", ["unknown agent", "no pack", "no pack in the config", "no settings", "no cwd"])
+def test_launch_refuses_what_a_fresh_session_could_not_start_from(p, kind):
+    added_critic(p)
+    name = "t/critic"
+    if kind == "unknown agent":
+        name, expected = "t/nobody", "config error: no agent t/nobody"
+    elif kind == "no pack in the config":  # the first prompt tells the session to follow the pack in its system prompt
+        del p.config["agents"]["t/critic"]["extra_prompt"]
+        expected = "config error: t/critic: no extra_prompt pack in the config"
+    elif kind == "no pack":
+        (p.run / "_pack-critic.md").unlink()
+        expected = "config error: t/critic: pack _pack-critic.md does not exist; build it with make_pack.py first"
+    elif kind == "no settings":
+        (p.run / "_critic-settings.json").unlink()
+        expected = "config error: t/critic: settings file _critic-settings.json does not exist"
+    else:
+        p.config["agents"]["t/critic"]["cwd"] = str(p.root / "nowhere")
+        expected = f"config error: t/critic: cwd {p.root / 'nowhere'} is not a folder"
+    for extra in ([], ["--dry-run"]):
+        r = p.watch("--launch", name, *extra)
+        assert r.returncode == 2 and expected in r.stdout, r.stdout + r.stderr
+    assert p.calls() == [] and not (p.run / "_control").exists()
+
+
+@pytest.mark.parametrize(
+    "launch_md",
+    [
+        None,
+        "| role | lane | settings |\n| --- | --- | --- |\n| t/critic | b | _critic-settings.json |\n",
+        yes_line("t/builder"),
+        yes_line("t/critic-2", "xt/critic", "critic"),
+        yes_line("t/critic", ago=-3600),
+        "Yes: 2026-13-45T25:61Z — t/critic — a time that is no time\n",
+    ],
+    ids=["no-file", "a-table-row-only", "another-role", "longer-names", "stamped-after-now", "impossible-time"],
+)
+def test_launch_refuses_an_agent_no_yes_line_names(p, launch_md):
+    """V18 of the verifier: the pre-flight holds a launch until every role it starts is named in a `Yes:` line of
+    `_launch.md`, since the owner is asked before each; `--launch` starts a session too, so it reads the lines as the
+    pre-flight does: a line stamped after now, an impossible time or a longer name (`t/critic-2`, `xt/critic`) names
+    nothing."""
+    added_critic(p)
+    if launch_md is None:
+        (p.run / "_launch.md").unlink()
+    else:
+        p.write("_launch.md", launch_md)
+    for extra in ([], ["--dry-run"]):
+        r = p.watch("--launch", "t/critic", *extra)
+        assert r.returncode == 2 and "config error: no Yes: line names t/critic" in r.stdout, r.stdout + r.stderr
+    assert p.calls() == [] and not (p.run / "_control").exists()
+
+
+@pytest.mark.parametrize(
+    "launch_md",
+    [
+        yes_line("t/critic"),
+        yes_line("t/builder") + yes_line("t/critic", ago=3600),  # the second line names it
+        yes_line("t/builder", "t/critic-2") + yes_line("t/visual-auditor", "t/critic", ago=60),
+        yes_line("t/critic", ago=-3600) + yes_line("t/builder", "t/critic"),  # a line after now cancels no other
+    ],
+    ids=["alone", "second-line", "among-longer-names", "after-a-line-from-the-future"],
+)
+def test_launch_starts_an_agent_a_yes_line_names(p, launch_md):
+    added_critic(p)
+    p.write("_launch.md", launch_md)
+    launch_out(p, JOB_OUT)
+    r = p.watch("--launch", "t/critic")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert len(p.launches()) == 1
+
+
+@pytest.mark.parametrize("lang", ["", " Work in English only."])
+def test_launch_sends_a_first_session_the_first_prompt_not_the_hand_over_text(p, lang):
+    """V19 of the verifier: the role's `fresh` text says that the previous session handed over and ends by reading
+    `handoff-<role>.md`; a first session has no previous one and no note. It gets the prompt of the manual first launch
+    (references/launch.md) and the config's `lang`, as every text the watcher sends, in the dry run and in the launch."""
+    added_critic(p)
+    p.config["lang"] = lang
+    dry = p.watch("--launch", "t/critic", "--dry-run")
+    assert dry.returncode == 0, dry.stdout + dry.stderr
+    launch_out(p, JOB_OUT)
+    assert p.watch("--launch", "t/critic").returncode == 0
+    [launch] = p.launches()
+    assert launch["argv"][-1] == printed_command(dry.stdout)[-1] == FIRST + lang
+
+
+def test_the_watcher_reads_a_yes_line_as_the_pre_flight_does():
+    """V18 of the verifier: `--launch` holds the gate of the pre-flight, so it reads the line with the pre-flight's
+    pattern; if one script's form of the line changes, this fails until the other follows."""
+    pre = (SCRIPT.parent / "manager" / "preflight.py").read_text(encoding="utf-8")
+    found = re.search(r"(?m)^YES = re\.compile\((r\".*\")\)$", pre)
+    assert found, 'preflight.py has no `YES = re.compile(r"…")` line'
+    assert f"\nYES = re.compile({found.group(1)})\n" in SCRIPT.read_text(encoding="utf-8")
+
+
+def test_the_first_prompt_launch_sends_is_the_one_references_launch_md_gives():
+    """The manual first launch and `--launch` start a session from the same words, so a lane's first session starts as
+    every later one does: from its pack."""
+    guide = " ".join((SCRIPT.parents[1] / "references" / "launch.md").read_text(encoding="utf-8").split())
+    assert FIRST in guide
+    code = "import sys; sys.path.insert(0, sys.argv[1]); import watch_agents; print(watch_agents.FIRST)"
+    done = subprocess.run(
+        [sys.executable, "-I", "-B", "-c", code, str(SCRIPT.parent)], capture_output=True, text=True, check=True
+    )
+    assert done.stdout.strip() == FIRST
+
+
+def test_launch_options_that_do_not_fit_exit_2(p):
+    added_critic(p)
+    alone = p.watch("--dry-run")
+    both = p.watch("--launch", "t/critic", "--check")
+    assert alone.returncode == 2 and "--dry-run" in alone.stderr, alone.stdout + alone.stderr
+    assert both.returncode == 2 and "not allowed with" in both.stderr, both.stdout + both.stderr
+    assert p.calls() == []
+
+
+def test_launch_that_prints_no_job_id_records_nothing_and_exits_1(p):
+    """The stub's default output has no `claude stop <id>` line: the session may run, but the watcher cannot be told
+    which one, so nothing is recorded and the operator looks at `claude agents`."""
+    added_critic(p)
+    r = p.watch("--launch", "t/critic")
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "t/critic: claude printed no job id" in r.stdout, r.stdout + r.stderr
+    assert len(p.launches()) == 1 and not (p.run / "_control").exists()
+
+
+def test_launch_with_a_settings_file_changed_since_the_start_exits_4_and_starts_nothing(p):
+    added_critic(p)
+    p.rounds({"rows": [row()], "write": {str(p.run / "_critic-settings.json"): "{}\n"}})
+    r = p.watch("--launch", "t/critic")
+    assert r.returncode == 4, r.stdout + r.stderr
+    assert "control file changed: _critic-settings.json" in r.stdout, r.stdout + r.stderr
+    assert p.launches() == []
+
+
+def test_launch_carries_the_open_manager_orders_of_the_agent_in_its_first_prompt(p):
+    """The registry may hold an order for the agent before its first session; the watcher's fresh launch carries it,
+    and so does this one. A dry run prints the command with that prompt and changes nothing (V20 of the verifier: a
+    dry run that left the order out passed the suite)."""
+    added_critic(p)
+    seed_registry(p)
+    data = registry(p)
+    data["roles"]["t/critic"] = {"orders": [order(text="Read critique.md again.", ago=600)]}
+    (p.run / "_control" / "registry.json").write_text(json.dumps(data), encoding="utf-8")
+    ack = f"Order {MID}: append the line `ACK {MID}` to {p.run / 'critique.md'} before anything else."
+    prompt = f"{FIRST}\n\nRead critique.md again.\n\n{ack}"
+    before = (p.run / "_control" / "registry.json").read_bytes()
+    dry = p.watch("--launch", "t/critic", "--dry-run")
+    assert dry.returncode == 0, dry.stdout + dry.stderr
+    assert printed_command(dry.stdout) == ["cd", str(p.checkout), "&&", "claude", *critic_argv(p, prompt)]
+    assert (p.run / "_control" / "registry.json").read_bytes() == before and p.calls() == []
+    launch_out(p, JOB_OUT)
+    r = p.watch("--launch", "t/critic")
+    assert r.returncode == 0, r.stdout + r.stderr
+    [launch] = p.launches()
+    assert launch["argv"][-1] == prompt == printed_command(dry.stdout)[-1]
+    [sent] = registry(p)["roles"]["t/critic"]["orders"]
+    assert sent["msg_id"] == MID and abs(seconds(sent["sent_at"]) - time.time()) < 60
+
+
+def test_a_watcher_started_after_launch_finds_the_session_by_its_recorded_job_id(p):
+    """The registry entry is what a restarted watcher matches by: the session is the agent's, whatever it is named."""
+    added_critic(p)
+    launch_out(p, JOB_OUT)
+    assert p.watch("--launch", "t/critic").returncode == 0
+    p.transcript()
+    p.transcript(sid=SID_NEW)
+    p.rounds([row(), row(name="renamed by hand", sid=SID_NEW, age=60)])
+    r = p.watch(rounds=1)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "adopted t/critic" not in r.stdout and "copies t/critic" not in r.stdout, r.stdout + r.stderr
+    assert len(p.launches()) == 1  # the first session only
+    assert registry(p)["roles"]["t/critic"]["session_id"] == SID_NEW

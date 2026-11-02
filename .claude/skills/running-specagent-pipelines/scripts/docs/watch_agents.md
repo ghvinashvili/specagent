@@ -5,6 +5,7 @@ earlier project's copy, its behaviour read from the config (Config v2 in [the RE
 python3 -I scripts/watch_agents.py <config> [rounds]    one round every `interval` s; default 240 rounds (8 hours)
 python3 -I scripts/watch_agents.py --check <config>     one round as a fresh start sees it; prints, launches nothing
 python3 -I scripts/watch_agents.py --order <agent> <text> <config>   appends an order to the inbox; runs nothing
+python3 -I scripts/watch_agents.py --launch <agent> [--dry-run] <config>   first session of an agent added mid-run
 ```
 Each round, for every agent whose STATUS line (line 1 of its `status` file) does not start with its `final`:
 - budget: a session past `budget` calls or output tokens (one call per message id, no `<synthetic>` line) gives the
@@ -124,6 +125,36 @@ prompt to send (the text, a blank line, its Order line), runs no `claude` comman
 prompt itself to a live working session; the running watcher merges the line in its next round as sent at `at`, waits
 `ack_wait` seconds for the `ACK <msg_id>` line and resends by stop and resume. To an agent with no process or a final
 line 1 the manager sends nothing and never resumes it by hand (a second copy): the watcher delivers it (orders above).
+
+`--launch <agent>` starts the first session of an agent the config gained in the middle of a run. A round launches a
+fresh session only for an agent it already has a session for, so such a role needed a launch by hand (a project's run
+of 2026-11-02 added a visual auditor at 04:28 UTC), after which the watcher adopted it by name; this makes that launch
+the watcher's own command. It checks the config as a start does, the files the command names and that the owner
+has said yes (`config error: <agent>: settings file <file> does not exist`, `no extra_prompt pack in the config` (the
+first prompt points at the pack), `pack <file> does not exist; build it with make_pack.py first`, `cwd <path> is not a
+folder`, `no Yes: line names <agent> in <run>/_launch.md`, or `no agent <agent>`: exit 2, nothing run). The `Yes:`
+line is read as the pre-flight (`check --yes`) reads it: a real minute no later than now, and the agent's name between
+characters that are no letter, digit, `_` or `-` (`t/critic-2` and `xt/critic` do not name `t/critic`). The owner is
+asked before every launch, and `--launch` is a launch of its own, so it holds the same gate (V18 of the verifier). Then
+it reads the agent's entry in the registry and asks `claude agents --json --all` whether the agent has a session,
+matched as a round matches (its recorded session id or job id, else the newest row of its name in its `cwd` since the
+run's first `Yes:` line): a session found, or rows that cannot be read, give a line saying so, exit 1 and no launch, because a second session of one name is a copy. Then it
+runs `claude` from the agent's `cwd` with the argv of a watcher's fresh session: `--name`, `--add-dir`, the `common`
+flags, `--settings <file>`, the agent's pack with `--append-system-prompt-file`, `--bg` and the prompt, which is the
+first prompt of `references/launch.md` ("Your system prompt holds this lane's pack, your assignment included: follow
+it. Start now.") and the config's `lang`, followed by the agent's open `--order` orders with their Order lines. It is
+not the role's `fresh` text, which tells a session that the previous one handed over and ends by reading
+`handoff-<role>.md`, a note a first session does not have (V19 of the verifier); the `fresh` text stays the prompt of
+every later hand-over. The launch is logged as `first session of <agent> | <output tail>` and recorded in the registry:
+the agent's entry gets the `job_id` the launch printed and its `launched_at`, and every other entry and the running watcher's own block stay as that
+watcher wrote them (a missing registry is written whole). The line `launched <agent>: job <id>` and exit 0 end it;
+output without a `claude stop <id>` line records nothing and exits 1 (see `claude agents` before launching again). The
+running watcher reloads the config at its next round and adopts the session by name (`adopted <agent> <id> by name`,
+as it adopted a hand-launched one), because its memory holds no job id for the agent and its next write replaces the
+registry whole; a watcher started before that write finds the session by the recorded job id.
+`--dry-run` prints the command as one shell line, `(cd <cwd> && claude <argv>)`, and asks claude nothing, runs nothing
+and writes nothing; it checks the files, not the rows, so a session that exists shows only in the real launch. Exit 4
+is the watcher's: a settings file or a pack changed since the start of this command.
 
 | code | the watcher returns because |
 |---|---|

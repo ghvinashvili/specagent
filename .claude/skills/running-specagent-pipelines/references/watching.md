@@ -25,6 +25,25 @@ on its page under `scripts/docs/`, indexed in `scripts/README.md`.
   A pipeline that runs an older copy of the watcher moves at its next restart: `scripts/migrate_agents_json.py
   <run-dir>` writes its `_agents-v2.json`.
 
+### Adding a role mid-run
+The watcher launches a fresh session only for an agent it already has a session for, so a role added after the launch
+gets its first session from `--launch` (a project's run of 2026-11-02 added a visual auditor at 04:28 UTC, launched it
+by hand, and the watcher adopted it by name afterwards). In this order, each step because the next one reads it:
+1. Its entry in `agents.json` (`cwd`, `add_dirs`, `settings`, `status`, `final`, its own `extra_prompt` pack, which the
+   launch requires because the first prompt points at it) and a `fresh.<role>` text for its later hand-overs (the config
+   refuses a role without one). A first session does not get that text, because it says a previous session handed over.
+   The running watcher reloads the config at its next round (`config reloaded`) and keeps the run's state.
+2. Its settings file and its pack, built by `scripts/make_pack.py --no-note <run-dir>/_packs.json <role>`: the launch
+   refuses a missing file, so a session never starts without its pack.
+3. Its row in the table of `_launch.md` and, once the owner has said yes to that role, its `Yes:` line (the pre-flight,
+   `--launch` and the watcher's by-name match read them; `--launch` refuses an agent no `Yes:` line names, since the
+   owner is asked before every launch); `preflight.py check <run-dir> --checkout <checkout> --roles <agent> --yes` passes
+   (without `--yes` the pre-flight skips the `Yes:` check).
+4. `python3 -I scripts/watch_agents.py --launch <agent> --dry-run <config>` shows the command; the same without
+   `--dry-run` launches it with the argv of a fresh session and the first prompt of `launch.md`, and records the job id
+   in the registry: a watcher started afterwards finds the session by that id, the running one adopts it by name at its
+   next round. It refuses an agent that already has a session, since a second one is a copy.
+
 ### The duty list and the record monitor
 - `scripts/duty_list.py extract <plan-dir> --out <run-dir>/_control/duties.md`, after the index and before the launch:
   every merge the task table implies, every marker the prose names, every `Request point:` line of a task file and

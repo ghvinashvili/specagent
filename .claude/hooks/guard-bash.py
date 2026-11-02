@@ -9,6 +9,8 @@ into `sh`) is held by the sandbox of a role session and by the write gate, which
 (docs/decisions/0025; test_boundary_settings.py, test_closed_paths.py). The rules and the settings come from the main
 checkout (CLAUDE_PROJECT_DIR, mapped to the main checkout when it is a checkout); where the shell stands is the input's
 `cwd`. A hook that cannot decide refuses the call with exit 2: exit 1 would let it through (docs/decisions/0020).
+Arguments name the checks to run, and only those, whatever their `when`: a pipeline role's settings run
+`guard-bash.py relative_cd`.
 """
 
 import fnmatch
@@ -17,6 +19,7 @@ import json
 import os
 import re
 import shlex
+import subprocess
 import sys
 from pathlib import Path
 
@@ -162,7 +165,48 @@ def unreadable(commands, cwd: Path, root: Path, raw: str) -> bool:
     return commands is None
 
 
-CHECKS = {f.__name__: f for f in (inbox, run_files, git_sweep, unsandboxed, unreadable)}
+def worktree_top(cwd: Path) -> Path | None:
+    """The top folder of the linked git worktree the shell stands in; None in a main checkout or outside git."""
+    done = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(cwd),
+            "rev-parse",
+            "--path-format=absolute",
+            "--show-toplevel",
+            "--git-dir",
+            "--git-common-dir",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    lines = done.stdout.splitlines()
+    if done.returncode != 0 or len(lines) < 3:
+        return None
+    return Path(lines[0]).resolve() if Path(lines[1]).resolve() != Path(lines[2]).resolve() else None
+
+
+def relative_cd(commands, cwd: Path, root: Path, raw: str) -> bool:
+    """`cd` or `pushd` to a subfolder of the linked worktree the shell stands in, by a relative path, an absolute one or
+    one under `~`: the shell then stands there, and the sandbox lays /dev/null stubs (`.mcp.json`, `.claude/`) in the
+    folder a call starts in. `-`, a variable or a command substitution (the hook cannot resolve it), a home folder
+    that does not exist, the worktree's root and a folder outside the worktree pass."""
+    for argv in commands or []:
+        if not argv or argv[0] not in ("cd", "pushd"):
+            continue
+        words = [w for w in argv[1:] if w == "-" or not w.startswith("-")]
+        target = os.path.expanduser(words[0]) if words else ""
+        if not target or target == "-" or target.startswith("~") or "$" in target or "`" in target:
+            continue
+        top, dest = worktree_top(cwd), (cwd / target).resolve()
+        if top is not None and top in dest.parents and dest != cwd.resolve():
+            return True
+    return False
+
+
+CHECKS = {f.__name__: f for f in (inbox, run_files, git_sweep, unsandboxed, unreadable, relative_cd)}
 
 
 def main() -> int:
@@ -171,13 +215,19 @@ def main() -> int:
         return 0
     command = (data.get("tool_input") or {}).get("command", "")
     root = main_checkout(Path(os.environ["CLAUDE_PROJECT_DIR"]).resolve())
-    rules = json.loads((root / ".claude" / "hooks" / "guard-bash.json").read_text(encoding="utf-8"))
+    only = set(sys.argv[1:])  # a pipeline role's settings name the checks it runs (`guard-bash.py relative_cd`)
+    path = root / ".claude" / "hooks" / "guard-bash.json"
+    if only and not path.is_file():  # a named check without its rules file holds nothing: every call would be refused
+        return 0
+    rules = json.loads(path.read_text(encoding="utf-8"))
     in_role = bool(os.environ.get("HARNESS_RUN_DIR"))
     cwd = Path(data.get("cwd") or os.getcwd())
     commands = shellwords.simple_commands(command)
     texts = [command, *(shlex.join(argv) for argv in commands or [])]
     for rule in rules["deny"]:
-        if rule.get("when") == "role" and not in_role:  # a rule for role sessions only
+        if only and rule.get("check") not in only:
+            continue
+        if not only and rule.get("when") == "role" and not in_role:  # a rule for role sessions only
             continue
         if "pattern" in rule:
             hit = any(re.search(rule["pattern"], text) for text in texts)

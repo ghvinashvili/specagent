@@ -26,9 +26,22 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 SKILL = Path(__file__).resolve().parents[2]
+sys.dont_write_bytecode = True  # `python3 -I` ignores PYTHONDONTWRITEBYTECODE, and the import below would leave a cache
+sys.path.insert(0, str(SKILL / "scripts"))
+import make_pack  # the packs config and its frozen sections, read as `make_pack.py` reads them
+
 # Built from parts, so that no skill file spells a model name (Global Constraint 10).
 MODELS = ("fa" + "ble", "op" + "us", "son" + "net", "hai" + "ku")
 MODEL = re.compile(r"\b(?:" + "|".join(MODELS) + r")\b|--model\b", re.IGNORECASE)
+ALARM_WORDS = ("MUST", "NEVER", "ALWAYS", "CRITICAL", "IMPORTANT")  # the owner's five (order of 2026-11-02)
+# no letter or digit may touch a word (`\b` counts `_` as a word character and would pass `__NEVER__`, which is bold);
+# the `!` of `<!--` (a comment) and of `![` (an image) is no exclamation
+SHOUT = re.compile(r"(?<![A-Za-z0-9])(?:" + "|".join(ALARM_WORDS) + r")(?![A-Za-z0-9])|(?<!<)!(?!\[)")
+FENCE = re.compile(r"\s*(?:(`{3,})[^`]*|(~{3,}).*)$")  # three or more backticks (none after them) or tildes
+QUOTE = re.compile(r"\s*(?:(?:[-*+]|\d{1,9}[.)])\s+)*>")  # `>` opens the line, or follows list markers (`- > error`)
+HEADING = re.compile(r"\s*#{1,6}(?:\s|$)")  # a heading is a block of one line
+BLOCK = re.compile(r"\s*(?:\||[-*+]\s|\d{1,9}[.)]\s)")  # a table row or a list item starts a block
+TICKS = re.compile(r"(?<!`)`+(?!`)")  # a backtick string: backticks with no backtick before or after
 TEN = (
     "Read(~/.claude/projects/**)",
     "Read(/<run-dir>/_control/**)",
@@ -396,6 +409,105 @@ def check_briefs(st: State) -> Result:
     return script_result("briefs", catalogue, "briefs", st.run, "--checkout", st.checkout)
 
 
+def spans_masked(text: str) -> str:
+    """`text` with each code span (a backtick string up to the next one of the same length) turned to spaces; newlines
+    stay, so the lines still count the same."""
+    runs, out, pos, i = list(TICKS.finditer(text)), [], 0, 0
+    while i < len(runs):
+        size = len(runs[i].group())
+        close = next((j for j in range(i + 1, len(runs)) if len(runs[j].group()) == size), None)
+        if close is None:  # a backtick string with no partner is plain text
+            i += 1
+            continue
+        out += [text[pos : runs[i].start()], re.sub(r"[^\n]", " ", text[runs[i].start() : runs[close].end()])]
+        pos, i = runs[close].end(), close + 1
+    return "".join(out) + text[pos:]
+
+
+def shouting(text: str, first: int = 1) -> list[tuple[int, str]]:
+    """The (line, word) of each capitalised alarm word and exclamation mark in `text` outside code spans, fenced blocks
+    and `>` quotes (a quoted log line or error is not an order); `first` numbers the first line. A code span may wrap
+    over the lines of one block, which a blank line, a heading, a table row, a list item, a fence or a quote ends."""
+    hits, block, fence = [], [], ""
+
+    def end_block() -> None:
+        if block:
+            masked = spans_masked("\n".join(line for _, line in block)).split("\n")
+            for (n, _), row in zip(block, masked, strict=True):
+                hits.extend((n, m.group()) for m in SHOUT.finditer(row))
+            block.clear()
+
+    for number, line in enumerate(text.split("\n"), first):
+        stripped = line.strip()
+        if fence:  # a fence closes at a line of its own character, at least as long as the opening one
+            fence = "" if len(stripped) >= len(fence) and set(stripped) == {fence[0]} else fence
+            continue
+        opening = FENCE.match(line)
+        if opening or QUOTE.match(line) or not stripped:
+            end_block()
+            fence = (opening.group(1) or opening.group(2)) if opening else ""
+        else:
+            heading = HEADING.match(line)
+            if heading or BLOCK.match(line):
+                end_block()
+            block.append((number, line))
+            if heading:
+                end_block()
+    end_block()
+    return hits
+
+
+def pack_roles(st: State) -> set[str]:
+    """The `_packs.json` roles of the checked agents: the last part of the agent's name (`demo/planner` is `planner`)
+    and the role in the file name of its pack (`_pack-<role>.md`)."""
+    roles = set()
+    for agent in st.roles:
+        roles.add(agent.rsplit("/", 1)[-1])
+        extra = st.agents[agent].get("extra_prompt")
+        pack = extra.get("file") if isinstance(extra, dict) else None
+        named = re.fullmatch(r"_pack-(.+)\.md", Path(pack).name) if isinstance(pack, str) else None
+        if named:
+            roles.add(named[1])
+    return roles
+
+
+def check_wording(st: State) -> Result:
+    """The files `_packs.json` freezes into the checked roles' packs (a hand-over note is none) and the lessons file's
+    frozen sections hold no capitalised alarm word and no exclamation mark outside code, fences and quotes (owner,
+    2026-11-02): an order gives its reason in a clause, and capitals make a model over-apply it. A pack already
+    running is not rewritten, so this holds from the next pack."""
+    path = Path(st.run, "_packs.json")
+    if not path.is_file():
+        return Result("SKIP", "wording", None, "no _packs.json in the run folder, so no file is known to be frozen")
+    try:
+        cfg = make_pack.load(path, no_note=True)
+    except make_pack.PackError as exc:
+        return Result("FAIL", "wording", None, str(exc))
+    checked = pack_roles(st)
+    names = list(dict.fromkeys(name for role, files in cfg["roles"].items() if role in checked for name in files))
+    if not any(role in checked for role in cfg["roles"]):
+        return Result("SKIP", "wording", None, "no checked role has files in _packs.json")
+    run, hits, count = Path(st.run), [], 0
+    for name in names:
+        if (run / name).is_file():
+            count += 1
+            text = (run / name).read_text(encoding="utf-8", errors="replace")
+            hits += [f"{name}:{n} {word}" for n, word in shouting(text)]
+    lessons = run / cfg["lessons"]
+    if lessons.is_file():
+        count += 1
+        text = lessons.read_text(encoding="utf-8", errors="replace")
+        for title in cfg["sections"]:
+            body = make_pack.section(text, title)
+            if body:  # the section's lines count from its heading
+                start = text[: text.find(body)].count("\n") + 1
+                hits += [f"{cfg['lessons']}:{n} {word}" for n, word in shouting(body, start)]
+    hits = list(dict.fromkeys(hits))
+    shown = ", ".join(hits[:10]) + (f" and {len(hits) - 10} more" if len(hits) > 10 else "")
+    problems = [f"{len(hits)} capitalised alarm words or exclamation marks in pack files: {shown}"] if hits else []
+    return verdict("wording", None, problems, f"no capitalised alarm word or exclamation mark in {count} pack files")
+
+
 def check_formats(st: State) -> Result:
     return script_result("formats", st.args.formats or str(SKILL / "scripts" / "check_formats.py"), st.run)
 
@@ -638,6 +750,7 @@ def run_check(a: argparse.Namespace) -> int:
         run_wide = (
             check_waiters,
             check_briefs,
+            check_wording,
             check_formats,
             check_monitor,
             check_disk,

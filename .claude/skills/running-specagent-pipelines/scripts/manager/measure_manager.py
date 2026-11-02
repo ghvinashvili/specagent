@@ -8,7 +8,9 @@ subtype `compact_boundary`; its hand-off is the newest `*-handoff.md` directly i
 after the compaction before (for the first: the transcript's first timestamp) and at or before the compaction, every
 time in UTC. An item of the lessons page is a line `<n>. <trigger> -> <rule>; cost measured <cost>; <YYYY-MM-DD>,
 <record>` at the line start (more `; <YYYY-MM-DD>, <record>` firings may follow, the arrow may be U+2192, and an
-indented non-blank line right after it continues it); its numbers may have gaps and are never reused.
+indented non-blank line right after it continues it); its numbers may have gaps and are never reused. Two states
+say that a number is missing and are valid: `cost unmeasured` in place of the measured cost, and `no record` in place of
+a firing's file; `lessons` reports them as `unmeasured: <n>` with the items' numbers.
 
   python3 -I scripts/manager/measure_manager.py first-call TRANSCRIPT... [--limit 30000]
   python3 -I scripts/manager/measure_manager.py calls TRANSCRIPT [--cap 200000] [--handoff-dir DIR]
@@ -35,7 +37,9 @@ import usage_report as ur
 
 ITEM = re.compile(r"(\d+)\. (.*)")  # an item of the lessons page, matched at the line start
 ARROW = re.compile(" (?:->|" + chr(0x2192) + ") ")  # the form's "->" or the spec's U+2192, a space on each side
-COST = re.compile(r"; cost measured [^;]*\d")  # the measured cost holds a digit before the next ";"
+COST = re.compile(r"; cost (?:measured [^;]*\d|unmeasured\b)")  # a digit before the next ";", or said unmeasured
+UNMEASURED = re.compile(r"; cost unmeasured\b")
+NO_RECORD = "no record"
 FIRING = re.compile(r"; (\d{4}-\d{2}-\d{2}), ([^;]*)")  # one firing of an item: its date and its record
 FILE_NAME = re.compile(r"\w\.[A-Za-z]\w*")  # a record names a file
 CITED = re.compile(r"\S+:\d+")  # the one `<file>:<line>` token of a Checklist: line
@@ -177,9 +181,19 @@ def item_problems(text: str) -> list[str]:
         problems.append('no "<trigger> -> <rule>"')
     if not COST.search(text):
         problems.append('no "cost measured" with a number')
-    if not firings or not all(FILE_NAME.search(record) for _, record in firings):
+    if not firings or not all(FILE_NAME.search(record) or no_record(record) for _, record in firings):
         problems.append('no "<date>, <record>" with a file')
     return problems
+
+
+def no_record(record: str) -> bool:
+    """Whether a firing says its record was not kept (`no record`)."""
+    return record.strip().lower().startswith(NO_RECORD)
+
+
+def unmeasured(found: list[tuple[int, int, str]]) -> list[int]:
+    """The numbers of the items whose cost or one of whose records is said to be missing."""
+    return [n for _, n, text in found if UNMEASURED.search(text) or any(no_record(r) for _, r in FIRING.findall(text))]
 
 
 def since_lines(found: list[tuple[int, int, str]], since: str) -> list[str]:
@@ -216,7 +230,9 @@ def lessons(args: argparse.Namespace) -> int:
         problems.append(f"page: bytes {len(data)}, not under {args.max_bytes}")
     verdict = "fail" if problems else "pass"
     print(f"{args.page}: bytes {len(data)}, items {len(found)}, problems {len(problems)}: {verdict}")
-    for line in problems + (since_lines(found, args.since) if args.since else []):
+    missing = unmeasured(found)
+    counted = [f"unmeasured: {len(missing)} (items {', '.join(map(str, missing))})"] if missing else []
+    for line in problems + counted + (since_lines(found, args.since) if args.since else []):
         print(line)
     return 1 if problems else 0
 

@@ -57,7 +57,9 @@ the ones above, run in this order:
    `calls <transcript> --handoff-dir <container>/docs/handoff` (no call over 200,000 tokens, and a hand-off written
    before each compaction), `reads <transcript> decisions/global/manager-lessons.md` (the lessons page read in one of
    the first five calls) and `lessons <vault>/decisions/global/manager-lessons.md --since <the run's first day>` (the
-   items added, the items fired again with their counts, the recurrences).
+   items added, the items fired again with their counts, the recurrences). An item whose cost reads
+   `cost unmeasured`, or whose firing has `no record`, counts as unmeasured, and `lessons` prints
+   `unmeasured: <n> (items …)` for them.
 6. `scripts/manager/measure_manager.py checklist <run>/critique.md <run>/verify.md`: the findings per `Checklist:`
    item, highest first; an item that two findings cite is a shared cause, promoted by hand to a rule (spec 7.6).
 7. `scripts/manager/score_run.py <run-dir> --prefix <run>/ --since <date>`: the last row of its output is the economy
@@ -68,8 +70,10 @@ the ones above, run in this order:
    copies 0, a lower cost per unit and escaped 0; a fall in findings per unit is explained on that page. A cell is
    `n/a` when its source is missing (the transcripts for the cost and the cache write, `_watch.log` or
    `_control/watch.out` for the copies).
-7b. `scripts/lessons_report.py <run-dir> [<earlier run-dir> ...] --transcript <the manager's transcript>`: each lesson's
-   recurrences (findings that name it with `Lesson:` or cite it as `Checklist:` and are not its sources) per 10 units,
+7b. `scripts/lessons_report.py <run-dir> [<earlier run-dir> ...] --repo <the run's checkout> --transcript <the manager's
+   transcript>`: each lesson's recurrences (findings that name it with `Lesson:` or cite it as `Checklist:` and are not
+   its sources; one whose erring session started before the lesson's `added` time is listed as not held and not counted)
+   per 10 units,
    the lessons broken twice (made code next, vault a-rule-broken-twice-becomes-code), the carried classes' recurrences
    per 10 units (the measured effect of earlier runs and the vault on the roles), the lessons no finding names
    (unmeasured, never reported as working), across runs one row per lesson, and the vault pages the manager read. Every

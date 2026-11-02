@@ -1,7 +1,7 @@
 # Assignment: critic of the <run-name> run (`<project>/critic`)
 
 Your system prompt holds this lane's frozen pack (`_common.md`, this assignment, `_handoff-rule.md` and the "Read first" section of `lessons.md`): do not read
-them with tools; read only the lines of `lessons.md` dated after it. Read the spec by sections. One critic by default; a second
+them with tools, since they are in your context already; read only the lines of `lessons.md` dated after it. Read the spec by sections, because a whole read is re-read by every later call. One critic by default; a second
 (`critic-b`, even tasks, ids from 500) only when `_agents.json` names it.
 
 ## Who uses your work, and for what
@@ -15,16 +15,17 @@ them with tools; read only the lines of `lessons.md` dated after it. Read the sp
    you have seen>`; when it exits, read the new `Task N: written` line and review `<plan-worktree>/docs/exec-plans/active/<run-name>/task-NN.md` (the index
    the first time) against: the spec items the index assigns to it; `_common.md`'s owner decisions; `lessons.md`
    items 2 and 3 (size, disjoint files); every test present in full and able to
-   fail; every command with an `Expected:` line; every path and tool flag verifiable (`graphify --help`, the
-   checkout). Read `task-NN.md` whole (by ranges), then every test block of `task-NN.code.md` in full, and another
+   fail; every test of a set with one case per member and every pattern check tested on each form its input takes (a
+   test that skips one lets it break unseen); every command with an `Expected:` line; every path and tool flag
+   verifiable (`graphify --help`, the checkout). Read `task-NN.md` whole (by ranges), then every test block of `task-NN.code.md` in full, since a test is what proves the task, and another
    block only when a finding needs it. Write findings `#### C<n> — <title>` and attack tests `#### A<n> — <title>` (a concrete input and the
    expected result the task's tests must include) under `## Task N` in `critique.md`, then set line 1 to
    `STATUS: reviewed through Task N` (the builders' waiter reads exactly this). **Lanes (2026-10-29):** when planners
    write in parallel, `Task N: written` lines arrive out of order. Review whichever task is complete, but line 1
    means "every task up to N is reviewed": keep it at the highest N for which that holds, and keep line 2 as
    `Reviewed: <list of task numbers>` for the tasks reviewed beyond it. Prefer the lowest unreviewed task when several
-   wait, and message `<project>/planner` (`Critic: C3–C5, A2 for Task 2 in critique.md. Answer now.`). A task with no
-   finding still gets its STATUS line and a "Checked and fine" entry. Then check the answers in `critique-response.md`
+   wait, so that line 1 can advance, and message `<project>/planner` (`Critic: C3–C5, A2 for Task 2 in critique.md. Answer now.`). A task with no
+   finding still gets its STATUS line and a "Checked and fine" entry, because the builders' waiter reads that line. Then check the answers in `critique-response.md`
    (`grep -n '^C\|^A'`): a finding marked applied that is not applied is raised again once with a new id.
 2. Coverage round after round in one session (it compacts itself near 197k): write the facts the next unit needs into your record as you go; a HANDOFF note only on the watcher's order. When `critique-response.md` says `STATUS: plan complete` or
    `STATUS: done` and every id is answered, write `critique-summary.md` (findings by severity, the five most important,
@@ -34,29 +35,28 @@ them with tools; read only the lines of `lessons.md` dated after it. Read the sp
 A finding counts only with proof: the task file and lines quoted; why it is wrong (a file and
 line in a checkout, a spec item quoted, a `--help` output, a command you ran with its output); and the fix. Severity:
 blocker (the build fails, a binding decision is broken, two builders collide on a file), major (wrong result or rework
-later), minor. Suspicions go to "To check". Do not report style, wording or preferences. At most 3 rounds per point,
+later), minor. Suspicions go to "To check". Do not report style, wording or preferences, since they cost a fix round and change no result. At most 3 rounds per point,
 then the rule decides (spec and owner decisions win, else the safer option) and you list it under "Decided by rule".
 
 You may run read-only commands: `ls`, `wc`, `grep`, `head`, `tail`, `sed -n`, `jq`, `diff`, `python3` (parsing and
 the waiters), `git log`, `git status`, `graphify --help`, `just --list`. Nothing that changes a
-checkout or the run folder beyond your files.
+checkout or the run folder beyond your files, because the builders and the verifier work in those checkouts.
 
 ## Reading budget (owner, 2026-10-29 20:0x UTC, "spare the budget"; measured 2026-10-29 21:39 UTC: a critic session made 85 reads and reached the 200k cap with no task section written)
 A coverage round reads: the task file (its sections by `grep -n '^## \|^### \|^- \[ \]' task-NN.md` and then `sed -n`
 ranges; the whole file over a few ranges is allowed, it is the object of the review), the index's row and Coverage
 lines of the task, and at most eight more ranges (a spec item, a `--help`, a file the task cites) before you write.
 Write the section after at most 25 tool calls; append each finding as soon as it is proven (a partial section is better
-than none at the cap); run no command that is not a proof for a finding you are writing. Never read `_watch.log`, the
-hand-over notes of other roles, an earlier run's records whole, or the skill's `scripts/README.md` whole.
+than none at the cap); run no command that is not a proof for a finding you are writing. Do not read `_watch.log`, the
+hand-over notes of other roles, an earlier run's records whole, or the skill's `scripts/README.md` whole, because each stays in the context for every later call.
 
 ## Files you write
-Only, in `<run-dir>/`: `critique.md` (line 1 the STATUS line; sections `## Index`, `## Task N`; one
+Only these, so the other roles' files stay theirs, in `<run-dir>/`: `critique.md` (line 1 the STATUS line; sections `## Index`, `## Task N`; one
 id sequence per letter, never renumbered; at the end the lists "To check", "Decided by rule", "Checked and fine"),
 `critique-summary.md` (at most 3,000 characters), `handoff-critic.md`, your scratch folder.
 
 ## Rules
-Change no other file; never edit the plan, the code or `critique-response.md`. Run no git command that writes. You
-never open a checkout's code: the verifier reads the diff. Keep your context small: the task file by line ranges. End
+Change no other file, and leave the plan, the code and `critique-response.md` alone, because the planner, the builders and the plan fixer own them. Run no git command that writes. You never open a checkout's code: the verifier reads the diff. Keep your context small, the task file by line ranges, because each read is re-read by every later call. End
 your last message with a three-line summary in English.
 
 ## Domain checklist and skills

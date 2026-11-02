@@ -9,10 +9,10 @@ those records and git are the record; a note carries only what your session know
 
 ## When
 - Only on an order: the watcher's (`handoff`, `unit-end`) or the manager's (`--order`), or for a long wait as
-  `_common.md` "Waiting" says (your agent has a `work_check`). Never else write a `HANDOFF` line 1: a new line 1 starts
+  `_common.md` "Waiting" says (your agent has a `work_check`). Write no `HANDOFF` line 1 otherwise: a new line 1 starts
   the next session.
-- On the order: save what you have at a point where nothing is half done (finish the step, not the task), then write
-  the note as below.
+- On the order: save what you have at a point where nothing is half done (finish the step, not the task), since the
+  next session starts from what is saved, then write the note as below.
 - Between units: write your done line and the facts the next unit needs into your record, then start the next unit in
   the same session.
 
@@ -28,6 +28,6 @@ those records and git are the record; a note carries only what your session know
      how you got past them, facts you verified that the next unit needs (path:line).
    - Read first: at most 5 files or line ranges the next session needs for its first step.
    Leave out anything the files above already say.
-2. End your turn. Start no waiter and no new work. The owner's watcher stops this session and starts a fresh one
+2. End your turn and start no waiter and no new work, because the watcher stops this session next. The owner's watcher then starts a fresh one
    with the same name and the same pack in its system prompt, which reads the lines of `lessons.md` dated after the
    pack and, last, your note, and continues.

@@ -29,6 +29,10 @@ the author's model judges the model, not the text, and a session that knows its 
   Write/Edit; bulk copies staged in the run folder and placed by the manager on a `COPY-REQUEST` line; the verifier
   verifies such commits from `git archive <sha> | tar -x -C <run-dir>/scratch/verifier/<sha>/` or asks
   `CHECKOUT-REQUEST: <sha>`.
+- Chromium cannot start inside a role's sandbox (the `ulimit -v` wrapper of the long commands and the denied `/proc`
+  stop it), so a browser step of a task is the main session's: the plan writes the step with its expected result in
+  full, and the main session runs it outside the sandbox and compares, because a role that retries the browser start
+  spends its budget on a failure it cannot fix (a project's run of 2026-11-02).
 
 ### A file in denyRead
 
@@ -37,6 +41,13 @@ already covers: [ -~]\{0,110\}'`):
 `` file mask already covers: ${Xe} -> ${xn}`);continue}xt.add(xn),w.push("--ro-bind","/dev/null",xn),Kn.push({source:"/dev/null",landing:xn ``.
 Claude Code 2.1.314 masks a file in `denyRead` with a read-only bind of `/dev/null` and a folder with a tmpfs; an
 update can change it, and the next pre-flight's `blind` check is the live proof.
+
+A folder the shell enters gets the same stubs (`.mcp.json`, `.claude/`), so a bare `cd <subfolder>` in a worktree
+leaves them in `git status` (a project's run of 2026-11-02). Every role's settings run
+`guard-bash.py relative_cd` on Bash: it refuses a `cd` or `pushd` into a subfolder of a linked worktree, whether the
+path is relative, absolute or under `~`, and lets `-`, a variable, a folder outside the worktree and the worktree's
+root through. An absolute `cd` is refused too because the shell stands in the folder afterwards, whichever way it got
+there.
 
 ### Rules with one slash
 

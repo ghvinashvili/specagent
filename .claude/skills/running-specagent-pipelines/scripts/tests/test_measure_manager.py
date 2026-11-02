@@ -327,3 +327,24 @@ def test_the_readme_and_the_forms_carry_the_tool_s_contract():
         assert "forms/manager-lessons.md" in text and "forms/learning-record.md" in text, name
     r = run("lessons", vault / "forms" / "manager-lessons.md")
     assert r.returncode == 0 and r.stdout.endswith(", items 0, problems 0: pass\n")
+
+
+def test_cost_unmeasured_and_no_record_are_valid_and_counted_as_unmeasured(tmp_path):
+    """The vault's page says a missing number so (45f626b, 7442b34): `cost unmeasured` and a firing's `no record` pass
+    the form and are reported as unmeasured, never as a cost or a file."""
+    body = (
+        "1. T1 -> R1; cost measured 5 min; 2026-10-29, a/lessons.md:1\n"
+        "2. T2 -> R2; cost unmeasured; 2026-10-31, a/verify.md:779\n"
+        "3. T3 -> R3; cost measured an alarm after 15 min; 2026-10-31, no record\n"
+        "4. T4 -> R4; cost unmeasured; 2026-10-31, no record\n"
+        "5. T5 -> R5; cost unknown; 2026-10-31, nothing kept\n"
+    )
+    path = page(tmp_path, body)
+    r = run("lessons", path)
+    assert r.returncode == 1
+    assert r.stdout.splitlines() == [
+        f"{path}: bytes {len((FRONT + body).encode())}, items 5, problems 2: fail",
+        'line 12: item 5: no "cost measured" with a number',
+        'line 12: item 5: no "<date>, <record>" with a file',
+        "unmeasured: 3 (items 2, 3, 4)",
+    ]
