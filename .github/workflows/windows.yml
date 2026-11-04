@@ -18,7 +18,7 @@ jobs:
     steps:
       - run: git config --global core.autocrlf false
         shell: pwsh
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: Vampire/setup-wsl@v5
         with:
           distribution: Ubuntu-24.04
