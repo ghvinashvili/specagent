@@ -13,7 +13,7 @@ jobs:
       - uses: lycheeverse/lychee-action@v2
         with:
           args: --config lychee.toml .
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install uv && uv sync && uv run harness docs-check
